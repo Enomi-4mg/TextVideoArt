@@ -38,6 +38,23 @@ def print_manifest_summary(manifest: dict) -> None:
     print(f"Frame format: {manifest.get('frame_format')}")
 
 
+def print_markers(manifest: dict) -> None:
+    markers = manifest.get("markers")
+    if not markers:
+        print("Markers: none")
+        return
+
+    print("Markers:")
+    for marker in markers:
+        frame = marker.get("frame")
+        label = marker.get("label")
+        if type(frame) is int:
+            frame_text = f"{frame:06d}"
+        else:
+            frame_text = str(frame)
+        print(f"  {frame_text} {label}")
+
+
 def print_info(path: Path) -> int:
     try:
         manifest = read_manifest(path)
@@ -48,7 +65,7 @@ def print_info(path: Path) -> int:
     return 0
 
 
-def print_inspect(path: Path, as_json: bool = False) -> int:
+def print_inspect(path: Path, as_json: bool = False, markers: bool = False) -> int:
     try:
         manifest = read_manifest(path)
     except (FileNotFoundError, KeyError, zipfile.BadZipFile, UnicodeDecodeError, ValueError):
@@ -56,6 +73,8 @@ def print_inspect(path: Path, as_json: bool = False) -> int:
 
     if as_json:
         print(json.dumps(manifest, ensure_ascii=False, indent=2))
+    elif markers:
+        print_markers(manifest)
     else:
         print_manifest_summary(manifest)
     return 0

@@ -1,0 +1,212 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+.file-button,
+input[type="number"] {
+  border: 1px solid #00ff66;
+  border-radius: 0;
+  background: #000;
+  color: #00ff66;
+}
+
+button,
+.file-button {
+  min-height: 32px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.app-shell,
+.player-surface {
+  min-height: 100vh;
+}
+
+.player-surface {
+  position: relative;
+  overflow: hidden;
+}
+
+.player-surface.is-dragging {
+  outline: 2px solid #00ff66;
+  outline-offset: -8px;
+}
+
+.frame-output {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  white-space: pre;
+  color: #fff;
+  background: #000;
+  font: 14px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.overlay-actions {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+}
+
+.overlay {
+  position: fixed;
+  z-index: 2;
+  border: 1px solid #00ff66;
+  background: #000;
+  color: #00ff66;
+}
+
+.controls-overlay {
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto auto auto minmax(120px, 1fr) auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+}
+
+.overlay.is-hidden {
+  display: none;
+}
+
+.file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status.is-error {
+  text-decoration: underline;
+}
+
+.frame-counter {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+input[type="range"] {
+  width: 100%;
+  min-width: 0;
+}
+
+.numeric-control,
+.toggle-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.numeric-control input {
+  width: 64px;
+  min-height: 32px;
+  padding: 0 6px;
+}
+
+.manifest-overlay {
+  top: 48px;
+  right: 8px;
+  width: min(360px, calc(100vw - 16px));
+  max-height: calc(100vh - 112px);
+  overflow: auto;
+}
+
+.details {
+  padding: 12px;
+  border-bottom: 1px solid #00ff66;
+}
+
+.details:last-child {
+  border-bottom: 0;
+}
+
+h1,
+h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.metadata {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 6px 10px;
+  font-size: 13px;
+}
+
+.metadata dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.markers {
+  display: grid;
+  gap: 6px;
+}
+
+.marker-button {
+  width: 100%;
+  text-align: left;
+}
+
+.empty-state {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .frame-output {
+    font-size: 11px;
+  }
+
+  .controls-overlay {
+    grid-template-columns: auto auto auto;
+    max-height: 45vh;
+    overflow: auto;
+  }
+
+  .status,
+  input[type="range"],
+  .frame-counter,
+  .numeric-control,
+  .toggle-control {
+    grid-column: 1 / -1;
+  }
+}

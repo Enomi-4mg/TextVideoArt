@@ -48,6 +48,32 @@ class CLITests(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertEqual(json.loads(stdout.getvalue())["format"], "TVA")
 
+    def test_inspect_prints_markers(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            manifest = valid_manifest()
+            manifest["markers"] = [
+                {"frame": 0, "label": "intro"},
+                {"frame": 1, "label": "ending"},
+            ]
+            write_tva(
+                input_path,
+                {
+                    "manifest.json": json.dumps(manifest),
+                    frame_path(0): "abc\nabc\n",
+                    frame_path(1): "abc\nabc\n",
+                },
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                result = main(["inspect", str(input_path), "--markers"])
+
+            self.assertEqual(result, 0)
+            self.assertIn("Markers:", stdout.getvalue())
+            self.assertIn("  000000 intro", stdout.getvalue())
+            self.assertIn("  000001 ending", stdout.getvalue())
+
     def test_unpack_extracts_archive(self) -> None:
         with TemporaryDirectory() as tmp:
             input_path = Path(tmp) / "sample.tva"

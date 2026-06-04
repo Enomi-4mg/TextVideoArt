@@ -38,9 +38,27 @@ REQUIRED_FIELDS = {
 OPTIONAL_FIELDS = {
     "title": str,
     "created_by": str,
+    "author": str,
+    "description": str,
+    "license": str,
+    "created_at": str,
+    "tags": list,
+    "source": dict,
+    "conversion": dict,
+    "markers": list,
 }
 
 ReadText = Callable[[str], str]
+
+
+def field_type_error(field: str, expected_type: type) -> str:
+    type_name = {
+        str: "string",
+        list: "array",
+        dict: "object",
+    }[expected_type]
+    article = "an" if type_name[0] in "ao" else "a"
+    return f"manifest field {field} must be {article} {type_name}"
 
 
 def validate_manifest(manifest: dict[str, Any]) -> list[str]:
@@ -65,7 +83,7 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
 
     for field, expected_type in OPTIONAL_FIELDS.items():
         if field in manifest and not isinstance(manifest[field], expected_type):
-            errors.append(f"manifest field {field} must be a string")
+            errors.append(field_type_error(field, expected_type))
 
     if errors:
         return errors
@@ -98,6 +116,33 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         errors.append('frame_format must be "plain_text"')
     if manifest["frames_path"] != "frames/":
         errors.append('frames_path must be "frames/"')
+    errors.extend(validate_optional_metadata(manifest))
+
+    return errors
+
+
+def validate_optional_metadata(manifest: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+
+    if "tags" in manifest:
+        for index, tag in enumerate(manifest["tags"]):
+            if not isinstance(tag, str) or tag == "":
+                errors.append(f"manifest field tags[{index}] must be a non-empty string")
+
+    if "markers" in manifest:
+        frame_count = manifest["frame_count"]
+        for index, marker in enumerate(manifest["markers"]):
+            if not isinstance(marker, dict):
+                errors.append(f"manifest field markers[{index}] must be an object")
+                continue
+            label = marker.get("label")
+            if not isinstance(label, str) or label == "":
+                errors.append(f"manifest field markers[{index}].label must be a non-empty string")
+            frame = marker.get("frame")
+            if type(frame) is not int:
+                errors.append(f"manifest field markers[{index}].frame must be an integer")
+            elif frame < 0 or frame >= frame_count:
+                errors.append(f"manifest field markers[{index}].frame must be between 0 and {frame_count - 1}")
 
     return errors
 

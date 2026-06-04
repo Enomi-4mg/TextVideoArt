@@ -9,10 +9,14 @@ TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-
 - Convert video files to monochrome ASCII/text art frames.
 - Play `.tva` files in a terminal.
 - Print `.tva` metadata.
-- Inspect `.tva` metadata as a summary or JSON.
+- Inspect `.tva` metadata as a summary, JSON, or marker list.
 - Validate `.tva` archives and extracted project directories.
 - Extract `.tva` archives to normal directories.
 - Unpack, edit, validate, and pack `.tva` project directories.
+- Store optional artwork metadata and frame-based timeline markers.
+- Export `.tva` files to standalone HTML players.
+- Load and play `.tva` files directly in the browser with the static Web Player.
+- Control playback from external browser code with the `TvaPlayer` API.
 - Allow unknown extra ZIP files and manifest fields for forward compatibility.
 
 ## Installation
@@ -49,12 +53,16 @@ tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
 tvart inspect output.tva --json
+tvart inspect output.tva --markers
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
 tvart unpack output.tva ./project
 tvart pack ./output edited.tva
+tvart export html edited.tva -o edited.html
 ```
+
+The static Web Player lives at `web/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
 
 ## `.tva` file structure
 
@@ -86,6 +94,25 @@ Frame files are UTF-8 plain text. Each frame has exactly the same width and heig
   "duration": 24.0,
   "charset": " .:-=+*#%@",
   "invert": false,
+  "author": "anonymous",
+  "description": "A short text video demo.",
+  "license": "CC BY 4.0",
+  "tags": ["ascii-art", "demo"],
+  "source": {
+    "type": "video",
+    "filename": "input.mp4"
+  },
+  "conversion": {
+    "width": 100,
+    "fps": 10,
+    "charset": " .:-=+*#%@",
+    "invert": false
+  },
+  "markers": [
+    { "frame": 0, "label": "intro" },
+    { "frame": 120, "label": "main" },
+    { "frame": 239, "label": "ending" }
+  ],
   "encoding": "utf-8",
   "color_mode": "none",
   "frame_format": "plain_text",
@@ -134,10 +161,11 @@ Inspects `.tva` metadata. By default this prints the same human-readable summary
 Options:
 
 - `--json`
+- `--markers`
 
 ### `tvart validate output.tva`
 
-Validates the TVA v0.1.0 MVP structure, manifest, frame list, encoding, and frame dimensions.
+Validates the TVA v0.1.0 MVP structure, manifest, optional metadata, markers, frame list, encoding, and frame dimensions.
 The input may be either a `.tva` ZIP archive or an extracted project directory.
 
 ### `tvart extract output.tva ./output`
@@ -160,13 +188,48 @@ Options:
 
 - `--overwrite`
 
+### `tvart export html output.tva -o output.html`
+
+Exports a `.tva` archive to a standalone HTML player. The generated file embeds the manifest and plain-text frames, so it can be opened directly in a browser. Exported players use the same full-frame green overlay UI as the static Web Player.
+
+Options:
+
+- `-o`, `--output`
+- `--overwrite`
+
+## Web Player
+
+`web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
+
+The Web Player keeps the frame view full-screen and uses green overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
+
+The player uses JSZip from a CDN to read ZIP-based `.tva` archives in the browser. The generated `export html` files remain self-contained and do not use external JavaScript.
+
+## Player API
+
+The browser playback core is available as `TvaPlayer` in `web/src/lib/player-api.js`, with TypeScript declarations in `web/src/lib/player-api.d.ts`.
+
+```js
+import { TvaPlayer } from "./web/src/lib/player-api.js";
+
+const player = new TvaPlayer();
+player.load({ manifest, frames });
+player.on("framechange", ({ index, frame }) => {
+  console.log(index, frame);
+});
+player.play();
+player.seekFrame(120);
+player.pause();
+```
+
+Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, and `on`.
+
 ## MVP limitations
 
 - Monochrome plain text frames only.
 - No color.
 - No audio.
 - No subtitles.
-- No Web playback.
 - No delta compression.
 - Unicode display width is not calculated; validation uses `len(line)`.
 
@@ -175,9 +238,9 @@ Options:
 - Color text frames.
 - Audio tracks.
 - Subtitle tracks.
-- Web playback.
+- Color layers.
 - Delta compression.
-- Richer metadata and preview tooling.
+- Preview tooling.
 
 ## License
 

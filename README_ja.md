@@ -9,10 +9,14 @@
 - 動画ファイルをモノクロのASCII/テキストアートフレームに変換できます。
 - `.tva` ファイルをターミナルで再生できます。
 - `.tva` のメタデータを表示できます。
-- `.tva` のメタデータを概要またはJSONで確認できます。
+- `.tva` のメタデータを概要、JSON、マーカー一覧で確認できます。
 - `.tva` アーカイブと展開済みプロジェクトディレクトリを検証できます。
 - `.tva` アーカイブを通常のディレクトリへ展開できます。
 - `.tva` を展開、編集、検証し、再度 `.tva` にパックできます。
+- 作品メタデータとフレーム単位のタイムラインマーカーを保存できます。
+- `.tva` ファイルを単体HTMLプレイヤーへ書き出せます。
+- 静的Web Playerで `.tva` ファイルをブラウザから直接読み込んで再生できます。
+- `TvaPlayer` APIで外部のブラウザコードから再生を制御できます。
 - 将来互換性のため、ZIP内の未知の追加ファイルやmanifestの未知フィールドは許容します。
 
 ## インストール
@@ -49,12 +53,16 @@ tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
 tvart inspect output.tva --json
+tvart inspect output.tva --markers
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
 tvart unpack output.tva ./project
 tvart pack ./output edited.tva
+tvart export html edited.tva -o edited.html
 ```
+
+静的Web Playerは `web/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
 
 ## `.tva` ファイル構造
 
@@ -86,6 +94,25 @@ sample.tva
   "duration": 24.0,
   "charset": " .:-=+*#%@",
   "invert": false,
+  "author": "anonymous",
+  "description": "A short text video demo.",
+  "license": "CC BY 4.0",
+  "tags": ["ascii-art", "demo"],
+  "source": {
+    "type": "video",
+    "filename": "input.mp4"
+  },
+  "conversion": {
+    "width": 100,
+    "fps": 10,
+    "charset": " .:-=+*#%@",
+    "invert": false
+  },
+  "markers": [
+    { "frame": 0, "label": "intro" },
+    { "frame": 120, "label": "main" },
+    { "frame": 239, "label": "ending" }
+  ],
   "encoding": "utf-8",
   "color_mode": "none",
   "frame_format": "plain_text",
@@ -134,10 +161,11 @@ sample.tva
 オプション:
 
 - `--json`
+- `--markers`
 
 ### `tvart validate output.tva`
 
-TVA v0.1.0 MVPの構造、manifest、フレーム一覧、エンコーディング、フレーム寸法を検証します。
+TVA v0.1.0 MVPの構造、manifest、任意メタデータ、マーカー、フレーム一覧、エンコーディング、フレーム寸法を検証します。
 入力には `.tva` ZIPアーカイブまたは展開済みプロジェクトディレクトリを指定できます。
 
 ### `tvart extract output.tva ./output`
@@ -160,13 +188,48 @@ ZIPアーカイブの内容をディレクトリへ展開します。
 
 - `--overwrite`
 
+### `tvart export html output.tva -o output.html`
+
+`.tva` アーカイブを単体HTMLプレイヤーへ書き出します。生成されたHTMLにはmanifestとプレーンテキストフレームが埋め込まれるため、ブラウザで直接開けます。書き出されたプレイヤーは、静的Web Playerと同じ全画面フレーム表示と緑のオーバーレイUIを使います。
+
+オプション:
+
+- `-o`, `--output`
+- `--overwrite`
+
+## Web Player
+
+`web/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
+
+Web Playerはフレーム表示を全画面に置き、操作ボタンとmanifest詳細は緑のオーバーレイとして表示します。`Controls` と `Manifest` ボタンで表示/非表示を切り替えられます。
+
+ブラウザ上でZIPベースの `.tva` アーカイブを読むため、Web PlayerはCDN上のJSZipを使用します。一方、`export html` で生成するHTMLは引き続き外部JavaScriptなしの単体ファイルです。
+
+## Player API
+
+ブラウザ用の再生コアは `web/src/lib/player-api.js` の `TvaPlayer` として利用できます。TypeScript宣言は `web/src/lib/player-api.d.ts` にあります。
+
+```js
+import { TvaPlayer } from "./web/src/lib/player-api.js";
+
+const player = new TvaPlayer();
+player.load({ manifest, frames });
+player.on("framechange", ({ index, frame }) => {
+  console.log(index, frame);
+});
+player.play();
+player.seekFrame(120);
+player.pause();
+```
+
+主なメソッドは `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, `on` です。
+
 ## MVPの制限
 
 - モノクロのプレーンテキストフレームのみ対応します。
 - 色には未対応です。
 - 音声には未対応です。
 - 字幕には未対応です。
-- Web再生には未対応です。
 - 差分圧縮には未対応です。
 - Unicodeの表示幅計算はまだ行いません。
 
@@ -175,9 +238,9 @@ ZIPアーカイブの内容をディレクトリへ展開します。
 - カラーテキストフレーム
 - 音声トラック
 - 字幕トラック
-- Web再生
+- 色レイヤー
 - 差分圧縮
-- より豊かなメタデータとプレビュー機能
+- プレビュー機能
 
 ## ライセンス
 
