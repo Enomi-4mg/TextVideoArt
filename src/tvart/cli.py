@@ -50,6 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("output_dir", type=Path)
     extract.add_argument("--overwrite", action="store_true")
 
+    unpack = subparsers.add_parser("unpack", help="unpack a .tva archive into a project directory")
+    unpack.add_argument("input", type=Path)
+    unpack.add_argument("output_dir", type=Path)
+    unpack.add_argument("--overwrite", action="store_true")
+
     validate = subparsers.add_parser("validate", help="validate a .tva file or extracted project directory")
     validate.add_argument("input", type=Path)
 
@@ -84,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
     if args.command == "info":
         return print_info(args.input)
-    if args.command == "extract":
+    if args.command in {"extract", "unpack"}:
         return extract_tva(args.input, args.output_dir, overwrite=args.overwrite)
     if args.command == "validate":
         return print_validation(args.input)

@@ -462,6 +462,14 @@ extract: 既存互換用
 unpack: 今後のドキュメントで推奨する名称
 ```
 
+実装状況:
+
+```text
+tvart unpack output.tva project/ を追加
+内部では extract_tva() を再利用する
+safe extraction path check と --overwrite の挙動は extract と同じ
+```
+
 #### 4.4 `info` から `inspect` への拡張
 
 現状の `info` は維持する。

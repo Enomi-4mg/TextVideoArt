@@ -49,6 +49,7 @@ tvart info output.tva
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
+tvart unpack output.tva ./project
 tvart pack ./output edited.tva
 ```
 
@@ -131,6 +132,14 @@ The input may be either a `.tva` ZIP archive or an extracted project directory.
 ### `tvart extract output.tva ./output`
 
 Extracts the ZIP archive contents into a directory.
+
+### `tvart unpack output.tva ./project`
+
+Unpacks a `.tva` archive into an editable project directory.
+
+Options:
+
+- `--overwrite`
 
 ### `tvart pack ./output edited.tva`
 
