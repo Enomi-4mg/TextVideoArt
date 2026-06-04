@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.1 - 2026-06-04
+
+- Updated `tvart export html` output to use the same full-frame green overlay UI as the static Web Player.
+- Added `Controls` and `Manifest` overlay toggles to exported standalone HTML players.
+- Updated the Python package version to `0.6.1` while keeping the TVA format version at `0.1.0`.
+
 ## v0.6.0 - 2026-06-04
 
 - Added `TvaPlayer` in `web/src/lib/player-api.js` as an external playback control API.

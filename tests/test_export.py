@@ -42,6 +42,17 @@ class ExportHTMLTests(unittest.TestCase):
             self.assertIn("const frames =", html)
             self.assertIn("Ending &lt;tag&gt;", html)
             self.assertIn("abc\\nabc\\n", html)
+            self.assertIn('id="controls-toggle"', html)
+            self.assertIn('id="manifest-toggle"', html)
+            self.assertIn('id="controls-overlay"', html)
+            self.assertIn('id="manifest-overlay"', html)
+            self.assertIn('id="prev"', html)
+            self.assertIn('id="next"', html)
+            self.assertIn('id="fps"', html)
+            self.assertIn('id="loop"', html)
+            self.assertIn("#00ff66", html)
+            self.assertIn("toggleOverlay", html)
+            self.assertIn("class=\"frame-output\"", html)
 
     def test_export_html_rejects_existing_output_without_overwrite(self) -> None:
         with TemporaryDirectory() as tmp:

@@ -20,13 +20,13 @@ def build_html(manifest: dict, frames: list[str]) -> str:
     frames_json = script_json(frames)
     markers = manifest.get("markers") or []
     marker_buttons = "\n".join(
-        f'<button class="marker" type="button" data-frame="{marker.get("frame")}">{escape(marker.get("label"))}</button>'
+        f'<button class="marker-button" type="button" data-frame="{marker.get("frame")}">{marker.get("frame"):06d} {escape(marker.get("label"))}</button>'
         for marker in markers
         if type(marker.get("frame")) is int and isinstance(marker.get("label"), str)
     )
     marker_section = (
         f"""
-      <section class="panel">
+      <section class="details">
         <h2>Markers</h2>
         <div class="markers">
           {marker_buttons}
@@ -43,123 +43,183 @@ def build_html(manifest: dict, frames: list[str]) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{escaped_title}</title>
   <style>
-    :root {{
-      color-scheme: dark;
-      --bg: #111318;
-      --panel: #1b1f27;
-      --text: #f2f0e8;
-      --muted: #aab0ba;
-      --accent: #6ee7b7;
-      --line: #343a46;
-    }}
     * {{ box-sizing: border-box; }}
+    html,
     body {{
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, sans-serif;
     }}
-    main {{
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
+    button,
+    input {{
+      font: inherit;
     }}
-    .stage {{
-      min-width: 0;
-      display: grid;
-      grid-template-rows: minmax(0, 1fr) auto;
-      border-right: 1px solid var(--line);
-    }}
-    pre {{
-      margin: 0;
-      padding: 24px;
-      overflow: auto;
-      white-space: pre;
-      color: var(--text);
-      font: 14px/1.08 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    }}
-    .controls {{
-      display: grid;
-      grid-template-columns: auto auto minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 14px;
-      border-top: 1px solid var(--line);
-      background: #171a21;
+    button,
+    input[type="number"] {{
+      border: 1px solid #00ff66;
+      border-radius: 0;
+      background: #000;
+      color: #00ff66;
     }}
     button {{
-      height: 34px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--panel);
-      color: var(--text);
+      min-height: 32px;
+      padding: 4px 10px;
       cursor: pointer;
     }}
-    button:hover {{ border-color: var(--accent); }}
-    input[type="range"] {{ width: 100%; }}
-    .counter {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
-    aside {{
-      padding: 18px;
+    .app-shell,
+    .stage {{
+      min-height: 100vh;
+    }}
+    .stage {{
+      position: relative;
+      overflow: hidden;
+    }}
+    .frame-output {{
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      white-space: pre;
+      color: #fff;
+      background: #000;
+      font: 14px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }}
+    .overlay-actions {{
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      z-index: 3;
+      display: flex;
+      gap: 8px;
+    }}
+    .overlay {{
+      position: fixed;
+      z-index: 2;
+      border: 1px solid #00ff66;
+      background: #000;
+      color: #00ff66;
+    }}
+    .overlay.is-hidden {{
+      display: none;
+    }}
+    .controls-overlay {{
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      display: grid;
+      grid-template-columns: auto auto auto minmax(120px, 1fr) auto auto auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+    }}
+    .manifest-overlay {{
+      top: 48px;
+      right: 8px;
+      width: min(360px, calc(100vw - 16px));
+      max-height: calc(100vh - 112px);
       overflow: auto;
     }}
+    input[type="range"] {{
+      width: 100%;
+      min-width: 0;
+    }}
+    .counter {{
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }}
+    .numeric-control,
+    .toggle-control {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }}
+    .numeric-control input {{
+      width: 64px;
+      min-height: 32px;
+      padding: 0 6px;
+    }}
     h1 {{
-      margin: 0 0 14px;
-      font-size: 20px;
+      margin: 0 0 10px;
+      font-size: 14px;
       line-height: 1.2;
     }}
     h2 {{
       margin: 0 0 10px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
+      font-size: 14px;
+      line-height: 1.2;
     }}
-    .panel {{
-      padding: 14px 0;
-      border-top: 1px solid var(--line);
+    .details {{
+      padding: 12px;
+      border-bottom: 1px solid #00ff66;
+    }}
+    .details:last-child {{
+      border-bottom: 0;
     }}
     dl {{
       margin: 0;
       display: grid;
-      grid-template-columns: 110px minmax(0, 1fr);
-      gap: 8px 12px;
-      font-size: 14px;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 6px 10px;
+      font-size: 13px;
     }}
-    dt {{ color: var(--muted); }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     .markers {{
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }}
-    .marker {{
+    .marker-button {{
       width: 100%;
       text-align: left;
-      padding: 0 10px;
     }}
     @media (max-width: 760px) {{
-      main {{ grid-template-columns: 1fr; }}
-      .stage {{ border-right: 0; }}
-      aside {{ border-top: 1px solid var(--line); }}
-      pre {{ padding: 14px; font-size: 11px; }}
-      .controls {{ grid-template-columns: auto auto minmax(0, 1fr); }}
-      .counter {{ grid-column: 1 / -1; }}
+      .frame-output {{ font-size: 11px; }}
+      .controls-overlay {{
+        grid-template-columns: auto auto auto;
+        max-height: 45vh;
+        overflow: auto;
+      }}
+      input[type="range"],
+      .counter {{
+        grid-column: 1 / -1;
+      }}
+      .numeric-control,
+      .toggle-control {{
+        grid-column: 1 / -1;
+      }}
     }}
   </style>
 </head>
 <body>
-  <main>
+  <main class="app-shell">
     <section class="stage">
-      <pre id="frame" aria-live="off"></pre>
-      <div class="controls">
+      <pre id="frame" class="frame-output" aria-live="off"></pre>
+      <div class="overlay-actions">
+        <button id="controls-toggle" type="button" aria-expanded="true" aria-controls="controls-overlay">Controls</button>
+        <button id="manifest-toggle" type="button" aria-expanded="false" aria-controls="manifest-overlay">Manifest</button>
+      </div>
+      <section class="overlay controls-overlay" id="controls-overlay">
+        <button id="prev" type="button">Prev</button>
         <button id="play" type="button">Play</button>
-        <button id="restart" type="button">Restart</button>
+        <button id="next" type="button">Next</button>
         <input id="seek" type="range" min="0" max="0" value="0">
         <span id="counter" class="counter">0 / 0</span>
-      </div>
+        <label class="numeric-control">
+          FPS
+          <input id="fps" type="number" min="1" step="1" value="{manifest.get("fps", 10)}">
+        </label>
+        <label class="toggle-control">
+          <input id="loop" type="checkbox">
+          Loop
+        </label>
+      </section>
     </section>
-    <aside>
+    <aside class="overlay manifest-overlay is-hidden" id="manifest-overlay">
+      <section class="details">
       <h1>{escaped_title}</h1>
-      <section class="panel">
         <h2>Metadata</h2>
         <dl id="metadata"></dl>
       </section>{marker_section}
@@ -171,13 +231,22 @@ def build_html(manifest: dict, frames: list[str]) -> str:
     let currentFrame = 0;
     let playing = false;
     let timerId = null;
+    let playbackFps = Number(manifest.fps || 10);
+    let loop = false;
 
     const frameEl = document.getElementById("frame");
     const playEl = document.getElementById("play");
-    const restartEl = document.getElementById("restart");
+    const prevEl = document.getElementById("prev");
+    const nextEl = document.getElementById("next");
     const seekEl = document.getElementById("seek");
     const counterEl = document.getElementById("counter");
+    const fpsEl = document.getElementById("fps");
+    const loopEl = document.getElementById("loop");
     const metadataEl = document.getElementById("metadata");
+    const controlsToggle = document.getElementById("controls-toggle");
+    const manifestToggle = document.getElementById("manifest-toggle");
+    const controlsOverlay = document.getElementById("controls-overlay");
+    const manifestOverlay = document.getElementById("manifest-overlay");
 
     seekEl.max = Math.max(0, frames.length - 1);
 
@@ -211,6 +280,15 @@ def build_html(manifest: dict, frames: list[str]) -> str:
       counterEl.textContent = `${{currentFrame + 1}} / ${{frames.length}}`;
     }}
 
+    function setOverlayVisible(toggle, overlay, visible) {{
+      overlay.classList.toggle("is-hidden", !visible);
+      toggle.setAttribute("aria-expanded", String(visible));
+    }}
+
+    function toggleOverlay(toggle, overlay) {{
+      setOverlayVisible(toggle, overlay, overlay.classList.contains("is-hidden"));
+    }}
+
     function stop() {{
       playing = false;
       playEl.textContent = "Play";
@@ -225,19 +303,34 @@ def build_html(manifest: dict, frames: list[str]) -> str:
       playEl.textContent = "Pause";
       timerId = setInterval(() => {{
         if (currentFrame >= frames.length - 1) {{
-          stop();
+          if (loop) {{
+            renderFrame(0);
+          }} else {{
+            stop();
+          }}
           return;
         }}
         renderFrame(currentFrame + 1);
-      }}, 1000 / Number(manifest.fps || 10));
+      }}, 1000 / playbackFps);
     }}
 
     playEl.addEventListener("click", () => playing ? stop() : play());
-    restartEl.addEventListener("click", () => {{
-      stop();
-      renderFrame(0);
-    }});
+    controlsToggle.addEventListener("click", () => toggleOverlay(controlsToggle, controlsOverlay));
+    manifestToggle.addEventListener("click", () => toggleOverlay(manifestToggle, manifestOverlay));
+    prevEl.addEventListener("click", () => renderFrame(currentFrame - 1));
+    nextEl.addEventListener("click", () => renderFrame(currentFrame + 1));
     seekEl.addEventListener("input", () => renderFrame(Number(seekEl.value)));
+    fpsEl.addEventListener("change", () => {{
+      const nextFps = Number(fpsEl.value);
+      if (!Number.isFinite(nextFps) || nextFps <= 0) return;
+      const wasPlaying = playing;
+      stop();
+      playbackFps = nextFps;
+      if (wasPlaying) play();
+    }});
+    loopEl.addEventListener("change", () => {{
+      loop = loopEl.checked;
+    }});
     document.querySelectorAll(".marker").forEach((button) => {{
       button.addEventListener("click", () => {{
         stop();

@@ -190,7 +190,7 @@ Options:
 
 ### `tvart export html output.tva -o output.html`
 
-Exports a `.tva` archive to a standalone HTML player. The generated file embeds the manifest and plain-text frames, so it can be opened directly in a browser.
+Exports a `.tva` archive to a standalone HTML player. The generated file embeds the manifest and plain-text frames, so it can be opened directly in a browser. Exported players use the same full-frame green overlay UI as the static Web Player.
 
 Options:
 
@@ -201,7 +201,7 @@ Options:
 
 `web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
 
-The Web Player keeps the frame view full-screen and uses simple black-and-white overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
+The Web Player keeps the frame view full-screen and uses green overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
 
 The player uses JSZip from a CDN to read ZIP-based `.tva` archives in the browser. The generated `export html` files remain self-contained and do not use external JavaScript.
 
