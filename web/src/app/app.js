@@ -2,6 +2,10 @@ import { TvaPlayer } from "../lib/player-api.js";
 import { loadTvaFile } from "../lib/tva.js";
 
 const dropZone = document.getElementById("drop-zone");
+const controlsToggle = document.getElementById("controls-toggle");
+const manifestToggle = document.getElementById("manifest-toggle");
+const controlsOverlay = document.getElementById("controls-overlay");
+const manifestOverlay = document.getElementById("manifest-overlay");
 const fileInput = document.getElementById("file-input");
 const statusEl = document.getElementById("status");
 const frameOutput = document.getElementById("frame-output");
@@ -17,6 +21,15 @@ const metadataEl = document.getElementById("metadata");
 const markersEl = document.getElementById("markers");
 
 const player = new TvaPlayer();
+
+function setOverlayVisible(toggle, overlay, visible) {
+  overlay.classList.toggle("is-hidden", !visible);
+  toggle.setAttribute("aria-expanded", String(visible));
+}
+
+function toggleOverlay(toggle, overlay) {
+  setOverlayVisible(toggle, overlay, overlay.classList.contains("is-hidden"));
+}
 
 player.on("framechange", ({ index, frame, frameCount }) => {
   frameOutput.textContent = frame;
@@ -34,6 +47,14 @@ player.on("stop", () => {
 });
 player.on("ended", () => {
   playButton.textContent = "Play";
+});
+
+controlsToggle.addEventListener("click", () => {
+  toggleOverlay(controlsToggle, controlsOverlay);
+});
+
+manifestToggle.addEventListener("click", () => {
+  toggleOverlay(manifestToggle, manifestOverlay);
 });
 
 function setStatus(message, isError = false) {

@@ -201,6 +201,8 @@ Options:
 
 `web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
 
+The Web Player keeps the frame view full-screen and uses simple black-and-white overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
+
 The player uses JSZip from a CDN to read ZIP-based `.tva` archives in the browser. The generated `export html` files remain self-contained and do not use external JavaScript.
 
 ## Player API

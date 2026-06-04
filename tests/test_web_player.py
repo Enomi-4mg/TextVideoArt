@@ -22,6 +22,10 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("./src/app/app.js", html)
         self.assertIn('id="drop-zone"', html)
         self.assertIn('id="file-input"', html)
+        self.assertIn('id="controls-toggle"', html)
+        self.assertIn('id="manifest-toggle"', html)
+        self.assertIn('id="controls-overlay"', html)
+        self.assertIn('id="manifest-overlay"', html)
 
     def test_tva_parser_uses_zip_library_and_validates_plain_text_tva(self) -> None:
         parser = (ROOT / "web" / "src" / "lib" / "tva.js").read_text(encoding="utf-8")
@@ -44,6 +48,20 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("fpsInput", app)
         self.assertIn("loopInput", app)
         self.assertIn("renderMarkers", app)
+        self.assertIn("toggleOverlay", app)
+        self.assertIn("controlsOverlay", app)
+        self.assertIn("manifestOverlay", app)
+
+    def test_web_player_css_uses_green_overlay_ui(self) -> None:
+        css = (ROOT / "web" / "src" / "app" / "styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("background: #000", css)
+        self.assertIn("color: #fff", css)
+        self.assertIn("#00ff66", css)
+        self.assertIn("position: fixed", css)
+        self.assertIn(".overlay.is-hidden", css)
+        self.assertNotIn("--accent", css)
+        self.assertNotIn("border-radius: 6px", css)
 
     def test_player_api_exposes_external_control_surface(self) -> None:
         api = (ROOT / "web" / "src" / "lib" / "player-api.js").read_text(encoding="utf-8")

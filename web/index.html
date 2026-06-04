@@ -9,15 +9,19 @@
 <body>
   <main class="app-shell">
     <section class="player-surface" id="drop-zone">
-      <div class="topbar">
+      <pre id="frame-output" class="frame-output" aria-live="off"></pre>
+
+      <div class="overlay-actions">
+        <button id="controls-toggle" type="button" aria-expanded="true" aria-controls="controls-overlay">Controls</button>
+        <button id="manifest-toggle" type="button" aria-expanded="false" aria-controls="manifest-overlay">Manifest</button>
+      </div>
+
+      <section class="overlay controls-overlay" id="controls-overlay">
         <label class="file-button">
           <input id="file-input" type="file" accept=".tva,application/zip">
           Open TVA
         </label>
         <span id="status" class="status">Drop a .tva file to begin</span>
-      </div>
-      <pre id="frame-output" class="frame-output" aria-live="off"></pre>
-      <div class="controls">
         <button id="prev-button" type="button">Prev</button>
         <button id="play-button" type="button">Play</button>
         <button id="next-button" type="button">Next</button>
@@ -31,9 +35,9 @@
           <input id="loop-input" type="checkbox">
           Loop
         </label>
-      </div>
-    </section>
-    <aside class="sidebar">
+      </section>
+
+      <aside class="overlay manifest-overlay is-hidden" id="manifest-overlay">
       <section class="details">
         <h1 id="title">No TVA loaded</h1>
         <dl id="metadata" class="metadata"></dl>
@@ -42,7 +46,8 @@
         <h2>Markers</h2>
         <div id="markers" class="markers"></div>
       </section>
-    </aside>
+      </aside>
+    </section>
   </main>
   <script type="module" src="./src/app/app.js"></script>
 </body>

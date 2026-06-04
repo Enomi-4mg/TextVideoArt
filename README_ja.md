@@ -201,6 +201,8 @@ ZIPアーカイブの内容をディレクトリへ展開します。
 
 `web/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
 
+Web Playerはフレーム表示を全画面に置き、操作ボタンとmanifest詳細は白黒のシンプルなオーバーレイとして表示します。`Controls` と `Manifest` ボタンで表示/非表示を切り替えられます。
+
 ブラウザ上でZIPベースの `.tva` アーカイブを読むため、Web PlayerはCDN上のJSZipを使用します。一方、`export html` で生成するHTMLは引き続き外部JavaScriptなしの単体ファイルです。
 
 ## Player API
