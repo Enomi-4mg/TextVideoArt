@@ -1,0 +1,243 @@
+:root {
+  color-scheme: dark;
+  --bg: #101114;
+  --surface: #181a20;
+  --surface-strong: #20242b;
+  --text: #f3f1e8;
+  --muted: #aeb4bc;
+  --line: #343842;
+  --accent: #6ee7b7;
+  --warn: #ffb86b;
+  --danger: #ff7a90;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.player-surface {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-right: 1px solid var(--line);
+}
+
+.player-surface.is-dragging {
+  outline: 2px solid var(--accent);
+  outline-offset: -8px;
+}
+
+.topbar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.file-button,
+button {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-strong);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.file-button {
+  width: 104px;
+  position: relative;
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+button {
+  min-width: 62px;
+  padding: 0 10px;
+}
+
+button:hover,
+.file-button:hover {
+  border-color: var(--accent);
+}
+
+.status {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status.is-error {
+  color: var(--danger);
+}
+
+.frame-output {
+  margin: 0;
+  padding: 22px;
+  overflow: auto;
+  white-space: pre;
+  color: var(--text);
+  background: #0b0c0f;
+  font: 14px/1.08 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: auto auto auto minmax(160px, 1fr) auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.frame-counter {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+input[type="range"] {
+  width: 100%;
+  min-width: 0;
+}
+
+.numeric-control,
+.toggle-control {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.numeric-control input {
+  width: 68px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0f1116;
+  color: var(--text);
+  padding: 0 8px;
+}
+
+.sidebar {
+  min-width: 0;
+  overflow: auto;
+  background: #15171c;
+}
+
+.details {
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+h1,
+h2 {
+  margin: 0 0 14px;
+}
+
+h1 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+h2 {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.metadata {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 8px 12px;
+  font-size: 14px;
+}
+
+.metadata dt {
+  color: var(--muted);
+}
+
+.metadata dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.markers {
+  display: grid;
+  gap: 8px;
+}
+
+.marker-button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.empty-state {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 840px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .player-surface {
+    min-height: 70vh;
+    border-right: 0;
+  }
+
+  .controls {
+    grid-template-columns: auto auto auto minmax(0, 1fr);
+  }
+
+  .frame-counter,
+  .numeric-control,
+  .toggle-control {
+    grid-column: span 2;
+  }
+
+  .frame-output {
+    padding: 14px;
+    font-size: 11px;
+  }
+}

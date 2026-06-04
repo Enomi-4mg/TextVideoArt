@@ -10,6 +10,7 @@ from .constants import (
     DEFAULT_WIDTH,
 )
 from .convert import convert_video
+from .export import export_html
 from .extract import extract_tva
 from .info import print_info, print_inspect
 from .pack import pack_tva
@@ -48,6 +49,7 @@ def build_parser() -> argparse.ArgumentParser:
     inspect = subparsers.add_parser("inspect", help="inspect .tva metadata")
     inspect.add_argument("input", type=Path)
     inspect.add_argument("--json", action="store_true")
+    inspect.add_argument("--markers", action="store_true")
 
     extract = subparsers.add_parser("extract", help="extract a .tva archive")
     extract.add_argument("input", type=Path)
@@ -66,6 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
     pack.add_argument("input_dir", type=Path)
     pack.add_argument("output", type=Path)
     pack.add_argument("--overwrite", action="store_true")
+
+    export = subparsers.add_parser("export", help="export a .tva file")
+    export_subparsers = export.add_subparsers(dest="export_format", required=True)
+    export_html_parser = export_subparsers.add_parser("html", help="export a standalone HTML player")
+    export_html_parser.add_argument("input", type=Path)
+    export_html_parser.add_argument("-o", "--output", required=True, type=Path)
+    export_html_parser.add_argument("--overwrite", action="store_true")
 
     return parser
 
@@ -94,13 +103,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "info":
         return print_info(args.input)
     if args.command == "inspect":
-        return print_inspect(args.input, as_json=args.json)
+        return print_inspect(args.input, as_json=args.json, markers=args.markers)
     if args.command in {"extract", "unpack"}:
         return extract_tva(args.input, args.output_dir, overwrite=args.overwrite)
     if args.command == "validate":
         return print_validation(args.input)
     if args.command == "pack":
         return pack_tva(args.input_dir, args.output, overwrite=args.overwrite)
+    if args.command == "export" and args.export_format == "html":
+        return export_html(args.input, args.output, overwrite=args.overwrite)
 
     parser.error(f"unknown command: {args.command}")
     return 2

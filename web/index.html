@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tvart Web Player</title>
+  <link rel="stylesheet" href="./src/app/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="player-surface" id="drop-zone">
+      <div class="topbar">
+        <label class="file-button">
+          <input id="file-input" type="file" accept=".tva,application/zip">
+          Open TVA
+        </label>
+        <span id="status" class="status">Drop a .tva file to begin</span>
+      </div>
+      <pre id="frame-output" class="frame-output" aria-live="off"></pre>
+      <div class="controls">
+        <button id="prev-button" type="button">Prev</button>
+        <button id="play-button" type="button">Play</button>
+        <button id="next-button" type="button">Next</button>
+        <input id="seek-input" type="range" min="0" max="0" value="0">
+        <span id="frame-counter" class="frame-counter">0 / 0</span>
+        <label class="numeric-control">
+          FPS
+          <input id="fps-input" type="number" min="1" step="1" value="10">
+        </label>
+        <label class="toggle-control">
+          <input id="loop-input" type="checkbox">
+          Loop
+        </label>
+      </div>
+    </section>
+    <aside class="sidebar">
+      <section class="details">
+        <h1 id="title">No TVA loaded</h1>
+        <dl id="metadata" class="metadata"></dl>
+      </section>
+      <section class="details">
+        <h2>Markers</h2>
+        <div id="markers" class="markers"></div>
+      </section>
+    </aside>
+  </main>
+  <script type="module" src="./src/app/app.js"></script>
+</body>
+</html>
