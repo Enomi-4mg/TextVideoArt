@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0 - Unreleased
+## v0.2.0 - 2026-06-04
 
 - Added `tvart inspect output.tva` and `tvart inspect output.tva --json`.
 - Added `tvart pack project/ output.tva` for packing extracted TVA project directories into `.tva` archives.

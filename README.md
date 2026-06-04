@@ -9,8 +9,10 @@ TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-
 - Convert video files to monochrome ASCII/text art frames.
 - Play `.tva` files in a terminal.
 - Print `.tva` metadata.
-- Validate the TVA v0.1.0 MVP format.
+- Inspect `.tva` metadata as a summary or JSON.
+- Validate `.tva` archives and extracted project directories.
 - Extract `.tva` archives to normal directories.
+- Unpack, edit, validate, and pack `.tva` project directories.
 - Allow unknown extra ZIP files and manifest fields for forward compatibility.
 
 ## Installation

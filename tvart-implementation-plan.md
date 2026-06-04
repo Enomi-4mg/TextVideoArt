@@ -521,6 +521,9 @@ inspect --json で manifest をJSONとして出力できる
 
 ```text
 CLI経由で unpack -> validate project/ -> pack -> validate .tva の往復テストを追加
+Python package version を 0.2.0 に更新
+CHANGELOG.md の v0.2.0 日付を確定
+README / README_ja を v0.2.0 のコマンド構成に更新
 ```
 
 ## 5. v0.3.0: メタデータとマーカー
