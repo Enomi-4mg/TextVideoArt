@@ -73,6 +73,25 @@ class CLITests(unittest.TestCase):
             self.assertEqual(result, 1)
             self.assertFalse((Path(tmp) / "evil.txt").exists())
 
+    def test_unpack_validate_pack_validate_roundtrip(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            project_dir = Path(tmp) / "project"
+            output_path = Path(tmp) / "roundtrip.tva"
+            write_tva(input_path)
+
+            with contextlib.redirect_stdout(io.StringIO()):
+                unpack_result = main(["unpack", str(input_path), str(project_dir)])
+                validate_project_result = main(["validate", str(project_dir)])
+                pack_result = main(["pack", str(project_dir), str(output_path)])
+                validate_output_result = main(["validate", str(output_path)])
+
+            self.assertEqual(unpack_result, 0)
+            self.assertEqual(validate_project_result, 0)
+            self.assertEqual(pack_result, 0)
+            self.assertEqual(validate_output_result, 0)
+            self.assertTrue(output_path.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

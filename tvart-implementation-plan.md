@@ -517,6 +517,12 @@ inspect --json で manifest をJSONとして出力できる
 既存コマンドとの互換性を壊さない
 ```
 
+検証状況:
+
+```text
+CLI経由で unpack -> validate project/ -> pack -> validate .tva の往復テストを追加
+```
+
 ## 5. v0.3.0: メタデータとマーカー
 
 ### 目的
