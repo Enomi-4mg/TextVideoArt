@@ -429,6 +429,14 @@ tvart validate project/
 
 `.tva` とディレクトリの両方で同じ検証ロジックを使えるようにする。
 
+実装状況:
+
+```text
+validate_tva() が .tva ZIP と展開済みディレクトリを自動判別する
+manifest / frame の検証ロジックを validate_tva_contents() に共通化する
+ディレクトリ入力でも必要フレーム、範囲外フレーム、寸法を検証する
+```
+
 #### 4.3 `unpack` の追加検討
 
 既存の `extract` は残しつつ、将来の制作ワークフロー向けに `unpack` を追加する。

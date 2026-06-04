@@ -47,6 +47,7 @@ tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
 tvart validate output.tva
+tvart validate project/
 tvart extract output.tva ./output
 ```
 
@@ -124,6 +125,7 @@ Prints basic metadata from `manifest.json`.
 ### `tvart validate output.tva`
 
 Validates the TVA v0.1.0 MVP structure, manifest, frame list, encoding, and frame dimensions.
+The input may be either a `.tva` ZIP archive or an extracted project directory.
 
 ### `tvart extract output.tva ./output`
 
