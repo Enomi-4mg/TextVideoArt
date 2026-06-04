@@ -24,6 +24,30 @@ def write_tva(path: Path, entries: dict[str, str] | None = None) -> None:
 
 
 class CLITests(unittest.TestCase):
+    def test_inspect_prints_metadata(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            write_tva(input_path)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                result = main(["inspect", str(input_path)])
+
+            self.assertEqual(result, 0)
+            self.assertIn("Format: TVA 0.1.0", stdout.getvalue())
+
+    def test_inspect_prints_manifest_json(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            write_tva(input_path)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                result = main(["inspect", str(input_path), "--json"])
+
+            self.assertEqual(result, 0)
+            self.assertEqual(json.loads(stdout.getvalue())["format"], "TVA")
+
     def test_unpack_extracts_archive(self) -> None:
         with TemporaryDirectory() as tmp:
             input_path = Path(tmp) / "sample.tva"

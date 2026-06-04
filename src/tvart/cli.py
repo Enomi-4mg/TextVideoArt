@@ -11,7 +11,7 @@ from .constants import (
 )
 from .convert import convert_video
 from .extract import extract_tva
-from .info import print_info
+from .info import print_info, print_inspect
 from .pack import pack_tva
 from .play import play_tva
 from .validate import print_validation
@@ -44,6 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     info = subparsers.add_parser("info", help="print .tva metadata")
     info.add_argument("input", type=Path)
+
+    inspect = subparsers.add_parser("inspect", help="inspect .tva metadata")
+    inspect.add_argument("input", type=Path)
+    inspect.add_argument("--json", action="store_true")
 
     extract = subparsers.add_parser("extract", help="extract a .tva archive")
     extract.add_argument("input", type=Path)
@@ -89,6 +93,8 @@ def main(argv: list[str] | None = None) -> int:
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
     if args.command == "info":
         return print_info(args.input)
+    if args.command == "inspect":
+        return print_inspect(args.input, as_json=args.json)
     if args.command in {"extract", "unpack"}:
         return extract_tva(args.input, args.output_dir, overwrite=args.overwrite)
     if args.command == "validate":

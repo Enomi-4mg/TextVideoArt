@@ -485,6 +485,14 @@ tvart inspect output.tva --markers
 
 v0.2.0では `inspect` を `info` の別名として追加し、`--json` も実装する。
 
+実装状況:
+
+```text
+tvart inspect output.tva を追加
+通常出力は info と同じ human-readable summary
+tvart inspect output.tva --json で manifest を整形JSONとして出力する
+```
+
 #### 4.5 `play` / `preview` の整理
 
 現状の `play` は維持する。

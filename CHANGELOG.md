@@ -2,6 +2,7 @@
 
 ## v0.2.0 - Unreleased
 
+- Added `tvart inspect output.tva` and `tvart inspect output.tva --json`.
 - Added `tvart pack project/ output.tva` for packing extracted TVA project directories into `.tva` archives.
 - Added `tvart unpack output.tva project/` as a production-workflow alias for extracting editable project directories.
 - Reused directory validation before packing so invalid projects are rejected before writing output.

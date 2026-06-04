@@ -46,6 +46,7 @@ tvart convert input.mp4 output.tva
 tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
+tvart inspect output.tva --json
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
@@ -123,6 +124,14 @@ Options:
 ### `tvart info output.tva`
 
 Prints basic metadata from `manifest.json`.
+
+### `tvart inspect output.tva`
+
+Inspects `.tva` metadata. By default this prints the same human-readable summary as `info`.
+
+Options:
+
+- `--json`
 
 ### `tvart validate output.tva`
 
