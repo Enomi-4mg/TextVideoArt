@@ -9,8 +9,10 @@
 - 動画ファイルをモノクロのASCII/テキストアートフレームに変換できます。
 - `.tva` ファイルをターミナルで再生できます。
 - `.tva` のメタデータを表示できます。
-- TVA v0.1.0 MVP仕様に合っているか検証できます。
+- `.tva` のメタデータを概要またはJSONで確認できます。
+- `.tva` アーカイブと展開済みプロジェクトディレクトリを検証できます。
 - `.tva` アーカイブを通常のディレクトリへ展開できます。
+- `.tva` を展開、編集、検証し、再度 `.tva` にパックできます。
 - 将来互換性のため、ZIP内の未知の追加ファイルやmanifestの未知フィールドは許容します。
 
 ## インストール
@@ -18,13 +20,25 @@
 このリポジトリからインストールします。
 
 ```bash
-pip install -e .
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e .
+```
+
+Windows PowerShell の場合:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+python -m pip install -e .
 ```
 
 テストはPython標準ライブラリで実行できます。
 
 ```bash
-python3 -m unittest discover -s tests
+python -m unittest discover -s tests
 ```
 
 ## 基本的な使い方
@@ -34,8 +48,12 @@ tvart convert input.mp4 output.tva
 tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
+tvart inspect output.tva --json
 tvart validate output.tva
+tvart validate project/
 tvart extract output.tva ./output
+tvart unpack output.tva ./project
+tvart pack ./output edited.tva
 ```
 
 ## `.tva` ファイル構造
@@ -109,13 +127,38 @@ sample.tva
 
 `manifest.json` の基本メタデータを表示します。
 
+### `tvart inspect output.tva`
+
+`.tva` のメタデータを確認します。標準では `info` と同じ人間向けの概要を表示します。
+
+オプション:
+
+- `--json`
+
 ### `tvart validate output.tva`
 
 TVA v0.1.0 MVPの構造、manifest、フレーム一覧、エンコーディング、フレーム寸法を検証します。
+入力には `.tva` ZIPアーカイブまたは展開済みプロジェクトディレクトリを指定できます。
 
 ### `tvart extract output.tva ./output`
 
 ZIPアーカイブの内容をディレクトリへ展開します。
+
+### `tvart unpack output.tva ./project`
+
+`.tva` アーカイブを編集用プロジェクトディレクトリへ展開します。
+
+オプション:
+
+- `--overwrite`
+
+### `tvart pack ./output edited.tva`
+
+展開済みTVAプロジェクトディレクトリを `.tva` アーカイブへパックします。
+
+オプション:
+
+- `--overwrite`
 
 ## MVPの制限
 

@@ -1,22 +1,25 @@
 from __future__ import annotations
 
+import json
 import zipfile
 from pathlib import Path
 
 from .tva import read_manifest_from_zip
 
 
-def print_info(path: Path) -> int:
+def read_manifest(path: Path) -> dict:
     try:
         with zipfile.ZipFile(path, "r") as zf:
-            manifest = read_manifest_from_zip(zf)
+            return read_manifest_from_zip(zf)
     except FileNotFoundError:
         print(f"ERROR: file does not exist: {path}")
-        return 1
+        raise
     except (KeyError, zipfile.BadZipFile, UnicodeDecodeError, ValueError) as exc:
         print(f"ERROR: cannot read TVA file: {exc}")
-        return 1
+        raise
 
+
+def print_manifest_summary(manifest: dict) -> None:
     print(f"Format: {manifest.get('format')} {manifest.get('version')}")
     print(f"Name: {manifest.get('format_name')}")
     print(f"Title: {manifest.get('title')}")
@@ -33,4 +36,26 @@ def print_info(path: Path) -> int:
     print(f"Encoding: {manifest.get('encoding')}")
     print(f"Color mode: {manifest.get('color_mode')}")
     print(f"Frame format: {manifest.get('frame_format')}")
+
+
+def print_info(path: Path) -> int:
+    try:
+        manifest = read_manifest(path)
+    except (FileNotFoundError, KeyError, zipfile.BadZipFile, UnicodeDecodeError, ValueError):
+        return 1
+
+    print_manifest_summary(manifest)
+    return 0
+
+
+def print_inspect(path: Path, as_json: bool = False) -> int:
+    try:
+        manifest = read_manifest(path)
+    except (FileNotFoundError, KeyError, zipfile.BadZipFile, UnicodeDecodeError, ValueError):
+        return 1
+
+    if as_json:
+        print(json.dumps(manifest, ensure_ascii=False, indent=2))
+    else:
+        print_manifest_summary(manifest)
     return 0

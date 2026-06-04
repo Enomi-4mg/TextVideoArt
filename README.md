@@ -9,8 +9,10 @@ TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-
 - Convert video files to monochrome ASCII/text art frames.
 - Play `.tva` files in a terminal.
 - Print `.tva` metadata.
-- Validate the TVA v0.1.0 MVP format.
+- Inspect `.tva` metadata as a summary or JSON.
+- Validate `.tva` archives and extracted project directories.
 - Extract `.tva` archives to normal directories.
+- Unpack, edit, validate, and pack `.tva` project directories.
 - Allow unknown extra ZIP files and manifest fields for forward compatibility.
 
 ## Installation
@@ -18,13 +20,25 @@ TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-
 From this repository:
 
 ```bash
-pip install -e .
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e .
+```
+
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+python -m pip install -e .
 ```
 
 Tests use the Python standard library:
 
 ```bash
-python3 -m unittest discover -s tests
+python -m unittest discover -s tests
 ```
 
 ## Basic usage
@@ -34,8 +48,12 @@ tvart convert input.mp4 output.tva
 tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
 tvart info output.tva
+tvart inspect output.tva --json
 tvart validate output.tva
+tvart validate project/
 tvart extract output.tva ./output
+tvart unpack output.tva ./project
+tvart pack ./output edited.tva
 ```
 
 ## `.tva` file structure
@@ -109,13 +127,38 @@ Options:
 
 Prints basic metadata from `manifest.json`.
 
+### `tvart inspect output.tva`
+
+Inspects `.tva` metadata. By default this prints the same human-readable summary as `info`.
+
+Options:
+
+- `--json`
+
 ### `tvart validate output.tva`
 
 Validates the TVA v0.1.0 MVP structure, manifest, frame list, encoding, and frame dimensions.
+The input may be either a `.tva` ZIP archive or an extracted project directory.
 
 ### `tvart extract output.tva ./output`
 
 Extracts the ZIP archive contents into a directory.
+
+### `tvart unpack output.tva ./project`
+
+Unpacks a `.tva` archive into an editable project directory.
+
+Options:
+
+- `--overwrite`
+
+### `tvart pack ./output edited.tva`
+
+Packs an extracted TVA project directory into a `.tva` archive.
+
+Options:
+
+- `--overwrite`
 
 ## MVP limitations
 
