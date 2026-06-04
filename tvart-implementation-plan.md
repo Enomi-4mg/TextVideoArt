@@ -418,6 +418,16 @@ ZIP内のファイル順序を安定化する
 __MACOSX/ や .DS_Store などのOS由来ファイルはZIPに含めない
 ```
 
+実装状況:
+
+```text
+tvart pack project/ output.tva を追加
+pack 前 validate を常に実行する
+既存出力は --overwrite がない限り拒否する
+ZIP内は manifest.json を先頭にし、それ以外を名前順で格納する
+__MACOSX/ や .DS_Store を除外する
+```
+
 #### 4.2 `validate` のディレクトリ対応
 
 現状の `validate` は `.tva` ファイル中心だが、v0.2.0では展開済みディレクトリも検証対象にする。

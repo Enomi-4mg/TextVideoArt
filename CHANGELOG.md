@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0 - Unreleased
+
+- Added `tvart pack project/ output.tva` for packing extracted TVA project directories into `.tva` archives.
+- Reused directory validation before packing so invalid projects are rejected before writing output.
+- Added stable ZIP ordering and ignored macOS metadata files such as `.DS_Store` and `__MACOSX/`.
+
 ## v0.1.1 - 2026-06-04
 
 - Strengthened manifest validation for numeric fields so `fps` and `duration` reject booleans.

@@ -12,6 +12,7 @@ from .constants import (
 from .convert import convert_video
 from .extract import extract_tva
 from .info import print_info
+from .pack import pack_tva
 from .play import play_tva
 from .validate import print_validation
 
@@ -49,8 +50,13 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("output_dir", type=Path)
     extract.add_argument("--overwrite", action="store_true")
 
-    validate = subparsers.add_parser("validate", help="validate a .tva file")
+    validate = subparsers.add_parser("validate", help="validate a .tva file or extracted project directory")
     validate.add_argument("input", type=Path)
+
+    pack = subparsers.add_parser("pack", help="pack an extracted TVA project directory")
+    pack.add_argument("input_dir", type=Path)
+    pack.add_argument("output", type=Path)
+    pack.add_argument("--overwrite", action="store_true")
 
     return parser
 
@@ -82,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
         return extract_tva(args.input, args.output_dir, overwrite=args.overwrite)
     if args.command == "validate":
         return print_validation(args.input)
+    if args.command == "pack":
+        return pack_tva(args.input_dir, args.output, overwrite=args.overwrite)
 
     parser.error(f"unknown command: {args.command}")
     return 2
