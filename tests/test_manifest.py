@@ -36,6 +36,30 @@ class ManifestValidationTests(unittest.TestCase):
 
         self.assertIn("missing manifest field: width", validate_manifest(manifest))
 
+    def test_fps_rejects_bool(self) -> None:
+        manifest = valid_manifest()
+        manifest["fps"] = True
+
+        self.assertIn("manifest field fps must be a number", validate_manifest(manifest))
+
+    def test_duration_rejects_bool(self) -> None:
+        manifest = valid_manifest()
+        manifest["duration"] = False
+
+        self.assertIn("manifest field duration must be a number", validate_manifest(manifest))
+
+    def test_title_is_optional(self) -> None:
+        manifest = valid_manifest()
+        del manifest["title"]
+
+        self.assertEqual(validate_manifest(manifest), [])
+
+    def test_created_by_is_optional(self) -> None:
+        manifest = valid_manifest()
+        del manifest["created_by"]
+
+        self.assertEqual(validate_manifest(manifest), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from pathlib import PurePosixPath
 from typing import Any
 
 from .constants import FRAMES_PATH, MANIFEST_NAME
@@ -18,9 +19,31 @@ def frame_path(index: int) -> str:
 
 
 def normalize_frame_text(text: str) -> list[str]:
-    if text.endswith("\n") or text.endswith("\r"):
-        text = text.rstrip("\r\n")
-    return text.splitlines()
+    if text.endswith("\r\n"):
+        text = text[:-2]
+    elif text.endswith("\n") or text.endswith("\r"):
+        text = text[:-1]
+    lines = text.splitlines()
+    if text.endswith(("\n", "\r")):
+        lines.append("")
+    return lines
+
+
+def unsafe_zip_member_reason(name: str) -> str | None:
+    if not name:
+        return "ZIP entry path is empty"
+    if "\\" in name:
+        return f"ZIP entry path contains a backslash: {name}"
+    if len(name) >= 2 and name[1] == ":":
+        return f"ZIP entry path contains a drive prefix: {name}"
+    path = PurePosixPath(name)
+    if path.is_absolute():
+        return f"ZIP entry path is absolute: {name}"
+    if str(path) in {"", "."}:
+        return f"ZIP entry path is invalid: {name}"
+    if any(part in {"", ".", ".."} for part in path.parts):
+        return f"ZIP entry path escapes the output directory: {name}"
+    return None
 
 
 def read_manifest_from_zip(zf: zipfile.ZipFile) -> Manifest:

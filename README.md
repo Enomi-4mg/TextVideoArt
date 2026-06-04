@@ -18,13 +18,25 @@ TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-
 From this repository:
 
 ```bash
-pip install -e .
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e .
+```
+
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+python -m pip install -e .
 ```
 
 Tests use the Python standard library:
 
 ```bash
-python3 -m unittest discover -s tests
+python -m unittest discover -s tests
 ```
 
 ## Basic usage

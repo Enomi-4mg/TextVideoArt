@@ -38,6 +38,16 @@ class TVAValidationTests(unittest.TestCase):
 
             self.assertIn("missing frame: frames/000001.txt", errors)
 
+    def test_out_of_range_frame_file(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "extra-frame.tva"
+            manifest = valid_manifest()
+            write_tva(path, manifest, {0: "abc\nabc\n", 1: "abc\nabc\n", 2: "abc\nabc\n"})
+
+            errors = validate_tva(path)
+
+            self.assertIn("out-of-range frame: frames/000002.txt", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

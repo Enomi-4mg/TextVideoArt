@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -14,12 +15,13 @@ from .constants import (
 from .tva import frame_path, normalize_frame_text
 
 
+FRAME_NAME_RE = re.compile(r"^frames/([0-9]{6})\.txt$")
+
+
 REQUIRED_FIELDS = {
     "format": str,
     "format_name": str,
     "version": str,
-    "title": str,
-    "created_by": str,
     "width": int,
     "height": int,
     "fps": (int, float),
@@ -31,6 +33,11 @@ REQUIRED_FIELDS = {
     "color_mode": str,
     "frame_format": str,
     "frames_path": str,
+}
+
+OPTIONAL_FIELDS = {
+    "title": str,
+    "created_by": str,
 }
 
 
@@ -47,9 +54,16 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         elif field in {"width", "height", "frame_count"}:
             if type(manifest[field]) is not int:
                 errors.append(f"manifest field {field} must be an integer")
+        elif field in {"fps", "duration"}:
+            if type(manifest[field]) not in {int, float}:
+                errors.append(f"manifest field {field} must be a number")
         elif not isinstance(manifest[field], expected_type):
             type_name = "number" if expected_type == (int, float) else "string"
             errors.append(f"manifest field {field} must be a {type_name}")
+
+    for field, expected_type in OPTIONAL_FIELDS.items():
+        if field in manifest and not isinstance(manifest[field], expected_type):
+            errors.append(f"manifest field {field} must be a string")
 
     if errors:
         return errors
@@ -110,6 +124,11 @@ def validate_tva(path: Path) -> list[str]:
             width = manifest["width"]
             height = manifest["height"]
             frame_count = manifest["frame_count"]
+
+            for name in names:
+                match = FRAME_NAME_RE.match(name)
+                if match and int(match.group(1)) >= frame_count:
+                    errors.append(f"out-of-range frame: {name}")
 
             for index in range(frame_count):
                 name = frame_path(index)
