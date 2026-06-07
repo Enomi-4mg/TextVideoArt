@@ -25,6 +25,7 @@ dist/
 .env
 .env.*
 !.env.example
+docs/
 
 # Editor and OS files
 .DS_Store

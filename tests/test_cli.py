@@ -5,6 +5,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 import path_setup  # noqa: F401
 from test_manifest import valid_manifest
@@ -24,6 +25,15 @@ def write_tva(path: Path, entries: dict[str, str] | None = None) -> None:
 
 
 class CLITests(unittest.TestCase):
+    def assert_parser_error(self, argv: list[str], expected: str) -> None:
+        stderr = io.StringIO()
+
+        with contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+            main(argv)
+
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn(expected, stderr.getvalue())
+
     def test_inspect_prints_metadata(self) -> None:
         with TemporaryDirectory() as tmp:
             input_path = Path(tmp) / "sample.tva"
@@ -117,6 +127,90 @@ class CLITests(unittest.TestCase):
             self.assertEqual(pack_result, 0)
             self.assertEqual(validate_output_result, 0)
             self.assertTrue(output_path.exists())
+
+    def test_convert_accepts_output_option(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "input.mp4"
+            output_path = Path(tmp) / "output.tva"
+
+            for flag in ("-o", "--output"):
+                with self.subTest(flag=flag), patch("tvart.cli.convert_video", return_value=0) as convert_video:
+                    result = main(["convert", str(input_path), flag, str(output_path)])
+
+                self.assertEqual(result, 0)
+                self.assertEqual(convert_video.call_args.args[:2], (input_path, output_path))
+
+    def test_convert_rejects_missing_output(self) -> None:
+        self.assert_parser_error(
+            ["convert", "input.mp4"],
+            "convert requires an output path via positional argument or -o/--output",
+        )
+
+    def test_convert_rejects_positional_and_output_option(self) -> None:
+        self.assert_parser_error(
+            ["convert", "input.mp4", "positional.tva", "--output", "option.tva"],
+            "convert output path must be provided either positionally or via -o/--output, not both",
+        )
+
+    def test_pack_accepts_output_option(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_dir = Path(tmp) / "project"
+            output_path = Path(tmp) / "edited.tva"
+
+            for flag in ("-o", "--output"):
+                with self.subTest(flag=flag), patch("tvart.cli.pack_tva", return_value=0) as pack_tva:
+                    result = main(["pack", str(input_dir), flag, str(output_path)])
+
+                self.assertEqual(result, 0)
+                self.assertEqual(pack_tva.call_args.args[:2], (input_dir, output_path))
+
+    def test_pack_rejects_missing_output(self) -> None:
+        self.assert_parser_error(
+            ["pack", "project"],
+            "pack requires an output path via positional argument or -o/--output",
+        )
+
+    def test_pack_rejects_positional_and_output_option(self) -> None:
+        self.assert_parser_error(
+            ["pack", "project", "positional.tva", "--output", "option.tva"],
+            "pack output path must be provided either positionally or via -o/--output, not both",
+        )
+
+    def test_unpack_accepts_output_option(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            output_dir = Path(tmp) / "project"
+
+            for flag in ("-o", "--output"):
+                with self.subTest(flag=flag), patch("tvart.cli.extract_tva", return_value=0) as extract_tva:
+                    result = main(["unpack", str(input_path), flag, str(output_dir)])
+
+                self.assertEqual(result, 0)
+                self.assertEqual(extract_tva.call_args.args[:2], (input_path, output_dir))
+
+    def test_unpack_rejects_missing_output(self) -> None:
+        self.assert_parser_error(
+            ["unpack", "output.tva"],
+            "unpack requires an output path via positional argument or -o/--output",
+        )
+
+    def test_unpack_rejects_positional_and_output_option(self) -> None:
+        self.assert_parser_error(
+            ["unpack", "output.tva", "positional", "--output", "option"],
+            "unpack output path must be provided either positionally or via -o/--output, not both",
+        )
+
+    def test_preview_plays_valid_archive_once(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "sample.tva"
+            write_tva(input_path)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                result = main(["preview", str(input_path), "--once"])
+
+            self.assertEqual(result, 0)
+            self.assertIn("abc", stdout.getvalue())
 
 
 if __name__ == "__main__":

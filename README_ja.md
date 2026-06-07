@@ -49,8 +49,10 @@ python -m unittest discover -s tests
 
 ```bash
 tvart convert input.mp4 output.tva
+tvart convert input.mp4 -o output.tva
 tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
+tvart preview output.tva
 tvart info output.tva
 tvart inspect output.tva --json
 tvart inspect output.tva --markers
@@ -58,7 +60,9 @@ tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
 tvart unpack output.tva ./project
+tvart unpack output.tva -o ./project
 tvart pack ./output edited.tva
+tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
@@ -126,6 +130,12 @@ sample.tva
 
 動画ファイルを `.tva` ファイルへ変換します。
 
+出力先は `-o` / `--output` でも指定できます。
+
+```bash
+tvart convert input.mp4 -o output.tva
+```
+
 主なオプション:
 
 - `--width 100`
@@ -149,6 +159,10 @@ sample.tva
 - `--fps 12`
 - `--no-clear`
 - `--once`
+
+### `tvart preview output.tva`
+
+ターミナル再生用の `tvart play` のエイリアスです。
 
 ### `tvart info output.tva`
 
@@ -176,6 +190,12 @@ ZIPアーカイブの内容をディレクトリへ展開します。
 
 `.tva` アーカイブを編集用プロジェクトディレクトリへ展開します。
 
+出力ディレクトリは `-o` / `--output` でも指定できます。
+
+```bash
+tvart unpack output.tva -o ./project
+```
+
 オプション:
 
 - `--overwrite`
@@ -183,6 +203,12 @@ ZIPアーカイブの内容をディレクトリへ展開します。
 ### `tvart pack ./output edited.tva`
 
 展開済みTVAプロジェクトディレクトリを `.tva` アーカイブへパックします。
+
+出力先は `-o` / `--output` でも指定できます。
+
+```bash
+tvart pack ./project -o edited.tva
+```
 
 オプション:
 

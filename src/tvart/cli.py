@@ -18,13 +18,35 @@ from .play import play_tva
 from .validate import print_validation
 
 
+def resolve_output_path(
+    parser: argparse.ArgumentParser,
+    positional: Path | None,
+    option: Path | None,
+    command_name: str,
+) -> Path:
+    if positional is None and option is None:
+        parser.error(f"{command_name} requires an output path via positional argument or -o/--output")
+    if positional is not None and option is not None:
+        parser.error(f"{command_name} output path must be provided either positionally or via -o/--output, not both")
+    return positional if positional is not None else option
+
+
+def add_playback_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("input", type=Path)
+    parser.add_argument("--loop", action="store_true")
+    parser.add_argument("--fps", type=float)
+    parser.add_argument("--no-clear", action="store_true")
+    parser.add_argument("--once", action="store_true")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tvart", description="Create and play TVA (Text Video Art) files.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     convert = subparsers.add_parser("convert", help="convert a video file to .tva")
     convert.add_argument("input", type=Path)
-    convert.add_argument("output", type=Path)
+    convert.add_argument("output", nargs="?", type=Path)
+    convert.add_argument("-o", "--output", dest="output_option", type=Path)
     convert.add_argument("--width", type=int, default=DEFAULT_WIDTH)
     convert.add_argument("--height", type=int)
     convert.add_argument("--fps", type=float, default=DEFAULT_FPS)
@@ -35,13 +57,13 @@ def build_parser() -> argparse.ArgumentParser:
     convert.add_argument("--title")
     convert.add_argument("--overwrite", action="store_true")
     convert.add_argument("--aspect-correction", type=float, default=DEFAULT_ASPECT_CORRECTION)
+    convert.set_defaults(_parser=convert)
 
     play = subparsers.add_parser("play", help="play a .tva file in the terminal")
-    play.add_argument("input", type=Path)
-    play.add_argument("--loop", action="store_true")
-    play.add_argument("--fps", type=float)
-    play.add_argument("--no-clear", action="store_true")
-    play.add_argument("--once", action="store_true")
+    add_playback_arguments(play)
+
+    preview = subparsers.add_parser("preview", help="preview a .tva file in the terminal")
+    add_playback_arguments(preview)
 
     info = subparsers.add_parser("info", help="print .tva metadata")
     info.add_argument("input", type=Path)
@@ -58,16 +80,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     unpack = subparsers.add_parser("unpack", help="unpack a .tva archive into a project directory")
     unpack.add_argument("input", type=Path)
-    unpack.add_argument("output_dir", type=Path)
+    unpack.add_argument("output_dir", nargs="?", type=Path)
+    unpack.add_argument("-o", "--output", dest="output_option", type=Path)
     unpack.add_argument("--overwrite", action="store_true")
+    unpack.set_defaults(_parser=unpack)
 
     validate = subparsers.add_parser("validate", help="validate a .tva file or extracted project directory")
     validate.add_argument("input", type=Path)
 
     pack = subparsers.add_parser("pack", help="pack an extracted TVA project directory")
     pack.add_argument("input_dir", type=Path)
-    pack.add_argument("output", type=Path)
+    pack.add_argument("output", nargs="?", type=Path)
+    pack.add_argument("-o", "--output", dest="output_option", type=Path)
     pack.add_argument("--overwrite", action="store_true")
+    pack.set_defaults(_parser=pack)
 
     export = subparsers.add_parser("export", help="export a .tva file")
     export_subparsers = export.add_subparsers(dest="export_format", required=True)
@@ -84,9 +110,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "convert":
+        output = resolve_output_path(args._parser, args.output, args.output_option, "convert")
         return convert_video(
             args.input,
-            args.output,
+            output,
             width=args.width,
             height=args.height,
             fps=args.fps,
@@ -98,18 +125,22 @@ def main(argv: list[str] | None = None) -> int:
             overwrite=args.overwrite,
             aspect_correction=args.aspect_correction,
         )
-    if args.command == "play":
+    if args.command in {"play", "preview"}:
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
     if args.command == "info":
         return print_info(args.input)
     if args.command == "inspect":
         return print_inspect(args.input, as_json=args.json, markers=args.markers)
     if args.command in {"extract", "unpack"}:
-        return extract_tva(args.input, args.output_dir, overwrite=args.overwrite)
+        output_dir = args.output_dir
+        if args.command == "unpack":
+            output_dir = resolve_output_path(args._parser, args.output_dir, args.output_option, "unpack")
+        return extract_tva(args.input, output_dir, overwrite=args.overwrite)
     if args.command == "validate":
         return print_validation(args.input)
     if args.command == "pack":
-        return pack_tva(args.input_dir, args.output, overwrite=args.overwrite)
+        output = resolve_output_path(args._parser, args.output, args.output_option, "pack")
+        return pack_tva(args.input_dir, output, overwrite=args.overwrite)
     if args.command == "export" and args.export_format == "html":
         return export_html(args.input, args.output, overwrite=args.overwrite)
 

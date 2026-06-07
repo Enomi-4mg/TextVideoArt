@@ -49,8 +49,10 @@ python -m unittest discover -s tests
 
 ```bash
 tvart convert input.mp4 output.tva
+tvart convert input.mp4 -o output.tva
 tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
 tvart play output.tva
+tvart preview output.tva
 tvart info output.tva
 tvart inspect output.tva --json
 tvart inspect output.tva --markers
@@ -58,7 +60,9 @@ tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
 tvart unpack output.tva ./project
+tvart unpack output.tva -o ./project
 tvart pack ./output edited.tva
+tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
@@ -126,6 +130,12 @@ Frame files are UTF-8 plain text. Each frame has exactly the same width and heig
 
 Converts a video file into a `.tva` file.
 
+You can also write the output path with `-o` / `--output`:
+
+```bash
+tvart convert input.mp4 -o output.tva
+```
+
 Useful options:
 
 - `--width 100`
@@ -149,6 +159,10 @@ Options:
 - `--fps 12`
 - `--no-clear`
 - `--once`
+
+### `tvart preview output.tva`
+
+Alias for `tvart play` for terminal playback.
 
 ### `tvart info output.tva`
 
@@ -176,6 +190,12 @@ Extracts the ZIP archive contents into a directory.
 
 Unpacks a `.tva` archive into an editable project directory.
 
+You can also write the output directory with `-o` / `--output`:
+
+```bash
+tvart unpack output.tva -o ./project
+```
+
 Options:
 
 - `--overwrite`
@@ -183,6 +203,12 @@ Options:
 ### `tvart pack ./output edited.tva`
 
 Packs an extracted TVA project directory into a `.tva` archive.
+
+You can also write the output path with `-o` / `--output`:
+
+```bash
+tvart pack ./project -o edited.tva
+```
 
 Options:
 
