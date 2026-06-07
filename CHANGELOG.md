@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.2 - 2026-06-07
+
+- Added `-o` / `--output` support to `tvart convert` while preserving positional output usage.
+- Added `-o` / `--output` support to `tvart pack` while preserving positional output usage.
+- Added `-o` / `--output` support to `tvart unpack` while preserving positional output directory usage.
+- Added `tvart preview` as an alias for terminal playback via `tvart play` behavior.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.6.1 - 2026-06-04
 
 - Updated `tvart export html` output to use the same full-frame green overlay UI as the static Web Player.
