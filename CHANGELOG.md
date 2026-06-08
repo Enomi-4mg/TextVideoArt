@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.7.4 - 2026-06-09
+
+- Added a browser-based API sample app under `web/examples/`.
+- Demonstrated direct use of `TvaPlayer` and `loadTvaFile`.
+- Added sample UI for file loading, playback control, seeking, FPS override, loop control, manifest display, marker jumps, and player event logging.
+- Kept the existing Web Player unchanged.
+- Updated documentation for the API demo.
+- Updated the Python package version to `0.7.4`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.3 - 2026-06-09
 
 - Introduced a small source / converter / sink structure for the offline conversion workflow.

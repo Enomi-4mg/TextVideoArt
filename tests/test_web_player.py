@@ -15,6 +15,11 @@ class WebPlayerTests(unittest.TestCase):
         self.assertTrue((ROOT / "web" / "src" / "app" / "app.js").exists())
         self.assertTrue((ROOT / "web" / "src" / "app" / "styles.css").exists())
 
+    def test_api_demo_files_exist(self) -> None:
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo.html").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo.js").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo.css").exists())
+
     def test_web_player_index_loads_app_module(self) -> None:
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
 
@@ -26,6 +31,17 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn('id="manifest-toggle"', html)
         self.assertIn('id="controls-overlay"', html)
         self.assertIn('id="manifest-overlay"', html)
+
+    def test_api_demo_loads_module(self) -> None:
+        html = (ROOT / "web" / "examples" / "api-demo.html").read_text(encoding="utf-8")
+
+        self.assertIn('type="module"', html)
+        self.assertIn("./api-demo.js", html)
+        self.assertIn("./api-demo.css", html)
+        self.assertIn('id="file-input"', html)
+        self.assertIn('id="drop-zone"', html)
+        self.assertIn('id="frame-output"', html)
+        self.assertIn('id="event-log"', html)
 
     def test_tva_parser_uses_zip_library_and_validates_plain_text_tva(self) -> None:
         parser = (ROOT / "web" / "src" / "lib" / "tva.js").read_text(encoding="utf-8")
@@ -88,6 +104,32 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("export class TvaPlayer", declarations)
         self.assertIn("seekFrame(index: number): void", declarations)
         self.assertIn("on<K extends keyof TvaPlayerEventMap>", declarations)
+
+    def test_api_demo_uses_player_api_directly(self) -> None:
+        demo = (ROOT / "web" / "examples" / "api-demo.js").read_text(encoding="utf-8")
+
+        self.assertIn('import { TvaPlayer } from "../src/lib/player-api.js";', demo)
+        self.assertIn('import { loadTvaFile } from "../src/lib/tva.js";', demo)
+        self.assertIn("const player = new TvaPlayer();", demo)
+        self.assertIn("await loadTvaFile(file)", demo)
+        self.assertIn("player.load(tva)", demo)
+        self.assertIn('player.on("framechange"', demo)
+        for event_name in ("load", "play", "pause", "stop", "ended", "fpschange", "loopchange"):
+            self.assertIn(f'player.on("{event_name}"', demo)
+        self.assertIn("player.getManifest()", demo)
+        self.assertIn("player.getMarkers()", demo)
+
+    def test_api_demo_uses_playback_controls(self) -> None:
+        demo = (ROOT / "web" / "examples" / "api-demo.js").read_text(encoding="utf-8")
+
+        self.assertIn("player.play()", demo)
+        self.assertIn("player.pause()", demo)
+        self.assertIn("player.stop()", demo)
+        self.assertIn("player.prevFrame()", demo)
+        self.assertIn("player.nextFrame()", demo)
+        self.assertIn("player.seekFrame", demo)
+        self.assertIn("player.setFps", demo)
+        self.assertIn("player.setLoop", demo)
 
 
 if __name__ == "__main__":

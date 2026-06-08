@@ -68,6 +68,8 @@ tvart export html edited.tva -o edited.html
 
 The static Web Player lives at `web/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
 
+The API demo lives at `web/examples/api-demo.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
+
 ## `.tva` file structure
 
 ```text
@@ -253,6 +255,10 @@ player.pause();
 ```
 
 Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, and `on`.
+
+## API Demo
+
+`web/examples/api-demo.html` is a small reference app for API users. It keeps the existing Web Player at `web/index.html` unchanged while showing how to load `.tva` files with `loadTvaFile`, control a `TvaPlayer`, read manifest and marker data, and listen to player events.
 
 ## MVP limitations
 

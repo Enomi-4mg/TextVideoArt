@@ -68,6 +68,8 @@ tvart export html edited.tva -o edited.html
 
 静的Web Playerは `web/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
 
+APIデモは `web/examples/api-demo.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
+
 ## `.tva` ファイル構造
 
 ```text
@@ -253,6 +255,10 @@ player.pause();
 ```
 
 主なメソッドは `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, `on` です。
+
+## APIデモ
+
+`web/examples/api-demo.html` はAPI利用者向けの小さなリファレンスアプリです。既存のWeb Player `web/index.html` は変更せず、`loadTvaFile` による `.tva` 読み込み、`TvaPlayer` の制御、manifestとマーカーの参照、playerイベント購読の例を示します。
 
 ## MVPの制限
 
