@@ -13,10 +13,12 @@ from .constants import (
     DEFAULT_WIDTH,
     FRAMES_PATH,
     MANIFEST_NAME,
+    MAX_FRAME_COUNT,
     TVA_FORMAT,
     TVA_FORMAT_NAME,
     TVA_VERSION,
 )
+from . import __version__
 from .core import TextFrameConverter
 from .tva import frame_path, write_frame, write_manifest
 
@@ -122,6 +124,9 @@ def convert_video(
             timestamp = start + frame_index / fps
             if end_time is not None and timestamp >= end_time:
                 break
+            if frame_index >= MAX_FRAME_COUNT:
+                print("ERROR: frame_count would exceed TVA v0.1.0 limit of 1000000")
+                return 1
             cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
             ok, frame = cap.read()
             if not ok:
@@ -136,6 +141,16 @@ def convert_video(
 
         actual_duration = frame_index / fps
         height = converter.height
+        source = {
+            "type": "video",
+            "filename": input_path.name,
+            "width": source_width,
+            "height": source_height,
+            "fps": source_fps,
+        }
+        if source_duration is not None:
+            source["duration"] = source_duration
+
         manifest = {
             "format": TVA_FORMAT,
             "format_name": TVA_FORMAT_NAME,
@@ -153,11 +168,16 @@ def convert_video(
             "color_mode": "none",
             "frame_format": "plain_text",
             "frames_path": FRAMES_PATH,
-            "source": {
-                "filename": input_path.name,
-                "width": source_width,
-                "height": source_height,
-                "fps": source_fps,
+            "source": source,
+            "conversion": {
+                "tool": "tvart",
+                "tool_version": __version__,
+                "width": width,
+                "height": height,
+                "fps": fps,
+                "charset": charset,
+                "invert": invert,
+                "aspect_correction": aspect_correction,
             },
             "aspect_correction": aspect_correction,
             "created_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),

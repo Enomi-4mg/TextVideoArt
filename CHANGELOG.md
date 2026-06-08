@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.2 - 2026-06-09
+
+- Enforced the TVA v0.1.0 `frame_count <= 1,000,000` limit in manifest validation.
+- Updated `frame_path()` to reject frame indices outside the six-digit TVA v0.1.0 frame namespace.
+- Prevented conversion from generating more than `1,000,000` frames.
+- Rejected invalid file names inside the `frames/` namespace during validation.
+- Added `source.type = "video"` and `source.duration` metadata to converted TVA manifests when available.
+- Added `conversion` metadata to converted TVA manifests.
+- Updated the Python package version to `0.7.2`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.1 - 2026-06-09
 
 - Added `TextFrameConverter` as a reusable settings-bearing converter for image-to-text-frame conversion.

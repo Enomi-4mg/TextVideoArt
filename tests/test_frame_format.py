@@ -9,6 +9,15 @@ class FrameFormatTests(unittest.TestCase):
         self.assertEqual(frame_path(0), "frames/000000.txt")
         self.assertEqual(frame_path(1), "frames/000001.txt")
         self.assertEqual(frame_path(239), "frames/000239.txt")
+        self.assertEqual(frame_path(999999), "frames/999999.txt")
+
+    def test_frame_path_rejects_negative_index(self) -> None:
+        with self.assertRaises(ValueError):
+            frame_path(-1)
+
+    def test_frame_path_rejects_index_outside_six_digit_namespace(self) -> None:
+        with self.assertRaises(ValueError):
+            frame_path(1000000)
 
     def test_normalize_frame_text_removes_only_one_trailing_lf(self) -> None:
         self.assertEqual(normalize_frame_text("abc\n\n"), ["abc", ""])

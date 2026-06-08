@@ -57,6 +57,24 @@ class FakeVideoCapture:
         self.released = True
 
 
+class FakeLongVideoCapture(FakeVideoCapture):
+    def __init__(self, path: str) -> None:
+        super().__init__(path)
+        self.frames = [
+            FakeImage((10, 20, 3)),
+            FakeImage((10, 20, 3)),
+        ]
+
+    def get(self, prop: int) -> float:
+        values = {
+            1: 20,
+            2: 10,
+            3: 1,
+            4: 2,
+        }
+        return values.get(prop, 0)
+
+
 class FakeConverter:
     instances: list["FakeConverter"] = []
 
@@ -269,7 +287,53 @@ class CoreConversionTests(unittest.TestCase):
         self.assertEqual(len(FakeConverter.instances[0].images), 1)
         self.assertEqual(manifest["height"], 4)
         self.assertEqual(manifest["version"], "0.1.0")
+        self.assertEqual(manifest["source"]["type"], "video")
+        self.assertEqual(manifest["source"]["duration"], 1.0)
+        self.assertEqual(
+            manifest["conversion"],
+            {
+                "tool": "tvart",
+                "tool_version": "0.7.2",
+                "width": 2,
+                "height": 4,
+                "fps": 1,
+                "charset": " .:-=+*#%@",
+                "invert": False,
+                "aspect_correction": 0.5,
+            },
+        )
         self.assertEqual(frame_text, "ab\n")
+
+    def test_convert_video_rejects_more_than_max_frame_count(self) -> None:
+        FakeConverter.instances = []
+        fake_cv2 = SimpleNamespace(
+            CAP_PROP_FRAME_WIDTH=1,
+            CAP_PROP_FRAME_HEIGHT=2,
+            CAP_PROP_FPS=3,
+            CAP_PROP_FRAME_COUNT=4,
+            CAP_PROP_POS_MSEC=5,
+            VideoCapture=FakeLongVideoCapture,
+        )
+
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "input.mp4"
+            output_path = Path(tmp) / "output.tva"
+            input_path.write_bytes(b"fake")
+            stdout = io.StringIO()
+
+            with (
+                patch.dict(sys.modules, {"cv2": fake_cv2}),
+                patch("tvart.convert.TextFrameConverter", FakeConverter),
+                patch("tvart.convert.MAX_FRAME_COUNT", 1),
+                contextlib.redirect_stdout(stdout),
+            ):
+                result = convert_video(input_path, output_path, width=2, fps=1)
+
+        self.assertEqual(result, 1)
+        self.assertFalse(output_path.exists())
+        self.assertIn("ERROR: frame_count would exceed TVA v0.1.0 limit of 1000000", stdout.getvalue())
+        self.assertEqual(len(FakeConverter.instances), 1)
+        self.assertEqual(len(FakeConverter.instances[0].images), 1)
 
 
 if __name__ == "__main__":

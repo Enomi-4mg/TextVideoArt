@@ -25,6 +25,12 @@ def write_tva_directory(path: Path, manifest: dict, frames: dict[int, str]) -> N
         (path / frame_path(index)).write_text(text, encoding="utf-8")
 
 
+def add_zip_entries(path: Path, entries: dict[str, str]) -> None:
+    with zipfile.ZipFile(path, "a", compression=zipfile.ZIP_DEFLATED) as zf:
+        for name, text in entries.items():
+            zf.writestr(name, text)
+
+
 class TVAValidationTests(unittest.TestCase):
     def test_invalid_frame_dimensions(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -56,6 +62,38 @@ class TVAValidationTests(unittest.TestCase):
 
             self.assertIn("out-of-range frame: frames/000002.txt", errors)
 
+    def test_zip_rejects_invalid_names_under_frames_namespace(self) -> None:
+        invalid_names = [
+            "frames/foo.txt",
+            "frames/000001.json",
+            "frames/1000000.txt",
+            "frames/000001.txt.bak",
+            "frames/subdir/000001.txt",
+        ]
+
+        for invalid_name in invalid_names:
+            with self.subTest(invalid_name=invalid_name), TemporaryDirectory() as tmp:
+                path = Path(tmp) / "invalid-frame-name.tva"
+                manifest = valid_manifest()
+                write_tva(path, manifest, {0: "abc\nabc\n", 1: "abc\nabc\n"})
+                add_zip_entries(path, {invalid_name: "abc\nabc\n"})
+
+                errors = validate_tva(path)
+
+                self.assertIn(f"invalid frame file name: {invalid_name}", errors)
+
+    def test_zip_still_reports_valid_looking_frame_beyond_frame_count_as_out_of_range(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "extra-frame.tva"
+            manifest = valid_manifest()
+            write_tva(path, manifest, {0: "abc\nabc\n", 1: "abc\nabc\n"})
+            add_zip_entries(path, {"frames/000002.txt": "abc\nabc\n"})
+
+            errors = validate_tva(path)
+
+            self.assertIn("out-of-range frame: frames/000002.txt", errors)
+            self.assertNotIn("invalid frame file name: frames/000002.txt", errors)
+
     def test_valid_directory(self) -> None:
         with TemporaryDirectory() as tmp:
             path = Path(tmp) / "project"
@@ -85,6 +123,28 @@ class TVAValidationTests(unittest.TestCase):
             errors = validate_tva(path)
 
             self.assertIn("out-of-range frame: frames/000002.txt", errors)
+
+    def test_directory_rejects_invalid_names_under_frames_namespace(self) -> None:
+        invalid_names = [
+            "frames/foo.txt",
+            "frames/000001.json",
+            "frames/1000000.txt",
+            "frames/000001.txt.bak",
+            "frames/subdir/000001.txt",
+        ]
+
+        for invalid_name in invalid_names:
+            with self.subTest(invalid_name=invalid_name), TemporaryDirectory() as tmp:
+                path = Path(tmp) / "project"
+                manifest = valid_manifest()
+                write_tva_directory(path, manifest, {0: "abc\nabc\n", 1: "abc\nabc\n"})
+                invalid_path = path / invalid_name
+                invalid_path.parent.mkdir(parents=True, exist_ok=True)
+                invalid_path.write_text("abc\nabc\n", encoding="utf-8")
+
+                errors = validate_tva(path)
+
+                self.assertIn(f"invalid frame file name: {invalid_name}", errors)
 
 
 if __name__ == "__main__":

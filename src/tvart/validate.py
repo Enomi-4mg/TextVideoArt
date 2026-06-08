@@ -7,7 +7,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .constants import (
+    FRAMES_PATH,
     MANIFEST_NAME,
+    MAX_FRAME_COUNT,
     TVA_FORMAT,
     TVA_FORMAT_NAME,
     TVA_VERSION,
@@ -102,6 +104,8 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         errors.append("fps must be positive")
     if manifest["frame_count"] <= 0:
         errors.append("frame_count must be positive")
+    if manifest["frame_count"] > MAX_FRAME_COUNT:
+        errors.append("frame_count must be no more than 1000000")
     if manifest["duration"] <= 0:
         errors.append("duration must be positive")
     if len(manifest["charset"]) < 2:
@@ -166,7 +170,11 @@ def validate_tva_contents(names: set[str], read_text: ReadText) -> list[str]:
     height = manifest["height"]
     frame_count = manifest["frame_count"]
 
-    for name in names:
+    for name in sorted(names):
+        if name.startswith(FRAMES_PATH) and name != FRAMES_PATH and not FRAME_NAME_RE.match(name):
+            errors.append(f"invalid frame file name: {name}")
+
+    for name in sorted(names):
         match = FRAME_NAME_RE.match(name)
         if match and int(match.group(1)) >= frame_count:
             errors.append(f"out-of-range frame: {name}")
