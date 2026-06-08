@@ -17,7 +17,7 @@ from .constants import (
     TVA_FORMAT_NAME,
     TVA_VERSION,
 )
-from .core import image_to_text_frame
+from .core import TextFrameConverter
 from .tva import frame_path, write_frame, write_manifest
 
 
@@ -102,14 +102,15 @@ def convert_video(
     source_fps = float(cap.get(cv2.CAP_PROP_FPS) or 0)
     source_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
 
-    if height is None:
-        if source_width > 0 and source_height > 0:
-            height = max(1, int(source_height / source_width * width * aspect_correction))
-        else:
-            height = max(1, int(width * aspect_correction))
-
     source_duration = source_frame_count / source_fps if source_fps > 0 and source_frame_count > 0 else None
     end_time = start + duration if duration is not None else source_duration
+    converter = TextFrameConverter(
+        width=width,
+        height=height,
+        charset=charset,
+        invert=invert,
+        aspect_correction=aspect_correction,
+    )
 
     temp_dir = Path(tempfile.mkdtemp(prefix="tvart-"))
     try:
@@ -125,14 +126,7 @@ def convert_video(
             ok, frame = cap.read()
             if not ok:
                 break
-            lines = image_to_text_frame(
-                frame,
-                width=width,
-                height=height,
-                charset=charset,
-                invert=invert,
-                aspect_correction=aspect_correction,
-            )
+            lines = converter.convert_image(frame)
             write_frame(temp_dir / frame_path(frame_index), lines)
             frame_index += 1
 
@@ -141,6 +135,7 @@ def convert_video(
             return 1
 
         actual_duration = frame_index / fps
+        height = converter.height
         manifest = {
             "format": TVA_FORMAT,
             "format_name": TVA_FORMAT_NAME,

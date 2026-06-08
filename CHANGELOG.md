@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.1 - 2026-06-09
+
+- Added `TextFrameConverter` as a reusable settings-bearing converter for image-to-text-frame conversion.
+- Updated `image_to_text_frame()` to remain as a compatibility wrapper around `TextFrameConverter`.
+- Updated `tvart convert` to reuse a `TextFrameConverter` instance internally.
+- Preserved existing CLI behavior and manifest semantics.
+- Updated the Python package version to `0.7.1`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.0 - 2026-06-07
 
 - Added reusable core conversion modules under `src/tvart/core/`.
