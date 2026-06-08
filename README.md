@@ -66,9 +66,9 @@ tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
-The static Web Player lives at `web/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
+The static Web Player lives at `web/player/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
 
-The API demo lives at `web/examples/api-demo.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
+The API demo lives at `web/examples/api-demo/index.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
 
 ## `.tva` file structure
 
@@ -231,7 +231,7 @@ The offline `tvart convert` path is internally split into a video source, text-f
 
 ## Web Player
 
-`web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
+`web/player/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
 
 The Web Player keeps the frame view full-screen and uses green overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
 
@@ -258,7 +258,7 @@ Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFram
 
 ## API Demo
 
-`web/examples/api-demo.html` is a small reference app for API users. It keeps the existing Web Player at `web/index.html` unchanged while showing how to load `.tva` files with `loadTvaFile`, control a `TvaPlayer`, read manifest and marker data, and listen to player events.
+`web/examples/api-demo/index.html` is a small reference app for API users. It keeps the Web Player at `web/player/index.html` separate while showing how to load `.tva` files with `loadTvaFile`, control a `TvaPlayer`, read manifest and marker data, and listen to player events.
 
 ## MVP limitations
 

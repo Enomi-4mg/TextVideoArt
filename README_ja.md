@@ -66,9 +66,9 @@ tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
-静的Web Playerは `web/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
+静的Web Playerは `web/player/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
 
-APIデモは `web/examples/api-demo.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
+APIデモは `web/examples/api-demo/index.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
 
 ## `.tva` ファイル構造
 
@@ -231,7 +231,7 @@ tvart pack ./project -o edited.tva
 
 ## Web Player
 
-`web/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
+`web/player/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
 
 Web Playerはフレーム表示を全画面に置き、操作ボタンとmanifest詳細は緑のオーバーレイとして表示します。`Controls` と `Manifest` ボタンで表示/非表示を切り替えられます。
 
@@ -258,7 +258,7 @@ player.pause();
 
 ## APIデモ
 
-`web/examples/api-demo.html` はAPI利用者向けの小さなリファレンスアプリです。既存のWeb Player `web/index.html` は変更せず、`loadTvaFile` による `.tva` 読み込み、`TvaPlayer` の制御、manifestとマーカーの参照、playerイベント購読の例を示します。
+`web/examples/api-demo/index.html` はAPI利用者向けの小さなリファレンスアプリです。Web Player `web/player/index.html` とは分けて、`loadTvaFile` による `.tva` 読み込み、`TvaPlayer` の制御、manifestとマーカーの参照、playerイベント購読の例を示します。
 
 ## MVPの制限
 

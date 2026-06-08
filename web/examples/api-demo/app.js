@@ -1,5 +1,5 @@
-import { TvaPlayer } from "../src/lib/player-api.js";
-import { loadTvaFile } from "../src/lib/tva.js";
+import { TvaPlayer } from "../../src/lib/player-api.js";
+import { loadTvaFile } from "../../src/lib/tva.js";
 
 // Create the player directly. External apps can keep this instance in their own state layer.
 const player = new TvaPlayer();

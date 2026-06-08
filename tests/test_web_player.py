@@ -7,24 +7,25 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class WebPlayerTests(unittest.TestCase):
     def test_web_player_files_exist(self) -> None:
-        self.assertTrue((ROOT / "web" / "index.html").exists())
+        self.assertTrue((ROOT / "web" / "player" / "index.html").exists())
+        self.assertTrue((ROOT / "web" / "player" / "app.js").exists())
+        self.assertTrue((ROOT / "web" / "player" / "styles.css").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "tva.js").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-api.js").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-api.d.ts").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-state.js").exists())
-        self.assertTrue((ROOT / "web" / "src" / "app" / "app.js").exists())
-        self.assertTrue((ROOT / "web" / "src" / "app" / "styles.css").exists())
 
     def test_api_demo_files_exist(self) -> None:
-        self.assertTrue((ROOT / "web" / "examples" / "api-demo.html").exists())
-        self.assertTrue((ROOT / "web" / "examples" / "api-demo.js").exists())
-        self.assertTrue((ROOT / "web" / "examples" / "api-demo.css").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo" / "index.html").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo" / "app.js").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "api-demo" / "styles.css").exists())
 
     def test_web_player_index_loads_app_module(self) -> None:
-        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        html = (ROOT / "web" / "player" / "index.html").read_text(encoding="utf-8")
 
         self.assertIn('type="module"', html)
-        self.assertIn("./src/app/app.js", html)
+        self.assertIn("./app.js", html)
+        self.assertIn("./styles.css", html)
         self.assertIn('id="drop-zone"', html)
         self.assertIn('id="file-input"', html)
         self.assertIn('id="controls-toggle"', html)
@@ -33,11 +34,11 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn('id="manifest-overlay"', html)
 
     def test_api_demo_loads_module(self) -> None:
-        html = (ROOT / "web" / "examples" / "api-demo.html").read_text(encoding="utf-8")
+        html = (ROOT / "web" / "examples" / "api-demo" / "index.html").read_text(encoding="utf-8")
 
         self.assertIn('type="module"', html)
-        self.assertIn("./api-demo.js", html)
-        self.assertIn("./api-demo.css", html)
+        self.assertIn("./app.js", html)
+        self.assertIn("./styles.css", html)
         self.assertIn('id="file-input"', html)
         self.assertIn('id="drop-zone"', html)
         self.assertIn('id="frame-output"', html)
@@ -53,9 +54,11 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("framePath(index)", parser)
 
     def test_app_supports_expected_player_controls(self) -> None:
-        app = (ROOT / "web" / "src" / "app" / "app.js").read_text(encoding="utf-8")
+        app = (ROOT / "web" / "player" / "app.js").read_text(encoding="utf-8")
 
         self.assertIn("TvaPlayer", app)
+        self.assertIn('../src/lib/player-api.js', app)
+        self.assertIn('../src/lib/tva.js', app)
         self.assertIn("dragover", app)
         self.assertIn("drop", app)
         self.assertIn("playButton", app)
@@ -69,7 +72,7 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("manifestOverlay", app)
 
     def test_web_player_css_uses_green_overlay_ui(self) -> None:
-        css = (ROOT / "web" / "src" / "app" / "styles.css").read_text(encoding="utf-8")
+        css = (ROOT / "web" / "player" / "styles.css").read_text(encoding="utf-8")
 
         self.assertIn("background: #000", css)
         self.assertIn("color: #fff", css)
@@ -106,10 +109,10 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("on<K extends keyof TvaPlayerEventMap>", declarations)
 
     def test_api_demo_uses_player_api_directly(self) -> None:
-        demo = (ROOT / "web" / "examples" / "api-demo.js").read_text(encoding="utf-8")
+        demo = (ROOT / "web" / "examples" / "api-demo" / "app.js").read_text(encoding="utf-8")
 
-        self.assertIn('import { TvaPlayer } from "../src/lib/player-api.js";', demo)
-        self.assertIn('import { loadTvaFile } from "../src/lib/tva.js";', demo)
+        self.assertIn('import { TvaPlayer } from "../../src/lib/player-api.js";', demo)
+        self.assertIn('import { loadTvaFile } from "../../src/lib/tva.js";', demo)
         self.assertIn("const player = new TvaPlayer();", demo)
         self.assertIn("await loadTvaFile(file)", demo)
         self.assertIn("player.load(tva)", demo)
@@ -120,7 +123,7 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("player.getMarkers()", demo)
 
     def test_api_demo_uses_playback_controls(self) -> None:
-        demo = (ROOT / "web" / "examples" / "api-demo.js").read_text(encoding="utf-8")
+        demo = (ROOT / "web" / "examples" / "api-demo" / "app.js").read_text(encoding="utf-8")
 
         self.assertIn("player.play()", demo)
         self.assertIn("player.pause()", demo)
