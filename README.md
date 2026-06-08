@@ -223,6 +223,10 @@ Options:
 - `-o`, `--output`
 - `--overwrite`
 
+## Conversion internals
+
+The offline `tvart convert` path is internally split into a video source, text-frame converter, and TVA archive writer. This prepares the codebase for future realtime workflows while keeping the current CLI behavior unchanged.
+
 ## Web Player
 
 `web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
@@ -266,7 +270,7 @@ Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFram
 - Subtitle tracks.
 - Color layers.
 - Delta compression.
-- Preview tooling.
+- Realtime preview tooling.
 
 ## License
 

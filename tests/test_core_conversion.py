@@ -75,6 +75,12 @@ class FakeLongVideoCapture(FakeVideoCapture):
         return values.get(prop, 0)
 
 
+class FakeEmptyVideoCapture(FakeVideoCapture):
+    def __init__(self, path: str) -> None:
+        super().__init__(path)
+        self.frames = []
+
+
 class FakeConverter:
     instances: list["FakeConverter"] = []
 
@@ -293,7 +299,7 @@ class CoreConversionTests(unittest.TestCase):
             manifest["conversion"],
             {
                 "tool": "tvart",
-                "tool_version": "0.7.2",
+                "tool_version": "0.7.3",
                 "width": 2,
                 "height": 4,
                 "fps": 1,
@@ -334,6 +340,48 @@ class CoreConversionTests(unittest.TestCase):
         self.assertIn("ERROR: frame_count would exceed TVA v0.1.0 limit of 1000000", stdout.getvalue())
         self.assertEqual(len(FakeConverter.instances), 1)
         self.assertEqual(len(FakeConverter.instances[0].images), 1)
+
+    def test_convert_video_returns_error_when_no_frames_generated(self) -> None:
+        FakeConverter.instances = []
+        fake_cv2 = SimpleNamespace(
+            CAP_PROP_FRAME_WIDTH=1,
+            CAP_PROP_FRAME_HEIGHT=2,
+            CAP_PROP_FPS=3,
+            CAP_PROP_FRAME_COUNT=4,
+            CAP_PROP_POS_MSEC=5,
+            VideoCapture=FakeEmptyVideoCapture,
+        )
+
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "input.mp4"
+            output_path = Path(tmp) / "output.tva"
+            input_path.write_bytes(b"fake")
+            stdout = io.StringIO()
+
+            with (
+                patch.dict(sys.modules, {"cv2": fake_cv2}),
+                patch("tvart.convert.TextFrameConverter", FakeConverter),
+                contextlib.redirect_stdout(stdout),
+            ):
+                result = convert_video(input_path, output_path, width=2, fps=1)
+
+        self.assertEqual(result, 1)
+        self.assertFalse(output_path.exists())
+        self.assertIn("ERROR: no frames were generated", stdout.getvalue())
+
+    def test_convert_video_rejects_existing_output_without_overwrite(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "input.mp4"
+            output_path = Path(tmp) / "output.tva"
+            input_path.write_bytes(b"fake")
+            output_path.write_bytes(b"exists")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                result = convert_video(input_path, output_path)
+
+        self.assertEqual(result, 1)
+        self.assertIn(f"ERROR: output file already exists: {output_path}", stdout.getvalue())
 
 
 if __name__ == "__main__":

@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.3 - 2026-06-09
+
+- Introduced a small source / converter / sink structure for the offline conversion workflow.
+- Added `VideoFrameSource` for reading video frames and source metadata.
+- Added `iter_text_frames()` to connect frame sources with `TextFrameConverter`.
+- Added `TvaArchiveWriter` for writing TVA archives from converted text frames.
+- Refactored `tvart convert` to use the new internal workflow while preserving existing CLI behavior.
+- Preserved v0.7.2 manifest metadata behavior.
+- Updated the Python package version to `0.7.3`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.2 - 2026-06-09
 
 - Enforced the TVA v0.1.0 `frame_count <= 1,000,000` limit in manifest validation.
