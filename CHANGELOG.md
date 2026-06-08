@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.0 - 2026-06-07
+
+- Added reusable core conversion modules under `src/tvart/core/`.
+- Moved the brightness-to-character and grayscale-frame-to-text conversion path into core helpers.
+- Added `image_to_text_frame()` for shared image-to-text-frame conversion.
+- Updated `tvart convert` to call the new core conversion path without changing CLI arguments or manifest semantics.
+- Updated the Python package version to `0.7.0`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.6.2 - 2026-06-07
 
 - Added `-o` / `--output` support to `tvart convert` while preserving positional output usage.

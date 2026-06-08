@@ -5,7 +5,6 @@ import tempfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from .constants import (
     DEFAULT_ASPECT_CORRECTION,
@@ -18,6 +17,7 @@ from .constants import (
     TVA_FORMAT_NAME,
     TVA_VERSION,
 )
+from .core import image_to_text_frame
 from .tva import frame_path, write_frame, write_manifest
 
 
@@ -46,20 +46,6 @@ def validate_convert_options(
     if "\n" in charset or "\t" in charset:
         errors.append("charset must not contain newline or tab")
     return errors
-
-
-def brightness_to_char(value: int, charset: str, invert: bool = False) -> str:
-    index = int(value / 255 * (len(charset) - 1))
-    if invert:
-        index = (len(charset) - 1) - index
-    return charset[index]
-
-
-def frame_to_text(gray_frame: Any, charset: str, invert: bool) -> list[str]:
-    rows: list[str] = []
-    for row in gray_frame:
-        rows.append("".join(brightness_to_char(int(value), charset, invert) for value in row))
-    return rows
 
 
 def convert_video(
@@ -139,9 +125,14 @@ def convert_video(
             ok, frame = cap.read()
             if not ok:
                 break
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            resized = cv2.resize(gray, (width, height), interpolation=cv2.INTER_AREA)
-            lines = frame_to_text(resized, charset, invert)
+            lines = image_to_text_frame(
+                frame,
+                width=width,
+                height=height,
+                charset=charset,
+                invert=invert,
+                aspect_correction=aspect_correction,
+            )
             write_frame(temp_dir / frame_path(frame_index), lines)
             frame_index += 1
 
