@@ -282,7 +282,7 @@ class CoreConversionTests(unittest.TestCase):
                 patch("tvart.convert.TextFrameConverter", FakeConverter),
                 contextlib.redirect_stdout(io.StringIO()),
             ):
-                result = convert_video(input_path, output_path, width=2, fps=1)
+                result = convert_video(input_path, output_path, width=2, fps=1, quiet=True)
 
             with zipfile.ZipFile(output_path) as zf:
                 manifest = json.loads(zf.read("manifest.json").decode("utf-8"))
@@ -333,7 +333,7 @@ class CoreConversionTests(unittest.TestCase):
                 patch("tvart.convert.MAX_FRAME_COUNT", 1),
                 contextlib.redirect_stdout(stdout),
             ):
-                result = convert_video(input_path, output_path, width=2, fps=1)
+                result = convert_video(input_path, output_path, width=2, fps=1, quiet=True)
 
         self.assertEqual(result, 1)
         self.assertFalse(output_path.exists())
@@ -363,7 +363,7 @@ class CoreConversionTests(unittest.TestCase):
                 patch("tvart.convert.TextFrameConverter", FakeConverter),
                 contextlib.redirect_stdout(stdout),
             ):
-                result = convert_video(input_path, output_path, width=2, fps=1)
+                result = convert_video(input_path, output_path, width=2, fps=1, quiet=True)
 
         self.assertEqual(result, 1)
         self.assertFalse(output_path.exists())

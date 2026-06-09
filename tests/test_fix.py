@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import unittest
 import zipfile
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -34,17 +36,18 @@ class FixTests(unittest.TestCase):
                 {"notes/readme.txt": "keep me"},
             )
 
-            code = fix_tva(
-                input_path,
-                output_path,
-                title="New title",
-                author="A. User",
-                description="Updated",
-                license="MIT",
-                created_by="test",
-                tags=["demo", "fixed"],
-                charset=" .#",
-            )
+            with redirect_stdout(StringIO()):
+                code = fix_tva(
+                    input_path,
+                    output_path,
+                    title="New title",
+                    author="A. User",
+                    description="Updated",
+                    license="MIT",
+                    created_by="test",
+                    tags=["demo", "fixed"],
+                    charset=" .#",
+                )
 
             self.assertEqual(code, 0)
             self.assertEqual(validate_tva(output_path), [])
@@ -68,7 +71,8 @@ class FixTests(unittest.TestCase):
             manifest["width"] = 4
             write_tva(input_path, manifest, {0: "abc\nabc\n", 1: "abc\nabc\n"})
 
-            code = fix_tva(input_path, output_path, title="Nope")
+            with redirect_stdout(StringIO()):
+                code = fix_tva(input_path, output_path, title="Nope")
 
             self.assertEqual(code, 1)
             self.assertFalse(output_path.exists())
