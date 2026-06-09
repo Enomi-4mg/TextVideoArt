@@ -1,5 +1,43 @@
 # Changelog
 
+## Unreleased - 2026-06-10
+
+- Added `tvart fix` for safe `.tva` to `.tva` manifest metadata updates.
+  - Supports positional output or `-o` / `--output-file`.
+  - Supports `--title`, `--author`, `--description`, `--license`, `--created-by`, repeated `--tag`, `--set-charset`, `--set-charset-preset`, and `--overwrite`.
+  - Validates input before editing and validates output after writing.
+  - Preserves frame files and unknown ZIP entries.
+- Expanded `tvart preview` beyond the original `.tva` playback alias.
+  - Preserves `.tva` terminal playback behavior.
+  - Adds direct video preview for `.mp4`, `.mov`, `.avi`, and `.mkv`.
+  - Adds direct image preview for `.jpg`, `.jpeg`, `.png`, `.bmp`, and best-effort `.webp`.
+  - Renders video and image previews directly without creating temporary `.tva` files.
+- Added static image conversion support.
+  - `tvart convert image.png output.tva` creates a single-frame `.tva`.
+  - Image manifests use `source.type = "image"`, `fps = 1`, and `duration = 1.0`.
+- Added named charset presets.
+  - Presets: `standard`, `simple`, `blocks`, and `dense`.
+  - Added `--charset-preset` for `convert` and `preview`.
+  - Added `--set-charset-preset` for `fix`.
+  - Documented presets in `docs/charset-presets.md`.
+- Added transient CLI progress/status UX.
+  - `tvart convert` and video/image preview startup can show status on stderr.
+  - Added `--quiet` to suppress transient status.
+  - Fixed status output so tests and terminal output do not leave noisy traces.
+- Added browser renderer separation groundwork.
+  - Added `web/src/lib/renderer-pre.js`.
+  - Added `web/src/lib/renderer-pre.d.ts`.
+  - Introduced `PreFrameRenderer` with `render(frame)` and `clear()`.
+- Added experimental VJ browser sample under `web/examples/vj-sample/`.
+  - Supports file picker, drag-and-drop, full-frame output, overlay controls, keyboard shortcuts, and URL parameters.
+- Added docs-only research notes.
+  - `docs/unicode-width.md` documents current character-count validation and future Unicode display width options.
+  - `docs/color-layer-design.md` documents future sidecar color layer direction without embedding ANSI escape sequences in frame text.
+- Updated `docs/tvart-implementation-plan.md` with completed v0.8.x / v0.9.0 / v0.9.1 work and the next roadmap.
+- Updated `README.md` and `README_ja.md` for the current CLI, Web examples, and `python3` usage.
+- Kept the Python package version at `0.7.6` pending an explicit release version decision.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.6 - 2026-06-09
 
 - Added an experimental browser-only WebCam preview sample under `web/examples/webcam-preview/`.
