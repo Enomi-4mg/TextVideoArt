@@ -8,6 +8,19 @@ from pathlib import Path
 from .tva import frame_path, read_manifest_from_zip
 
 
+def enter_playback_screen() -> bool:
+    if not sys.stdout.isatty():
+        return False
+    sys.stdout.write("\033[?1049h\033[?25l\033[H\033[J")
+    sys.stdout.flush()
+    return True
+
+
+def leave_playback_screen() -> None:
+    sys.stdout.write("\033[?25h\033[?1049l")
+    sys.stdout.flush()
+
+
 def play_tva(
     path: Path,
     *,
@@ -16,6 +29,7 @@ def play_tva(
     no_clear: bool = False,
     once: bool = False,
 ) -> int:
+    playback_screen = False
     try:
         with zipfile.ZipFile(path, "r") as zf:
             manifest = read_manifest_from_zip(zf)
@@ -26,11 +40,13 @@ def play_tva(
             frame_count = int(manifest["frame_count"])
             frame_names = [frame_path(index) for index in range(frame_count)]
             delay = 1.0 / playback_fps
+            if not no_clear:
+                playback_screen = enter_playback_screen()
 
             while True:
                 for name in frame_names:
                     frame = zf.read(name).decode("utf-8")
-                    if not no_clear:
+                    if playback_screen:
                         sys.stdout.write("\033[H\033[J")
                     sys.stdout.write(frame)
                     if not frame.endswith("\n"):
@@ -49,4 +65,7 @@ def play_tva(
     except (KeyError, zipfile.BadZipFile, UnicodeDecodeError, ValueError) as exc:
         print(f"ERROR: cannot play TVA file: {exc}")
         return 1
+    finally:
+        if playback_screen:
+            leave_playback_screen()
     return 0

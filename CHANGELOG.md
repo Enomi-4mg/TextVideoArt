@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.5 - 2026-06-09
+
+- Realigned `docs/tvart-implementation-plan.md` with the current v0.7.4 project state.
+- Documented the next roadmap sequence: v0.7.6 WebCam preview sample, v0.8.0 renderer separation, and v0.8.1 VJ sample / output mode.
+- Explicitly separated experimental WebCam / VJ samples from TVA format changes.
+- Moved color layer work to a later roadmap phase.
+- Updated the Python package version to `0.7.5`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.4 - 2026-06-09
 
 - Added a browser-based API sample app under `web/examples/api-demo/`.
