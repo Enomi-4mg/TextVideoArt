@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import shutil
-import tempfile
-import zipfile
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from .constants import (
     DEFAULT_ASPECT_CORRECTION,
@@ -12,13 +11,16 @@ from .constants import (
     DEFAULT_FPS,
     DEFAULT_WIDTH,
     FRAMES_PATH,
-    MANIFEST_NAME,
+    MAX_FRAME_COUNT,
     TVA_FORMAT,
     TVA_FORMAT_NAME,
     TVA_VERSION,
 )
-from .core import image_to_text_frame
-from .tva import frame_path, write_frame, write_manifest
+from . import __version__
+from .core import TextFrameConverter
+from .sinks import TvaArchiveWriter
+from .sources import VideoFrameSource, VideoSourceMetadata
+from .workflow import iter_text_frames
 
 
 def validate_convert_options(
@@ -46,6 +48,62 @@ def validate_convert_options(
     if "\n" in charset or "\t" in charset:
         errors.append("charset must not contain newline or tab")
     return errors
+
+
+def build_convert_manifest(
+    *,
+    input_path: Path,
+    width: int,
+    height: int,
+    fps: float,
+    frame_count: int,
+    charset: str,
+    invert: bool,
+    title: str | None,
+    aspect_correction: float,
+    source_metadata: VideoSourceMetadata,
+) -> dict:
+    source = {
+        "type": "video",
+        "filename": source_metadata.filename,
+        "width": source_metadata.width,
+        "height": source_metadata.height,
+        "fps": source_metadata.fps,
+    }
+    if source_metadata.duration is not None:
+        source["duration"] = source_metadata.duration
+
+    return {
+        "format": TVA_FORMAT,
+        "format_name": TVA_FORMAT_NAME,
+        "version": TVA_VERSION,
+        "title": title or input_path.stem,
+        "created_by": "tvart",
+        "width": width,
+        "height": height,
+        "fps": fps,
+        "frame_count": frame_count,
+        "duration": frame_count / fps,
+        "charset": charset,
+        "invert": invert,
+        "encoding": "utf-8",
+        "color_mode": "none",
+        "frame_format": "plain_text",
+        "frames_path": FRAMES_PATH,
+        "source": source,
+        "conversion": {
+            "tool": "tvart",
+            "tool_version": __version__,
+            "width": width,
+            "height": height,
+            "fps": fps,
+            "charset": charset,
+            "invert": invert,
+            "aspect_correction": aspect_correction,
+        },
+        "aspect_correction": aspect_correction,
+        "created_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+    }
 
 
 def convert_video(
@@ -87,97 +145,67 @@ def convert_video(
         return 1
 
     try:
-        import cv2
+        source = VideoFrameSource(input_path, fps=fps, start=start, duration=duration)
     except ImportError:
         print("ERROR: opencv-python is required for convert. Install with `pip install -e .`.")
         return 1
-
-    cap = cv2.VideoCapture(str(input_path))
-    if not cap.isOpened():
+    except ValueError:
         print(f"ERROR: input video cannot be opened: {input_path}")
         return 1
 
-    source_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
-    source_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
-    source_fps = float(cap.get(cv2.CAP_PROP_FPS) or 0)
-    source_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-
-    if height is None:
-        if source_width > 0 and source_height > 0:
-            height = max(1, int(source_height / source_width * width * aspect_correction))
-        else:
-            height = max(1, int(width * aspect_correction))
-
-    source_duration = source_frame_count / source_fps if source_fps > 0 and source_frame_count > 0 else None
-    end_time = start + duration if duration is not None else source_duration
-
-    temp_dir = Path(tempfile.mkdtemp(prefix="tvart-"))
-    try:
-        frames_dir = temp_dir / FRAMES_PATH
-        frames_dir.mkdir(parents=True, exist_ok=True)
-
+    with source:
+        converter = TextFrameConverter(
+            width=width,
+            height=height,
+            charset=charset,
+            invert=invert,
+            aspect_correction=aspect_correction,
+        )
+        writer = TvaArchiveWriter(output_path, overwrite=overwrite)
         frame_index = 0
-        while True:
-            timestamp = start + frame_index / fps
-            if end_time is not None and timestamp >= end_time:
-                break
-            cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
-            ok, frame = cap.read()
-            if not ok:
-                break
-            lines = image_to_text_frame(
-                frame,
+        frame_limit_exceeded = False
+
+        def bounded_source() -> Iterator[Any]:
+            nonlocal frame_limit_exceeded
+            for frame in source:
+                if frame_index >= MAX_FRAME_COUNT:
+                    frame_limit_exceeded = True
+                    break
+                yield frame
+
+        try:
+            for lines in iter_text_frames(bounded_source(), converter):
+                writer.write_frame(lines)
+                frame_index += 1
+
+            if frame_limit_exceeded:
+                print("ERROR: frame_count would exceed TVA v0.1.0 limit of 1000000")
+                return 1
+
+            if frame_index == 0:
+                print("ERROR: no frames were generated")
+                return 1
+
+            resolved_height = converter.height
+            if resolved_height is None:
+                print("ERROR: no frames were generated")
+                return 1
+            manifest = build_convert_manifest(
+                input_path=input_path,
                 width=width,
-                height=height,
+                height=resolved_height,
+                fps=fps,
+                frame_count=frame_index,
                 charset=charset,
                 invert=invert,
+                title=title,
                 aspect_correction=aspect_correction,
+                source_metadata=source.metadata,
             )
-            write_frame(temp_dir / frame_path(frame_index), lines)
-            frame_index += 1
-
-        if frame_index == 0:
-            print("ERROR: no frames were generated")
-            return 1
-
-        actual_duration = frame_index / fps
-        manifest = {
-            "format": TVA_FORMAT,
-            "format_name": TVA_FORMAT_NAME,
-            "version": TVA_VERSION,
-            "title": title or input_path.stem,
-            "created_by": "tvart",
-            "width": width,
-            "height": height,
-            "fps": fps,
-            "frame_count": frame_index,
-            "duration": actual_duration,
-            "charset": charset,
-            "invert": invert,
-            "encoding": "utf-8",
-            "color_mode": "none",
-            "frame_format": "plain_text",
-            "frames_path": FRAMES_PATH,
-            "source": {
-                "filename": input_path.name,
-                "width": source_width,
-                "height": source_height,
-                "fps": source_fps,
-            },
-            "aspect_correction": aspect_correction,
-            "created_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
-        }
-        write_manifest(temp_dir / MANIFEST_NAME, manifest)
-
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.write(temp_dir / MANIFEST_NAME, MANIFEST_NAME)
-            for index in range(frame_index):
-                name = frame_path(index)
-                zf.write(temp_dir / name, name)
+            writer.write_manifest(manifest)
+            writer.close()
+        finally:
+            writer.cleanup()
 
         print(f"Wrote {output_path} ({frame_index} frames)")
         return 0
-    finally:
-        cap.release()
-        shutil.rmtree(temp_dir, ignore_errors=True)

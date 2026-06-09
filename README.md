@@ -66,7 +66,11 @@ tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
-The static Web Player lives at `web/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
+The static Web Player lives at `web/player/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
+
+The API demo lives at `web/examples/api-demo/index.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
+
+The experimental WebCam preview sample lives at `web/examples/webcam-preview/index.html`. It uses browser camera permission to convert live video frames into text preview frames without creating or exporting `.tva` files.
 
 ## `.tva` file structure
 
@@ -223,9 +227,13 @@ Options:
 - `-o`, `--output`
 - `--overwrite`
 
+## Conversion internals
+
+The offline `tvart convert` path is internally split into a video source, text-frame converter, and TVA archive writer. This prepares the codebase for future realtime workflows while keeping the current CLI behavior unchanged.
+
 ## Web Player
 
-`web/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
+`web/player/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
 
 The Web Player keeps the frame view full-screen and uses green overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
 
@@ -250,6 +258,10 @@ player.pause();
 
 Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, and `on`.
 
+## API Demo
+
+`web/examples/api-demo/index.html` is a small reference app for API users. It keeps the Web Player at `web/player/index.html` separate while showing how to load `.tva` files with `loadTvaFile`, control a `TvaPlayer`, read manifest and marker data, and listen to player events.
+
 ## MVP limitations
 
 - Monochrome plain text frames only.
@@ -266,7 +278,7 @@ Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFram
 - Subtitle tracks.
 - Color layers.
 - Delta compression.
-- Preview tooling.
+- Realtime preview tooling.
 
 ## License
 

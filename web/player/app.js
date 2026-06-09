@@ -1,5 +1,5 @@
-import { TvaPlayer } from "../lib/player-api.js";
-import { loadTvaFile } from "../lib/tva.js";
+import { TvaPlayer } from "../src/lib/player-api.js";
+import { loadTvaFile } from "../src/lib/tva.js";
 
 const dropZone = document.getElementById("drop-zone");
 const controlsToggle = document.getElementById("controls-toggle");

@@ -1,5 +1,64 @@
 # Changelog
 
+## v0.7.6 - 2026-06-09
+
+- Added an experimental browser-only WebCam preview sample under `web/examples/webcam-preview/`.
+- Captured webcam video with `navigator.mediaDevices.getUserMedia()` and converted live frames into grayscale text output.
+- Added full-frame `<pre>` preview rendering with overlay controls for camera start/stop, width, FPS, charset, invert, and aspect correction.
+- Added keyboard shortcuts for showing and hiding the overlay controls.
+- Updated the Python package version to `0.7.6`.
+- Kept TVA format version at `0.1.0`.
+
+## v0.7.5 - 2026-06-09
+
+- Realigned `docs/tvart-implementation-plan.md` with the current v0.7.4 project state.
+- Documented the next roadmap sequence: v0.7.6 WebCam preview sample, v0.8.0 renderer separation, and v0.8.1 VJ sample / output mode.
+- Explicitly separated experimental WebCam / VJ samples from TVA format changes.
+- Moved color layer work to a later roadmap phase.
+- Updated the Python package version to `0.7.5`.
+- Kept TVA format version at `0.1.0`.
+
+## v0.7.4 - 2026-06-09
+
+- Added a browser-based API sample app under `web/examples/api-demo/`.
+- Demonstrated direct use of `TvaPlayer` and `loadTvaFile`.
+- Added sample UI for file loading, playback control, seeking, FPS override, loop control, manifest display, marker jumps, and player event logging.
+- Organized the static Web Player app under `web/player/`.
+- Updated documentation for the API demo.
+- Updated the Python package version to `0.7.4`.
+- Kept TVA format version at `0.1.0`.
+
+## v0.7.3 - 2026-06-09
+
+- Introduced a small source / converter / sink structure for the offline conversion workflow.
+- Added `VideoFrameSource` for reading video frames and source metadata.
+- Added `iter_text_frames()` to connect frame sources with `TextFrameConverter`.
+- Added `TvaArchiveWriter` for writing TVA archives from converted text frames.
+- Refactored `tvart convert` to use the new internal workflow while preserving existing CLI behavior.
+- Preserved v0.7.2 manifest metadata behavior.
+- Updated the Python package version to `0.7.3`.
+- Kept TVA format version at `0.1.0`.
+
+## v0.7.2 - 2026-06-09
+
+- Enforced the TVA v0.1.0 `frame_count <= 1,000,000` limit in manifest validation.
+- Updated `frame_path()` to reject frame indices outside the six-digit TVA v0.1.0 frame namespace.
+- Prevented conversion from generating more than `1,000,000` frames.
+- Rejected invalid file names inside the `frames/` namespace during validation.
+- Added `source.type = "video"` and `source.duration` metadata to converted TVA manifests when available.
+- Added `conversion` metadata to converted TVA manifests.
+- Updated the Python package version to `0.7.2`.
+- Kept TVA format version at `0.1.0`.
+
+## v0.7.1 - 2026-06-09
+
+- Added `TextFrameConverter` as a reusable settings-bearing converter for image-to-text-frame conversion.
+- Updated `image_to_text_frame()` to remain as a compatibility wrapper around `TextFrameConverter`.
+- Updated `tvart convert` to reuse a `TextFrameConverter` instance internally.
+- Preserved existing CLI behavior and manifest semantics.
+- Updated the Python package version to `0.7.1`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.0 - 2026-06-07
 
 - Added reusable core conversion modules under `src/tvart/core/`.

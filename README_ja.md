@@ -66,7 +66,11 @@ tvart pack ./project -o edited.tva
 tvart export html edited.tva -o edited.html
 ```
 
-静的Web Playerは `web/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
+静的Web Playerは `web/player/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
+
+APIデモは `web/examples/api-demo/index.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
+
+実験的なWebCam previewサンプルは `web/examples/webcam-preview/index.html` にあります。ブラウザのカメラ許可を使ってライブ映像をテキストプレビューへ変換しますが、`.tva` ファイルの作成や書き出しは行いません。
 
 ## `.tva` ファイル構造
 
@@ -223,9 +227,13 @@ tvart pack ./project -o edited.tva
 - `-o`, `--output`
 - `--overwrite`
 
+## 変換処理の内部構造
+
+オフラインの `tvart convert` は内部的に、動画ソース、テキストフレーム変換、TVAアーカイブ書き込みに分かれています。現在のCLIの使い方は変えず、将来のリアルタイムワークフローに備えるための構造です。
+
 ## Web Player
 
-`web/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
+`web/player/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
 
 Web Playerはフレーム表示を全画面に置き、操作ボタンとmanifest詳細は緑のオーバーレイとして表示します。`Controls` と `Manifest` ボタンで表示/非表示を切り替えられます。
 
@@ -250,6 +258,10 @@ player.pause();
 
 主なメソッドは `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, `on` です。
 
+## APIデモ
+
+`web/examples/api-demo/index.html` はAPI利用者向けの小さなリファレンスアプリです。Web Player `web/player/index.html` とは分けて、`loadTvaFile` による `.tva` 読み込み、`TvaPlayer` の制御、manifestとマーカーの参照、playerイベント購読の例を示します。
+
 ## MVPの制限
 
 - モノクロのプレーンテキストフレームのみ対応します。
@@ -266,7 +278,7 @@ player.pause();
 - 字幕トラック
 - 色レイヤー
 - 差分圧縮
-- プレビュー機能
+- リアルタイムプレビュー機能
 
 ## ライセンス
 

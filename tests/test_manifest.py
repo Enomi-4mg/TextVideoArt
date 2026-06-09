@@ -1,7 +1,7 @@
 import unittest
 
 import path_setup  # noqa: F401
-from tvart.constants import DEFAULT_CHARSET
+from tvart.constants import DEFAULT_CHARSET, MAX_FRAME_COUNT
 from tvart.validate import validate_manifest
 
 
@@ -47,6 +47,12 @@ class ManifestValidationTests(unittest.TestCase):
         manifest["duration"] = False
 
         self.assertIn("manifest field duration must be a number", validate_manifest(manifest))
+
+    def test_frame_count_must_not_exceed_tva_limit(self) -> None:
+        manifest = valid_manifest()
+        manifest["frame_count"] = MAX_FRAME_COUNT + 1
+
+        self.assertIn("frame_count must be no more than 1000000", validate_manifest(manifest))
 
     def test_title_is_optional(self) -> None:
         manifest = valid_manifest()

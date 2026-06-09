@@ -6,7 +6,7 @@ from pathlib import Path
 from pathlib import PurePosixPath
 from typing import Any
 
-from .constants import FRAMES_PATH, MANIFEST_NAME
+from .constants import FRAMES_PATH, MANIFEST_NAME, MAX_FRAME_INDEX
 
 
 Manifest = dict[str, Any]
@@ -15,6 +15,8 @@ Manifest = dict[str, Any]
 def frame_path(index: int) -> str:
     if index < 0:
         raise ValueError("frame index must be non-negative")
+    if index > MAX_FRAME_INDEX:
+        raise ValueError("frame index must be no more than 999999")
     return f"{FRAMES_PATH}{index:06d}.txt"
 
 

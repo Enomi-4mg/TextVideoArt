@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tvart API Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>tvart API Demo</h1>
+        <p>Load a .tva file and control playback through the browser API.</p>
+      </div>
+      <label class="file-picker">
+        <span>Choose .tva</span>
+        <input id="file-input" type="file" accept=".tva,application/zip" />
+      </label>
+      <div id="status" class="status">Waiting for a TVA file.</div>
+    </header>
+
+    <main id="drop-zone" class="layout">
+      <aside class="panel controls">
+        <h2>Controls</h2>
+        <div class="button-row">
+          <button id="play-toggle" type="button">Play</button>
+          <button id="stop-button" type="button">Stop</button>
+        </div>
+        <div class="button-row">
+          <button id="prev-button" type="button">Prev</button>
+          <button id="next-button" type="button">Next</button>
+        </div>
+        <label>
+          <span>Frame</span>
+          <input id="seek-input" type="range" min="0" max="0" value="0" />
+        </label>
+        <div id="frame-readout" class="readout">0 / 0</div>
+        <label>
+          <span>FPS</span>
+          <input id="fps-input" type="number" min="0.1" step="0.1" value="10" />
+        </label>
+        <label class="checkbox">
+          <input id="loop-input" type="checkbox" />
+          <span>Loop</span>
+        </label>
+      </aside>
+
+      <section class="preview">
+        <pre id="frame-output" aria-live="polite">Load a TVA file to preview frames.</pre>
+      </section>
+
+      <aside class="panel details">
+        <section>
+          <h2>Manifest</h2>
+          <dl id="manifest-output" class="manifest-list"></dl>
+        </section>
+        <section>
+          <h2>Markers</h2>
+          <div id="markers-output" class="marker-list">No markers loaded.</div>
+        </section>
+        <section>
+          <h2>Event Log</h2>
+          <ol id="event-log" class="event-log"></ol>
+        </section>
+      </aside>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
