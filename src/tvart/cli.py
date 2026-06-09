@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tvart", description="Create and play TVA (Text Video Art) files.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    convert = subparsers.add_parser("convert", help="convert a video file to .tva")
+    convert = subparsers.add_parser("convert", help="convert a video or image file to .tva")
     convert.add_argument("input", type=Path)
     convert.add_argument("output", nargs="?", type=Path)
     convert.add_argument("-o", "--output", dest="output_option", type=Path)
@@ -67,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
     play = subparsers.add_parser("play", help="play a .tva file in the terminal")
     add_playback_arguments(play)
 
-    preview = subparsers.add_parser("preview", help="preview a .tva or video file in the terminal")
+    preview = subparsers.add_parser("preview", help="preview a .tva, video, or image file in the terminal")
     preview.add_argument("input", type=Path)
     preview.add_argument("--width", type=int, default=DEFAULT_WIDTH)
     preview.add_argument("--height", type=int)

@@ -25,10 +25,10 @@ plain text frames inside a ZIP-based container.
 ## Installation
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install -e .
+python3 -m pip install -U pip
+python3 -m pip install -e .
 ```
 
 On Windows PowerShell:
@@ -43,7 +43,7 @@ python -m pip install -e .
 Run tests:
 
 ```bash
-python -m unittest discover -s tests
+python3 -m unittest discover -s tests
 ```
 
 ## Basic Usage

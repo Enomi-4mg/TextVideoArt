@@ -23,10 +23,10 @@
 ## インストール
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install -e .
+python3 -m pip install -U pip
+python3 -m pip install -e .
 ```
 
 Windows PowerShell の場合:
@@ -41,7 +41,7 @@ python -m pip install -e .
 テスト:
 
 ```bash
-python -m unittest discover -s tests
+python3 -m unittest discover -s tests
 ```
 
 ## 基本的な使い方
