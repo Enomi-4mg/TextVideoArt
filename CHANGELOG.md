@@ -35,6 +35,7 @@
   - `docs/color-layer-design.md` documents future sidecar color layer direction without embedding ANSI escape sequences in frame text.
 - Updated `docs/tvart-implementation-plan.md` with completed v0.8.x / v0.9.0 / v0.9.1 work and the next roadmap.
 - Updated `README.md` and `README_ja.md` for the current CLI, Web examples, and `python3` usage.
+- Audited stale local and remote feature branches after landing the current `main` work.
 - Kept the Python package version at `0.7.6` pending an explicit release version decision.
 - Kept TVA format version at `0.1.0`.
 
