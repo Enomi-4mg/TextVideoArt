@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,16 @@ from .core import TextFrameConverter
 from .sinks import TvaArchiveWriter
 from .sources import VideoFrameSource, VideoSourceMetadata
 from .workflow import iter_text_frames
+
+
+def _status(message: str, *, quiet: bool) -> None:
+    if not quiet:
+        print(f"\r\033[K{message}", end="", file=sys.stderr, flush=True)
+
+
+def _clear_status(*, quiet: bool) -> None:
+    if not quiet:
+        print("\r\033[K", end="", file=sys.stderr, flush=True)
 
 
 def validate_convert_options(
@@ -120,6 +131,7 @@ def convert_video(
     title: str | None = None,
     overwrite: bool = False,
     aspect_correction: float = DEFAULT_ASPECT_CORRECTION,
+    quiet: bool = False,
 ) -> int:
     if not input_path.exists():
         print(f"ERROR: input file does not exist: {input_path}")
@@ -152,6 +164,7 @@ def convert_video(
     except ValueError:
         print(f"ERROR: input video cannot be opened: {input_path}")
         return 1
+    _status(f"Preparing conversion: {input_path}", quiet=quiet)
 
     with source:
         converter = TextFrameConverter(
@@ -177,17 +190,22 @@ def convert_video(
             for lines in iter_text_frames(bounded_source(), converter):
                 writer.write_frame(lines)
                 frame_index += 1
+                if frame_index == 1 or frame_index % 25 == 0:
+                    _status(f"Converted {frame_index} frames...", quiet=quiet)
 
             if frame_limit_exceeded:
+                _clear_status(quiet=quiet)
                 print("ERROR: frame_count would exceed TVA v0.1.0 limit of 1000000")
                 return 1
 
             if frame_index == 0:
+                _clear_status(quiet=quiet)
                 print("ERROR: no frames were generated")
                 return 1
 
             resolved_height = converter.height
             if resolved_height is None:
+                _clear_status(quiet=quiet)
                 print("ERROR: no frames were generated")
                 return 1
             manifest = build_convert_manifest(
@@ -207,5 +225,6 @@ def convert_video(
         finally:
             writer.cleanup()
 
+        _clear_status(quiet=quiet)
         print(f"Wrote {output_path} ({frame_index} frames)")
         return 0

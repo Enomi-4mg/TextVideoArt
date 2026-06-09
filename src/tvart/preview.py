@@ -5,7 +5,8 @@ import time
 from pathlib import Path
 
 from .constants import DEFAULT_ASPECT_CORRECTION, DEFAULT_CHARSET, DEFAULT_FPS, DEFAULT_WIDTH
-from .convert import frame_to_text, validate_convert_options
+from .convert import _clear_status, _status, validate_convert_options
+from .core import frame_to_text
 from .play import play_tva
 
 
@@ -26,6 +27,7 @@ def preview_video(
     loop: bool = False,
     no_clear: bool = False,
     once: bool = False,
+    quiet: bool = False,
 ) -> int:
     if not input_path.exists():
         print(f"ERROR: input file does not exist: {input_path}")
@@ -60,6 +62,7 @@ def preview_video(
     if not cap.isOpened():
         print(f"ERROR: input video cannot be opened: {input_path}")
         return 1
+    _status(f"Preparing video preview: {input_path}", quiet=quiet)
 
     try:
         source_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
@@ -91,6 +94,7 @@ def preview_video(
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 resized = cv2.resize(gray, (width, height), interpolation=cv2.INTER_AREA)
                 lines = frame_to_text(resized, charset, invert)
+                _clear_status(quiet=quiet)
                 if not no_clear:
                     sys.stdout.write("\033[H\033[J")
                 sys.stdout.write("\n".join(lines) + "\n")
@@ -101,6 +105,7 @@ def preview_video(
                 time.sleep(delay)
                 frame_index += 1
             if not displayed:
+                _clear_status(quiet=quiet)
                 print("ERROR: no frames were available for preview")
                 return 1
             if not loop:
@@ -126,6 +131,7 @@ def preview_input(
     loop: bool = False,
     no_clear: bool = False,
     once: bool = False,
+    quiet: bool = False,
 ) -> int:
     if input_path.suffix.lower() == ".tva":
         return play_tva(input_path, loop=loop, fps=fps, no_clear=no_clear, once=once)
@@ -142,4 +148,5 @@ def preview_input(
         loop=loop,
         no_clear=no_clear,
         once=once,
+        quiet=quiet,
     )

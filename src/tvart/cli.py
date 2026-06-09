@@ -59,13 +59,11 @@ def build_parser() -> argparse.ArgumentParser:
     convert.add_argument("--title")
     convert.add_argument("--overwrite", action="store_true")
     convert.add_argument("--aspect-correction", type=float, default=DEFAULT_ASPECT_CORRECTION)
+    convert.add_argument("--quiet", action="store_true")
     convert.set_defaults(_parser=convert)
 
     play = subparsers.add_parser("play", help="play a .tva file in the terminal")
     add_playback_arguments(play)
-
-    preview = subparsers.add_parser("preview", help="preview a .tva file in the terminal")
-    add_playback_arguments(preview)
 
     preview = subparsers.add_parser("preview", help="preview a .tva or video file in the terminal")
     preview.add_argument("input", type=Path)
@@ -80,6 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     preview.add_argument("--loop", action="store_true")
     preview.add_argument("--no-clear", action="store_true")
     preview.add_argument("--once", action="store_true")
+    preview.add_argument("--quiet", action="store_true")
 
     info = subparsers.add_parser("info", help="print .tva metadata")
     info.add_argument("input", type=Path)
@@ -153,8 +152,9 @@ def main(argv: list[str] | None = None) -> int:
             title=args.title,
             overwrite=args.overwrite,
             aspect_correction=args.aspect_correction,
+            quiet=args.quiet,
         )
-    if args.command in {"play", "preview"}:
+    if args.command == "play":
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
     if args.command == "preview":
         return preview_input(
@@ -170,6 +170,7 @@ def main(argv: list[str] | None = None) -> int:
             loop=args.loop,
             no_clear=args.no_clear,
             once=args.once,
+            quiet=args.quiet,
         )
     if args.command == "info":
         return print_info(args.input)
