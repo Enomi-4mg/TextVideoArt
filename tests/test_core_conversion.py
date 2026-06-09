@@ -299,7 +299,7 @@ class CoreConversionTests(unittest.TestCase):
             manifest["conversion"],
             {
                 "tool": "tvart",
-                "tool_version": "0.7.5",
+                "tool_version": "0.7.6",
                 "width": 2,
                 "height": 4,
                 "fps": 1,

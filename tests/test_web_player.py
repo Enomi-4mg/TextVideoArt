@@ -20,6 +20,11 @@ class WebPlayerTests(unittest.TestCase):
         self.assertTrue((ROOT / "web" / "examples" / "api-demo" / "app.js").exists())
         self.assertTrue((ROOT / "web" / "examples" / "api-demo" / "styles.css").exists())
 
+    def test_webcam_preview_files_exist(self) -> None:
+        self.assertTrue((ROOT / "web" / "examples" / "webcam-preview" / "index.html").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "webcam-preview" / "app.js").exists())
+        self.assertTrue((ROOT / "web" / "examples" / "webcam-preview" / "styles.css").exists())
+
     def test_web_player_index_loads_app_module(self) -> None:
         html = (ROOT / "web" / "player" / "index.html").read_text(encoding="utf-8")
 
@@ -43,6 +48,18 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn('id="drop-zone"', html)
         self.assertIn('id="frame-output"', html)
         self.assertIn('id="event-log"', html)
+
+    def test_webcam_preview_loads_module_and_expected_elements(self) -> None:
+        html = (ROOT / "web" / "examples" / "webcam-preview" / "index.html").read_text(encoding="utf-8")
+
+        self.assertIn('type="module"', html)
+        self.assertIn("./app.js", html)
+        self.assertIn("./styles.css", html)
+        self.assertIn('id="frame-output"', html)
+        self.assertIn('id="camera-video"', html)
+        self.assertIn('id="sample-canvas"', html)
+        self.assertIn('id="controls-overlay"', html)
+        self.assertIn("Press H to toggle controls", html)
 
     def test_tva_parser_uses_zip_library_and_validates_plain_text_tva(self) -> None:
         parser = (ROOT / "web" / "src" / "lib" / "tva.js").read_text(encoding="utf-8")
@@ -133,6 +150,18 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("player.seekFrame", demo)
         self.assertIn("player.setFps", demo)
         self.assertIn("player.setLoop", demo)
+
+    def test_webcam_preview_uses_camera_overlay_shortcuts_and_conversion(self) -> None:
+        demo = (ROOT / "web" / "examples" / "webcam-preview" / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn("navigator.mediaDevices.getUserMedia", demo)
+        self.assertIn('event.key === "h"', demo)
+        self.assertIn('event.key === "H"', demo)
+        self.assertIn('event.key === "Escape"', demo)
+        self.assertIn("brightnessToChar", demo)
+        self.assertIn("0.299 * r + 0.587 * g + 0.114 * b", demo)
+        self.assertIn("context.getImageData", demo)
+        self.assertIn("stream.getTracks()", demo)
 
 
 if __name__ == "__main__":

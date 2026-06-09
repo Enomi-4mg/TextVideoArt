@@ -70,6 +70,8 @@ The static Web Player lives at `web/player/index.html`. Open it in a browser, th
 
 The API demo lives at `web/examples/api-demo/index.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
 
+The experimental WebCam preview sample lives at `web/examples/webcam-preview/index.html`. It uses browser camera permission to convert live video frames into text preview frames without creating or exporting `.tva` files.
+
 ## `.tva` file structure
 
 ```text

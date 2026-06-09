@@ -20,12 +20,12 @@ README / CHANGELOG / docs/format.md とこの計画書が矛盾する場合は�
 
 ## 1. 現在地
 
-現在の `tvart` は、`.tva` という Text Video Art 用コンテナ形式を扱う参照実装として進めている。v0.7.4 実装状態として、CLI、検証、pack / unpack、HTML export、Web Player、ブラウザ Player API、API demo、Python 側の core / workflow 分離までが実装済みである。
+現在の `tvart` は、`.tva` という Text Video Art 用コンテナ形式を扱う参照実装として進めている。v0.7.6 実装状態として、CLI、検証、pack / unpack、HTML export、Web Player、ブラウザ Player API、API demo、WebCam preview sample、Python 側の core / workflow 分離までが実装済みである。
 
 ```text
 TVA format version: 0.1.0
-Implemented baseline: 0.7.4
-Planning/documentation release: 0.7.5
+Implemented baseline: 0.7.6
+Current package release: 0.7.6
 ```
 
 重要な分離:
@@ -74,6 +74,12 @@ web/examples/api-demo/
   app.js
   styles.css
   Browser API demo app
+
+web/examples/webcam-preview/
+  index.html
+  app.js
+  styles.css
+  Experimental browser-side WebCam text preview sample
 
 web/src/lib/player-api.js
   TvaPlayer playback control API
@@ -351,47 +357,32 @@ web/vj/
 - Web Player app を `web/player/` に整理。
 - TVA format version は `0.1.0` のまま維持。
 
----
-
-## 6. 次のロードマップ
-
 ### v0.7.5: Documentation / roadmap realignment
 
-目的:
+完了済み。
 
-```text
-v0.7.4 時点の実装状態と今後の順序を計画書へ反映する。
-```
-
-範囲:
-
-- `docs/tvart-implementation-plan.md` を v0.7.4 現状に合わせる。
-- WebCam / VJ sample を experimental samples として明確化する。
-- Color layer を v0.9.0 以降の later phase へ移す。
-- TVA format version は `0.1.0` のまま維持する。
-- 実装コードは追加しない。
+- `docs/tvart-implementation-plan.md` を v0.7.4 現状に合わせた。
+- WebCam / VJ sample を experimental samples として明確化した。
+- Color layer を v0.9.0 以降の later phase へ移した。
+- 実装コードは追加していない。
+- TVA format version は `0.1.0` のまま維持。
 
 ### v0.7.6: Experimental WebCam preview sample
 
-目的:
+完了済み。
 
-```text
-browser-side の WebCam 入力から、text frame preview を表示する experimental sample を追加する。
-```
+- `web/examples/webcam-preview/` に browser-only の WebCam preview sample を追加。
+- `navigator.mediaDevices.getUserMedia()` で WebCam stream を取得。
+- hidden `<video>` と hidden `<canvas>` から frame を sample し、luma brightness を charset へ変換。
+- full-frame `<pre>` に live text preview を表示。
+- Start / Stop、width、FPS、charset、invert、aspect correction の overlay controls を追加。
+- `H` / `Escape` keyboard shortcuts で controls overlay の表示を制御。
+- `.tva` format、CLI、pack/export semantics、Python conversion workflow は変更していない。
+- TVA format version は `0.1.0` のまま維持。
 
-想定配置:
+---
 
-```text
-web/examples/webcam-preview/
-```
-
-制約:
-
-- `.tva` format は変更しない。
-- CLI は変更しない。
-- WebCamSource Python class はまだ追加しない。
-- MIDI、OSC、WebSocket、audio reactivity、effect graph は追加しない。
-- 保存形式や pack/export semantics は変更しない。
+## 6. 次のロードマップ
 
 ### v0.8.0: Renderer separation
 

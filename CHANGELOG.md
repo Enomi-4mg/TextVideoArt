@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.6 - 2026-06-09
+
+- Added an experimental browser-only WebCam preview sample under `web/examples/webcam-preview/`.
+- Captured webcam video with `navigator.mediaDevices.getUserMedia()` and converted live frames into grayscale text output.
+- Added full-frame `<pre>` preview rendering with overlay controls for camera start/stop, width, FPS, charset, invert, and aspect correction.
+- Added keyboard shortcuts for showing and hiding the overlay controls.
+- Updated the Python package version to `0.7.6`.
+- Kept TVA format version at `0.1.0`.
+
 ## v0.7.5 - 2026-06-09
 
 - Realigned `docs/tvart-implementation-plan.md` with the current v0.7.4 project state.

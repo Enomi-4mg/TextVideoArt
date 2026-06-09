@@ -70,6 +70,8 @@ tvart export html edited.tva -o edited.html
 
 APIデモは `web/examples/api-demo/index.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
 
+実験的なWebCam previewサンプルは `web/examples/webcam-preview/index.html` にあります。ブラウザのカメラ許可を使ってライブ映像をテキストプレビューへ変換しますが、`.tva` ファイルの作成や書き出しは行いません。
+
 ## `.tva` ファイル構造
 
 ```text

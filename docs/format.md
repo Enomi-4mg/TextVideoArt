@@ -4,7 +4,7 @@
 
 This document describes TVA format version `0.1.0` as implemented by the current `tvart` reference tools.
 
-The `tvart` Python package version and the TVA format version are independent. The current planning/package release is `0.7.5`, while the TVA format version remains `0.1.0`.
+The `tvart` Python package version and the TVA format version are independent. The current package release is `0.7.6`, while the TVA format version remains `0.1.0`.
 
 Tool updates do not necessarily change the format version. The format version should change only when file format semantics change, such as required fields, frame layout, path rules, or the meaning of existing fields.
 
@@ -151,7 +151,7 @@ Recommended example:
 {
   "conversion": {
     "tool": "tvart",
-    "tool_version": "0.7.5",
+    "tool_version": "0.7.6",
     "width": 100,
     "height": 40,
     "fps": 10,
