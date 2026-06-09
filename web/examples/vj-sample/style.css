@@ -1,0 +1,59 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #050505;
+  color: #f2f2f2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  background: var(--background, #050505);
+  color: var(--foreground, #f2f2f2);
+}
+
+#output {
+  min-height: 100%;
+  margin: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: var(--font-size, 16px);
+  line-height: var(--line-height, 1);
+  white-space: pre;
+  transform-origin: top left;
+}
+
+#stage.center #output {
+  display: grid;
+  place-content: center;
+}
+
+#stage.contain #output {
+  transform: scale(var(--scale, 1));
+}
+
+#overlay {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  background: rgb(10 10 10 / 80%);
+  border: 1px solid rgb(255 255 255 / 18%);
+}
+
+#overlay.hidden {
+  display: none;
+}

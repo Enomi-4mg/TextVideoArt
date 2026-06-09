@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>tvart VJ Sample</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main id="stage">
+      <pre id="output" aria-live="off"></pre>
+      <div id="overlay">
+        <input id="file" type="file" accept=".tva,application/zip">
+        <button id="play" type="button">Play</button>
+        <button id="prev" type="button">Prev</button>
+        <button id="next" type="button">Next</button>
+        <label><input id="loop" type="checkbox"> Loop</label>
+      </div>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
