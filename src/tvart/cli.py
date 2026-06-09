@@ -12,6 +12,7 @@ from .constants import (
 from .convert import convert_video
 from .export import export_html
 from .extract import extract_tva
+from .fix import fix_tva
 from .info import print_info, print_inspect
 from .pack import pack_tva
 from .play import play_tva
@@ -102,6 +103,19 @@ def build_parser() -> argparse.ArgumentParser:
     export_html_parser.add_argument("-o", "--output", required=True, type=Path)
     export_html_parser.add_argument("--overwrite", action="store_true")
 
+    fix = subparsers.add_parser("fix", help="update .tva manifest metadata")
+    fix.add_argument("input", type=Path)
+    fix.add_argument("output", type=Path, nargs="?")
+    fix.add_argument("-o", "--output-file", type=Path)
+    fix.add_argument("--title")
+    fix.add_argument("--author")
+    fix.add_argument("--description")
+    fix.add_argument("--license")
+    fix.add_argument("--created-by")
+    fix.add_argument("--tag", action="append", dest="tags")
+    fix.add_argument("--set-charset", dest="charset")
+    fix.add_argument("--overwrite", action="store_true")
+
     return parser
 
 
@@ -143,6 +157,24 @@ def main(argv: list[str] | None = None) -> int:
         return pack_tva(args.input_dir, output, overwrite=args.overwrite)
     if args.command == "export" and args.export_format == "html":
         return export_html(args.input, args.output, overwrite=args.overwrite)
+    if args.command == "fix":
+        output = args.output_file or args.output
+        if output is None:
+            parser.error("fix requires an output path, either positional or with -o/--output-file")
+        if args.output_file is not None and args.output is not None:
+            parser.error("fix output must be provided either positionally or with -o/--output-file, not both")
+        return fix_tva(
+            args.input,
+            output,
+            title=args.title,
+            author=args.author,
+            description=args.description,
+            license=args.license,
+            created_by=args.created_by,
+            tags=args.tags,
+            charset=args.charset,
+            overwrite=args.overwrite,
+        )
 
     parser.error(f"unknown command: {args.command}")
     return 2
