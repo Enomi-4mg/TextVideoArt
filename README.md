@@ -1,27 +1,28 @@
 # tvart
 
-`tvart` is a Python CLI tool for creating, inspecting, validating, extracting, and playing `.tva` files.
+`tvart` is a Python CLI tool for creating, previewing, inspecting, validating,
+extracting, fixing, packing, exporting, and playing `.tva` files.
 
-TVA means **Text Video Art**. A `.tva` file stores video as a sequence of fixed-size plain text frames. It is a ZIP-based container format, so it can also be opened or extracted as a normal ZIP archive.
+TVA means **Text Video Art**. A `.tva` file stores video as fixed-size UTF-8
+plain text frames inside a ZIP-based container.
 
-## MVP features
+## Features
 
 - Convert video files to monochrome ASCII/text art frames.
+- Convert static image files to single-frame `.tva` files.
+- Preview `.tva`, video, and image inputs in a terminal.
 - Play `.tva` files in a terminal.
-- Print `.tva` metadata.
-- Inspect `.tva` metadata as a summary, JSON, or marker list.
+- Print and inspect `.tva` metadata, JSON, and markers.
 - Validate `.tva` archives and extracted project directories.
-- Extract `.tva` archives to normal directories.
-- Unpack, edit, validate, and pack `.tva` project directories.
-- Store optional artwork metadata and frame-based timeline markers.
+- Extract or unpack `.tva` archives to directories.
+- Pack edited project directories back into `.tva` archives.
+- Update manifest metadata with `tvart fix` while preserving frames and unknown ZIP entries.
 - Export `.tva` files to standalone HTML players.
-- Load and play `.tva` files directly in the browser with the static Web Player.
-- Control playback from external browser code with the `TvaPlayer` API.
-- Allow unknown extra ZIP files and manifest fields for forward compatibility.
+- Use named charset presets for conversion, preview, and metadata fixes.
+- Load and play `.tva` files in the browser with the static Web Player and `TvaPlayer` API.
+- Try browser examples, including API demo, WebCam preview, and VJ sample.
 
 ## Installation
-
-From this repository:
 
 ```bash
 python -m venv .venv
@@ -39,248 +40,152 @@ python -m pip install -U pip
 python -m pip install -e .
 ```
 
-Tests use the Python standard library:
+Run tests:
 
 ```bash
 python -m unittest discover -s tests
 ```
 
-## Basic usage
+## Basic Usage
 
 ```bash
 tvart convert input.mp4 output.tva
 tvart convert input.mp4 -o output.tva
-tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
-tvart play output.tva
+tvart convert image.png image.tva --width 100
 tvart preview output.tva
+tvart preview input.mp4 --width 120 --fps 12 --duration 10
+tvart preview image.png --width 100
+tvart play output.tva
 tvart info output.tva
 tvart inspect output.tva --json
 tvart inspect output.tva --markers
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
-tvart unpack output.tva ./project
 tvart unpack output.tva -o ./project
-tvart pack ./output edited.tva
 tvart pack ./project -o edited.tva
+tvart fix edited.tva fixed.tva --title "New title" --tag demo
 tvart export html edited.tva -o edited.html
 ```
 
-The static Web Player lives at `web/player/index.html`. Open it in a browser, then choose or drop a `.tva` file to inspect and play it.
+## Command Reference
 
-The API demo lives at `web/examples/api-demo/index.html`. It demonstrates direct use of `TvaPlayer` and `loadTvaFile` for integrating TVA playback into other web apps.
+### `tvart convert input output.tva`
 
-The experimental WebCam preview sample lives at `web/examples/webcam-preview/index.html`. It uses browser camera permission to convert live video frames into text preview frames without creating or exporting `.tva` files.
+Converts a video or static image file into a `.tva` file. Output can also be
+passed with `-o` / `--output`.
 
-## `.tva` file structure
+Supported video inputs: `.mp4`, `.mov`, `.avi`, `.mkv`.
 
-```text
-sample.tva
-├── manifest.json
-└── frames/
-    ├── 000000.txt
-    ├── 000001.txt
-    ├── 000002.txt
-    └── ...
-```
+Supported image inputs: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp` best-effort
+through OpenCV.
 
-Frame files are UTF-8 plain text. Each frame has exactly the same width and height in Python string characters.
-
-## `manifest.json` example
-
-```json
-{
-  "format": "TVA",
-  "format_name": "Text Video Art",
-  "version": "0.1.0",
-  "title": "sample",
-  "created_by": "tvart",
-  "width": 100,
-  "height": 40,
-  "fps": 10,
-  "frame_count": 240,
-  "duration": 24.0,
-  "charset": " .:-=+*#%@",
-  "invert": false,
-  "author": "anonymous",
-  "description": "A short text video demo.",
-  "license": "CC BY 4.0",
-  "tags": ["ascii-art", "demo"],
-  "source": {
-    "type": "video",
-    "filename": "input.mp4"
-  },
-  "conversion": {
-    "width": 100,
-    "fps": 10,
-    "charset": " .:-=+*#%@",
-    "invert": false
-  },
-  "markers": [
-    { "frame": 0, "label": "intro" },
-    { "frame": 120, "label": "main" },
-    { "frame": 239, "label": "ending" }
-  ],
-  "encoding": "utf-8",
-  "color_mode": "none",
-  "frame_format": "plain_text",
-  "frames_path": "frames/"
-}
-```
-
-## Command reference
-
-### `tvart convert input.mp4 output.tva`
-
-Converts a video file into a `.tva` file.
-
-You can also write the output path with `-o` / `--output`:
-
-```bash
-tvart convert input.mp4 -o output.tva
-```
+Image conversion creates one frame with `source.type = "image"`, `fps = 1`,
+and `duration = 1.0`.
 
 Useful options:
 
-- `--width 100`
-- `--height 40`
-- `--fps 10`
-- `--charset " .:-=+*#%@"`
+- `--width`
+- `--height`
+- `--fps`
+- `--charset`
+- `--charset-preset`
 - `--invert`
-- `--start 2.5`
-- `--duration 10`
-- `--title "demo"`
+- `--start`
+- `--duration`
+- `--title`
 - `--overwrite`
-- `--aspect-correction 0.5`
+- `--aspect-correction`
+- `--quiet`
 
-### `tvart play output.tva`
+### `tvart preview input`
 
-Plays a `.tva` file in the terminal.
+Previews a `.tva`, video, or image input in the terminal. `.tva` inputs use the
+terminal player; video and image inputs render directly without creating a
+temporary `.tva` file.
 
-Options:
+Useful options:
 
+- `--width`
+- `--height`
+- `--fps`
+- `--charset`
+- `--charset-preset`
+- `--invert`
+- `--start`
+- `--duration`
+- `--aspect-correction`
 - `--loop`
-- `--fps 12`
 - `--no-clear`
 - `--once`
+- `--quiet`
 
-### `tvart preview output.tva`
+### Other Commands
 
-Alias for `tvart play` for terminal playback.
+- `tvart play output.tva`: play a `.tva` file in the terminal.
+- `tvart info output.tva`: print basic metadata.
+- `tvart inspect output.tva`: inspect metadata, with `--json` and `--markers`.
+- `tvart validate output.tva`: validate an archive or extracted project directory.
+- `tvart extract output.tva ./output`: extract ZIP contents.
+- `tvart unpack output.tva -o ./project`: unpack an archive into an editable project directory.
+- `tvart pack ./project -o edited.tva`: pack an edited project directory.
+- `tvart export html output.tva -o output.html`: export a standalone HTML player.
 
-### `tvart info output.tva`
+### `tvart fix input.tva output.tva`
 
-Prints basic metadata from `manifest.json`.
-
-### `tvart inspect output.tva`
-
-Inspects `.tva` metadata. By default this prints the same human-readable summary as `info`.
-
-Options:
-
-- `--json`
-- `--markers`
-
-### `tvart validate output.tva`
-
-Validates the TVA v0.1.0 MVP structure, manifest, optional metadata, markers, frame list, encoding, and frame dimensions.
-The input may be either a `.tva` ZIP archive or an extracted project directory.
-
-### `tvart extract output.tva ./output`
-
-Extracts the ZIP archive contents into a directory.
-
-### `tvart unpack output.tva ./project`
-
-Unpacks a `.tva` archive into an editable project directory.
-
-You can also write the output directory with `-o` / `--output`:
-
-```bash
-tvart unpack output.tva -o ./project
-```
+Reads a valid `.tva`, updates manifest metadata, writes a new `.tva`, and
+validates the output. Output can be passed positionally or with
+`-o` / `--output-file`.
 
 Options:
 
+- `--title`
+- `--author`
+- `--description`
+- `--license`
+- `--created-by`
+- `--tag` multiple allowed
+- `--set-charset`
+- `--set-charset-preset`
 - `--overwrite`
 
-### `tvart pack ./output edited.tva`
+`--set-charset` changes manifest metadata only. It does not rewrite frame text.
 
-Packs an extracted TVA project directory into a `.tva` archive.
+## Charset Presets
 
-You can also write the output path with `-o` / `--output`:
-
-```bash
-tvart pack ./project -o edited.tva
+```text
+standard = " .:-=+*#%@"
+simple   = " .#"
+blocks   = " ░▒▓█"
+dense    = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
 ```
 
-Options:
+See `docs/charset-presets.md` for details.
 
-- `--overwrite`
+## Web
 
-### `tvart export html output.tva -o output.html`
+- Static Web Player: `web/player/index.html`
+- API demo: `web/examples/api-demo/index.html`
+- WebCam preview sample: `web/examples/webcam-preview/index.html`
+- VJ sample: `web/examples/vj-sample/index.html`
 
-Exports a `.tva` archive to a standalone HTML player. The generated file embeds the manifest and plain-text frames, so it can be opened directly in a browser. Exported players use the same full-frame green overlay UI as the static Web Player.
+The browser playback core is available as `TvaPlayer` in
+`web/src/lib/player-api.js`, with TypeScript declarations in
+`web/src/lib/player-api.d.ts`.
 
-Options:
-
-- `-o`, `--output`
-- `--overwrite`
-
-## Conversion internals
-
-The offline `tvart convert` path is internally split into a video source, text-frame converter, and TVA archive writer. This prepares the codebase for future realtime workflows while keeping the current CLI behavior unchanged.
-
-## Web Player
-
-`web/player/index.html` is a browser app for loading `.tva` files directly. It supports file picker loading, drag-and-drop, manifest metadata, `<pre>` frame playback, previous and next frame controls, seeking, FPS override, loop playback, and marker jumps.
-
-The Web Player keeps the frame view full-screen and uses green overlays for controls and manifest details. The `Controls` and `Manifest` buttons toggle those overlays.
-
-The player uses JSZip from a CDN to read ZIP-based `.tva` archives in the browser. The generated `export html` files remain self-contained and do not use external JavaScript.
-
-## Player API
-
-The browser playback core is available as `TvaPlayer` in `web/src/lib/player-api.js`, with TypeScript declarations in `web/src/lib/player-api.d.ts`.
-
-```js
-import { TvaPlayer } from "./web/src/lib/player-api.js";
-
-const player = new TvaPlayer();
-player.load({ manifest, frames });
-player.on("framechange", ({ index, frame }) => {
-  console.log(index, frame);
-});
-player.play();
-player.seekFrame(120);
-player.pause();
-```
-
-Core methods include `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, and `on`.
-
-## API Demo
-
-`web/examples/api-demo/index.html` is a small reference app for API users. It keeps the Web Player at `web/player/index.html` separate while showing how to load `.tva` files with `loadTvaFile`, control a `TvaPlayer`, read manifest and marker data, and listen to player events.
-
-## MVP limitations
+## Current Limitations
 
 - Monochrome plain text frames only.
-- No color.
+- No color layer implementation yet.
 - No audio.
 - No subtitles.
-- No delta compression.
-- Unicode display width is not calculated; validation uses `len(line)`.
+- Browser examples are experimental.
+- Unicode display width is not calculated; validation uses character count.
 
-## Future roadmap
+## Roadmap
 
-- Color text frames.
-- Audio tracks.
-- Subtitle tracks.
-- Color layers.
-- Delta compression.
-- Realtime preview tooling.
+The active roadmap is tracked in `docs/tvart-implementation-plan.md`.
 
 ## License
 
 License note placeholder.
-# TextVideoArt

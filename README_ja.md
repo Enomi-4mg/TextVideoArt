@@ -1,27 +1,26 @@
 # tvart
 
-`tvart` は、`.tva` ファイルを作成、確認、検証、展開、再生するためのPython CLIツールです。
+`tvart` は、`.tva` ファイルを作成、プレビュー、確認、検証、展開、修正、pack、export、再生するためのPython CLIツールです。
 
-`.tva` はファイル形式の名前です。TVAは **Text Video Art** の略で、動画を固定サイズのプレーンテキストフレーム列として保存します。内部的にはZIPベースのコンテナ形式なので、通常のZIPアーカイブとして展開することもできます。
+`.tva` は **Text Video Art** の略で、固定サイズのUTF-8プレーンテキストフレーム列をZIPベースのコンテナとして保存します。
 
-## MVPでできること
+## できること
 
 - 動画ファイルをモノクロのASCII/テキストアートフレームに変換できます。
+- 静止画像ファイルを1フレームの `.tva` に変換できます。
+- `.tva`、動画、画像をターミナルでプレビューできます。
 - `.tva` ファイルをターミナルで再生できます。
-- `.tva` のメタデータを表示できます。
-- `.tva` のメタデータを概要、JSON、マーカー一覧で確認できます。
+- `.tva` のメタデータ、JSON、マーカーを確認できます。
 - `.tva` アーカイブと展開済みプロジェクトディレクトリを検証できます。
-- `.tva` アーカイブを通常のディレクトリへ展開できます。
-- `.tva` を展開、編集、検証し、再度 `.tva` にパックできます。
-- 作品メタデータとフレーム単位のタイムラインマーカーを保存できます。
-- `.tva` ファイルを単体HTMLプレイヤーへ書き出せます。
-- 静的Web Playerで `.tva` ファイルをブラウザから直接読み込んで再生できます。
-- `TvaPlayer` APIで外部のブラウザコードから再生を制御できます。
-- 将来互換性のため、ZIP内の未知の追加ファイルやmanifestの未知フィールドは許容します。
+- `.tva` アーカイブを展開またはunpackできます。
+- 編集済みプロジェクトディレクトリを `.tva` にpackできます。
+- `tvart fix` でフレームや未知のZIPエントリを保ったままmanifestメタデータを更新できます。
+- `.tva` ファイルを単体HTMLプレイヤーへexportできます。
+- 変換、プレビュー、メタデータ修正で名前付きcharset presetを使えます。
+- 静的Web Playerと `TvaPlayer` APIでブラウザ再生できます。
+- API demo、WebCam preview、VJ sampleなどのブラウザサンプルを試せます。
 
 ## インストール
-
-このリポジトリからインストールします。
 
 ```bash
 python -m venv .venv
@@ -39,7 +38,7 @@ python -m pip install -U pip
 python -m pip install -e .
 ```
 
-テストはPython標準ライブラリで実行できます。
+テスト:
 
 ```bash
 python -m unittest discover -s tests
@@ -50,235 +49,131 @@ python -m unittest discover -s tests
 ```bash
 tvart convert input.mp4 output.tva
 tvart convert input.mp4 -o output.tva
-tvart convert input.mp4 output.tva --width 120 --fps 12 --duration 10
-tvart play output.tva
+tvart convert image.png image.tva --width 100
 tvart preview output.tva
+tvart preview input.mp4 --width 120 --fps 12 --duration 10
+tvart preview image.png --width 100
+tvart play output.tva
 tvart info output.tva
 tvart inspect output.tva --json
 tvart inspect output.tva --markers
 tvart validate output.tva
 tvart validate project/
 tvart extract output.tva ./output
-tvart unpack output.tva ./project
 tvart unpack output.tva -o ./project
-tvart pack ./output edited.tva
 tvart pack ./project -o edited.tva
+tvart fix edited.tva fixed.tva --title "New title" --tag demo
 tvart export html edited.tva -o edited.html
-```
-
-静的Web Playerは `web/player/index.html` にあります。ブラウザで開き、`.tva` ファイルを選択またはドラッグ&ドロップすると確認・再生できます。
-
-APIデモは `web/examples/api-demo/index.html` にあります。`TvaPlayer` と `loadTvaFile` を直接使い、他のWebアプリへTVA再生を組み込むための参考として利用できます。
-
-実験的なWebCam previewサンプルは `web/examples/webcam-preview/index.html` にあります。ブラウザのカメラ許可を使ってライブ映像をテキストプレビューへ変換しますが、`.tva` ファイルの作成や書き出しは行いません。
-
-## `.tva` ファイル構造
-
-```text
-sample.tva
-├── manifest.json
-└── frames/
-    ├── 000000.txt
-    ├── 000001.txt
-    ├── 000002.txt
-    └── ...
-```
-
-フレームファイルはUTF-8のプレーンテキストです。各フレームは同じ幅と高さを持ちます。MVPの検証では、表示幅ではなくPython文字列の `len(line)` で文字数を数えます。
-
-## `manifest.json` の例
-
-```json
-{
-  "format": "TVA",
-  "format_name": "Text Video Art",
-  "version": "0.1.0",
-  "title": "sample",
-  "created_by": "tvart",
-  "width": 100,
-  "height": 40,
-  "fps": 10,
-  "frame_count": 240,
-  "duration": 24.0,
-  "charset": " .:-=+*#%@",
-  "invert": false,
-  "author": "anonymous",
-  "description": "A short text video demo.",
-  "license": "CC BY 4.0",
-  "tags": ["ascii-art", "demo"],
-  "source": {
-    "type": "video",
-    "filename": "input.mp4"
-  },
-  "conversion": {
-    "width": 100,
-    "fps": 10,
-    "charset": " .:-=+*#%@",
-    "invert": false
-  },
-  "markers": [
-    { "frame": 0, "label": "intro" },
-    { "frame": 120, "label": "main" },
-    { "frame": 239, "label": "ending" }
-  ],
-  "encoding": "utf-8",
-  "color_mode": "none",
-  "frame_format": "plain_text",
-  "frames_path": "frames/"
-}
 ```
 
 ## コマンド一覧
 
-### `tvart convert input.mp4 output.tva`
+### `tvart convert input output.tva`
 
-動画ファイルを `.tva` ファイルへ変換します。
+動画ファイルまたは静止画像ファイルを `.tva` ファイルへ変換します。出力先は `-o` / `--output` でも指定できます。
 
-出力先は `-o` / `--output` でも指定できます。
+対応する動画入力: `.mp4`, `.mov`, `.avi`, `.mkv`。
 
-```bash
-tvart convert input.mp4 -o output.tva
-```
+対応する画像入力: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`。OpenCVで読める場合のbest-effort対応です。
+
+画像変換では `source.type = "image"`、`fps = 1`、`duration = 1.0` の1フレーム `.tva` を作成します。
 
 主なオプション:
 
-- `--width 100`
-- `--height 40`
-- `--fps 10`
-- `--charset " .:-=+*#%@"`
+- `--width`
+- `--height`
+- `--fps`
+- `--charset`
+- `--charset-preset`
 - `--invert`
-- `--start 2.5`
-- `--duration 10`
-- `--title "demo"`
+- `--start`
+- `--duration`
+- `--title`
 - `--overwrite`
-- `--aspect-correction 0.5`
+- `--aspect-correction`
+- `--quiet`
 
-### `tvart play output.tva`
+### `tvart preview input`
 
-`.tva` ファイルをターミナルで再生します。
+`.tva`、動画、画像をターミナルでプレビューします。`.tva` 入力はターミナルプレイヤーを使い、動画と画像は一時 `.tva` を作らず直接レンダリングします。
 
-オプション:
+主なオプション:
 
+- `--width`
+- `--height`
+- `--fps`
+- `--charset`
+- `--charset-preset`
+- `--invert`
+- `--start`
+- `--duration`
+- `--aspect-correction`
 - `--loop`
-- `--fps 12`
 - `--no-clear`
 - `--once`
+- `--quiet`
 
-### `tvart preview output.tva`
+### その他のコマンド
 
-ターミナル再生用の `tvart play` のエイリアスです。
+- `tvart play output.tva`: `.tva` をターミナルで再生します。
+- `tvart info output.tva`: 基本メタデータを表示します。
+- `tvart inspect output.tva`: メタデータを確認します。`--json` と `--markers` に対応します。
+- `tvart validate output.tva`: アーカイブまたは展開済みプロジェクトディレクトリを検証します。
+- `tvart extract output.tva ./output`: ZIP内容を展開します。
+- `tvart unpack output.tva -o ./project`: 編集用プロジェクトディレクトリへunpackします。
+- `tvart pack ./project -o edited.tva`: 編集済みプロジェクトディレクトリをpackします。
+- `tvart export html output.tva -o output.html`: 単体HTMLプレイヤーを書き出します。
 
-### `tvart info output.tva`
+### `tvart fix input.tva output.tva`
 
-`manifest.json` の基本メタデータを表示します。
-
-### `tvart inspect output.tva`
-
-`.tva` のメタデータを確認します。標準では `info` と同じ人間向けの概要を表示します。
+有効な `.tva` を読み込み、manifestメタデータを更新し、新しい `.tva` として書き出して検証します。出力先は位置引数または `-o` / `--output-file` で指定できます。
 
 オプション:
 
-- `--json`
-- `--markers`
+- `--title`
+- `--author`
+- `--description`
+- `--license`
+- `--created-by`
+- `--tag` 複数指定可
+- `--set-charset`
+- `--set-charset-preset`
+- `--overwrite`
 
-### `tvart validate output.tva`
+`--set-charset` はmanifestメタデータだけを変更します。フレームテキストは書き換えません。
 
-TVA v0.1.0 MVPの構造、manifest、任意メタデータ、マーカー、フレーム一覧、エンコーディング、フレーム寸法を検証します。
-入力には `.tva` ZIPアーカイブまたは展開済みプロジェクトディレクトリを指定できます。
+## Charset Presets
 
-### `tvart extract output.tva ./output`
-
-ZIPアーカイブの内容をディレクトリへ展開します。
-
-### `tvart unpack output.tva ./project`
-
-`.tva` アーカイブを編集用プロジェクトディレクトリへ展開します。
-
-出力ディレクトリは `-o` / `--output` でも指定できます。
-
-```bash
-tvart unpack output.tva -o ./project
+```text
+standard = " .:-=+*#%@"
+simple   = " .#"
+blocks   = " ░▒▓█"
+dense    = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
 ```
 
-オプション:
+詳細は `docs/charset-presets.md` を参照してください。
 
-- `--overwrite`
+## Web
 
-### `tvart pack ./output edited.tva`
-
-展開済みTVAプロジェクトディレクトリを `.tva` アーカイブへパックします。
-
-出力先は `-o` / `--output` でも指定できます。
-
-```bash
-tvart pack ./project -o edited.tva
-```
-
-オプション:
-
-- `--overwrite`
-
-### `tvart export html output.tva -o output.html`
-
-`.tva` アーカイブを単体HTMLプレイヤーへ書き出します。生成されたHTMLにはmanifestとプレーンテキストフレームが埋め込まれるため、ブラウザで直接開けます。書き出されたプレイヤーは、静的Web Playerと同じ全画面フレーム表示と緑のオーバーレイUIを使います。
-
-オプション:
-
-- `-o`, `--output`
-- `--overwrite`
-
-## 変換処理の内部構造
-
-オフラインの `tvart convert` は内部的に、動画ソース、テキストフレーム変換、TVAアーカイブ書き込みに分かれています。現在のCLIの使い方は変えず、将来のリアルタイムワークフローに備えるための構造です。
-
-## Web Player
-
-`web/player/index.html` は `.tva` ファイルをブラウザで直接読み込むためのWebアプリです。ファイル選択、ドラッグ&ドロップ、manifestメタデータ表示、`<pre>` によるフレーム再生、前後フレーム移動、シーク、FPS変更、ループ再生、マーカージャンプに対応します。
-
-Web Playerはフレーム表示を全画面に置き、操作ボタンとmanifest詳細は緑のオーバーレイとして表示します。`Controls` と `Manifest` ボタンで表示/非表示を切り替えられます。
-
-ブラウザ上でZIPベースの `.tva` アーカイブを読むため、Web PlayerはCDN上のJSZipを使用します。一方、`export html` で生成するHTMLは引き続き外部JavaScriptなしの単体ファイルです。
-
-## Player API
+- 静的Web Player: `web/player/index.html`
+- API demo: `web/examples/api-demo/index.html`
+- WebCam preview sample: `web/examples/webcam-preview/index.html`
+- VJ sample: `web/examples/vj-sample/index.html`
 
 ブラウザ用の再生コアは `web/src/lib/player-api.js` の `TvaPlayer` として利用できます。TypeScript宣言は `web/src/lib/player-api.d.ts` にあります。
 
-```js
-import { TvaPlayer } from "./web/src/lib/player-api.js";
-
-const player = new TvaPlayer();
-player.load({ manifest, frames });
-player.on("framechange", ({ index, frame }) => {
-  console.log(index, frame);
-});
-player.play();
-player.seekFrame(120);
-player.pause();
-```
-
-主なメソッドは `play`, `pause`, `stop`, `seekFrame`, `seekTime`, `nextFrame`, `prevFrame`, `getCurrentFrame`, `getCurrentFrameIndex`, `getManifest`, `getMarkers`, `setFps`, `setLoop`, `on` です。
-
-## APIデモ
-
-`web/examples/api-demo/index.html` はAPI利用者向けの小さなリファレンスアプリです。Web Player `web/player/index.html` とは分けて、`loadTvaFile` による `.tva` 読み込み、`TvaPlayer` の制御、manifestとマーカーの参照、playerイベント購読の例を示します。
-
-## MVPの制限
+## 現在の制限
 
 - モノクロのプレーンテキストフレームのみ対応します。
-- 色には未対応です。
+- 色レイヤーはまだ未実装です。
 - 音声には未対応です。
 - 字幕には未対応です。
-- 差分圧縮には未対応です。
-- Unicodeの表示幅計算はまだ行いません。
+- ブラウザサンプルは実験的な位置づけです。
+- Unicodeの表示幅計算はまだ行いません。検証は文字数ベースです。
 
-## 今後のロードマップ
+## ロードマップ
 
-- カラーテキストフレーム
-- 音声トラック
-- 字幕トラック
-- 色レイヤー
-- 差分圧縮
-- リアルタイムプレビュー機能
+現在のロードマップは `docs/tvart-implementation-plan.md` で管理しています。
 
 ## ライセンス
 
