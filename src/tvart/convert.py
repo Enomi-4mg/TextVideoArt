@@ -18,7 +18,7 @@ from .constants import (
     TVA_VERSION,
 )
 from . import __version__
-from .core import TextFrameConverter
+from .core import TextFrameConverter, image_to_text_frame
 from .sinks import TvaArchiveWriter
 from .sources import VideoFrameSource, VideoSourceMetadata
 from .workflow import iter_text_frames
@@ -32,6 +32,9 @@ def _status(message: str, *, quiet: bool) -> None:
 def _clear_status(*, quiet: bool) -> None:
     if not quiet:
         print("\r\033[K", end="", file=sys.stderr, flush=True)
+
+
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def validate_convert_options(
@@ -228,3 +231,122 @@ def convert_video(
         _clear_status(quiet=quiet)
         print(f"Wrote {output_path} ({frame_index} frames)")
         return 0
+
+
+def convert_image(
+    input_path: Path,
+    output_path: Path,
+    *,
+    width: int = DEFAULT_WIDTH,
+    height: int | None = None,
+    fps: float = 1.0,
+    charset: str = DEFAULT_CHARSET,
+    invert: bool = False,
+    title: str | None = None,
+    overwrite: bool = False,
+    aspect_correction: float = DEFAULT_ASPECT_CORRECTION,
+    quiet: bool = False,
+) -> int:
+    if not input_path.exists():
+        print(f"ERROR: input file does not exist: {input_path}")
+        return 1
+    if output_path.exists() and not overwrite:
+        print(f"ERROR: output file already exists: {output_path}")
+        return 1
+
+    option_errors = validate_convert_options(
+        width=width,
+        height=height,
+        fps=fps,
+        duration=1.0,
+        aspect_correction=aspect_correction,
+        charset=charset,
+    )
+    if option_errors:
+        for error in option_errors:
+            print(f"ERROR: {error}")
+        return 1
+
+    try:
+        import cv2
+    except ImportError:
+        print("ERROR: opencv-python is required for image convert. Install with `pip install -e .`.")
+        return 1
+
+    image = cv2.imread(str(input_path), cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print(f"ERROR: input image cannot be opened: {input_path}")
+        return 1
+    _status(f"Preparing image conversion: {input_path}", quiet=quiet)
+
+    source_height, source_width = image.shape[:2]
+    if height is None:
+        height = max(1, int(source_height / source_width * width * aspect_correction))
+
+    lines = image_to_text_frame(
+        image,
+        width=width,
+        height=height,
+        charset=charset,
+        invert=invert,
+        aspect_correction=aspect_correction,
+    )
+    manifest = {
+        "format": TVA_FORMAT,
+        "format_name": TVA_FORMAT_NAME,
+        "version": TVA_VERSION,
+        "title": title or input_path.stem,
+        "created_by": "tvart",
+        "width": width,
+        "height": height,
+        "fps": fps,
+        "frame_count": 1,
+        "duration": 1.0,
+        "charset": charset,
+        "invert": invert,
+        "encoding": "utf-8",
+        "color_mode": "none",
+        "frame_format": "plain_text",
+        "frames_path": FRAMES_PATH,
+        "source": {
+            "type": "image",
+            "filename": input_path.name,
+            "width": source_width,
+            "height": source_height,
+        },
+        "conversion": {
+            "tool": "tvart",
+            "tool_version": __version__,
+            "width": width,
+            "height": height,
+            "fps": fps,
+            "charset": charset,
+            "invert": invert,
+            "aspect_correction": aspect_correction,
+        },
+        "aspect_correction": aspect_correction,
+        "created_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+    }
+
+    writer = TvaArchiveWriter(output_path, overwrite=overwrite)
+    try:
+        writer.write_frame(lines)
+        writer.write_manifest(manifest)
+        writer.close()
+    finally:
+        writer.cleanup()
+
+    _clear_status(quiet=quiet)
+    print(f"Wrote {output_path} (1 frame)")
+    return 0
+
+
+def convert_input(input_path: Path, output_path: Path, **kwargs: Any) -> int:
+    if input_path.suffix.lower() in IMAGE_SUFFIXES:
+        image_kwargs = dict(kwargs)
+        image_kwargs.pop("start", None)
+        image_kwargs.pop("duration", None)
+        if image_kwargs.get("fps") == DEFAULT_FPS:
+            image_kwargs["fps"] = 1.0
+        return convert_image(input_path, output_path, **image_kwargs)
+    return convert_video(input_path, output_path, **kwargs)

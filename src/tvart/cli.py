@@ -9,7 +9,7 @@ from .constants import (
     DEFAULT_FPS,
     DEFAULT_WIDTH,
 )
-from .convert import convert_video
+from .convert import IMAGE_SUFFIXES, convert_input, convert_video
 from .export import export_html
 from .extract import extract_tva
 from .fix import fix_tva
@@ -139,7 +139,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "convert":
         output = resolve_output_path(args._parser, args.output, args.output_option, "convert")
-        return convert_video(
+        convert = convert_input if args.input.suffix.lower() in IMAGE_SUFFIXES else convert_video
+        return convert(
             args.input,
             output,
             width=args.width,

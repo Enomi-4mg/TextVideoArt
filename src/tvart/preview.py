@@ -5,8 +5,8 @@ import time
 from pathlib import Path
 
 from .constants import DEFAULT_ASPECT_CORRECTION, DEFAULT_CHARSET, DEFAULT_FPS, DEFAULT_WIDTH
-from .convert import _clear_status, _status, validate_convert_options
-from .core import frame_to_text
+from .convert import IMAGE_SUFFIXES, _clear_status, _status, validate_convert_options
+from .core import frame_to_text, image_to_text_frame
 from .play import play_tva
 
 
@@ -117,6 +117,61 @@ def preview_video(
     return 0
 
 
+def preview_image(
+    input_path: Path,
+    *,
+    width: int = DEFAULT_WIDTH,
+    height: int | None = None,
+    charset: str = DEFAULT_CHARSET,
+    invert: bool = False,
+    aspect_correction: float = DEFAULT_ASPECT_CORRECTION,
+    no_clear: bool = False,
+    quiet: bool = False,
+) -> int:
+    if not input_path.exists():
+        print(f"ERROR: input file does not exist: {input_path}")
+        return 1
+    option_errors = validate_convert_options(
+        width=width,
+        height=height,
+        fps=1.0,
+        duration=1.0,
+        aspect_correction=aspect_correction,
+        charset=charset,
+    )
+    if option_errors:
+        for error in option_errors:
+            print(f"ERROR: {error}")
+        return 1
+    try:
+        import cv2
+    except ImportError:
+        print("ERROR: opencv-python is required for image preview. Install with `pip install -e .`.")
+        return 1
+    image = cv2.imread(str(input_path), cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print(f"ERROR: input image cannot be opened: {input_path}")
+        return 1
+    _status(f"Preparing image preview: {input_path}", quiet=quiet)
+    source_height, source_width = image.shape[:2]
+    if height is None:
+        height = max(1, int(source_height / source_width * width * aspect_correction))
+    lines = image_to_text_frame(
+        image,
+        width=width,
+        height=height,
+        charset=charset,
+        invert=invert,
+        aspect_correction=aspect_correction,
+    )
+    _clear_status(quiet=quiet)
+    if not no_clear:
+        sys.stdout.write("\033[H\033[J")
+    sys.stdout.write("\n".join(lines) + "\n")
+    sys.stdout.flush()
+    return 0
+
+
 def preview_input(
     input_path: Path,
     *,
@@ -135,6 +190,17 @@ def preview_input(
 ) -> int:
     if input_path.suffix.lower() == ".tva":
         return play_tva(input_path, loop=loop, fps=fps, no_clear=no_clear, once=once)
+    if input_path.suffix.lower() in IMAGE_SUFFIXES:
+        return preview_image(
+            input_path,
+            width=width,
+            height=height,
+            charset=charset,
+            invert=invert,
+            aspect_correction=aspect_correction,
+            no_clear=no_clear,
+            quiet=quiet,
+        )
     return preview_video(
         input_path,
         width=width,
