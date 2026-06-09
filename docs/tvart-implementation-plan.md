@@ -24,8 +24,8 @@ README / CHANGELOG / docs/format.md とこの計画書が矛盾する場合は�
 
 ```text
 TVA format version: 0.1.0
-Implemented baseline: 0.7.6
-Current package release: 0.7.6
+Implemented baseline: 0.9.1
+Current package release: unreleased after 0.7.6
 ```
 
 重要な分離:
@@ -35,6 +35,27 @@ Current package release: 0.7.6
 ```
 
 ツール側の機能追加、内部 API 整理、Web サンプル追加があっても、`.tva` のファイル形式を変更しない限り TVA format version は不用意に上げない。
+
+v0.8.0 から v0.9.1 までの作業は、この repository では実装済みまたは docs-only research として完了済みである。これらは `.tva` format version を変更せず、TVA format version は `0.1.0` のまま維持する。
+
+現時点のロードマップ状態:
+
+```text
+v0.8.0  Roadmap realignment / planning update [done]
+v0.8.1  Fix command MVP [done]
+v0.8.2  Preview command input expansion [done]
+v0.8.3  CLI progress UX [done]
+v0.8.4  Image source support [done]
+v0.8.5  Charset presets [done]
+v0.8.6  Web renderer separation [done]
+v0.8.7  VJ sample / output mode [done]
+v0.9.0  Unicode display width research [done]
+v0.9.1  Color layer design research [done]
+v0.9.2  Test and release hygiene
+v0.9.3  Pack/export workflow audit
+v0.9.4  Web sample dependency hardening
+v1.0.0  TVA 0.1.0 stability release
+```
 
 ---
 
@@ -382,67 +403,103 @@ web/vj/
 
 ---
 
-## 6. 次のロードマップ
+## 6. v0.8.0 から v0.9.1 の完了済み作業
 
-### v0.8.0: Renderer separation
+### v0.8.0: Roadmap realignment / planning update
 
-目的:
+完了済み。
 
-```text
-Web Player / API demo / future VJ sample が同じ renderer 部品を使えるようにする。
-```
+- Core / CLI workflow improvements を Web renderer / VJ sample より前へ整理。
+- WebCam preview と VJ sample を experimental sample / output mode として扱う方針を明確化。
+- Unicode display width と color layer を v0.9.x research phase として整理。
+- TVA format version は `0.1.0` のまま維持。
 
-候補構成:
+### v0.8.1: Fix command MVP
 
-```text
-TvaPlayer:
-  playback state / events
+完了済み。
 
-Renderer:
-  frame string を DOM / pre / future canvas 等へ描画
+- `tvart fix input.tva output.tva` を追加。
+- `tvart fix input.tva -o output.tva` を追加。
+- `--title`, `--author`, `--description`, `--license`, `--created-by`, `--tag`, `--set-charset`, `--overwrite` を追加。
+- 入力検証、manifest metadata 更新、出力検証を行う。
+- frame files と unknown ZIP entries を保持する。
+- `--set-charset` は manifest metadata のみを変更し、frame text は書き換えない。
 
-App UI:
-  file input / controls / overlays / sample-specific UI
-```
+### v0.8.2: Preview command input expansion
 
-制約:
+完了済み。
 
-- Web Player behavior を維持する。
-- `.tva` format は変更しない。
-- color layer はまだ実装しない。
+- `.tva` preview behavior を維持。
+- `.mp4`, `.mov`, `.avi`, `.mkv` の直接 video preview を追加。
+- video preview は一時 `.tva` を作らず terminal に直接描画する。
+- `--width`, `--height`, `--fps`, `--charset`, `--invert`, `--start`, `--duration`, `--aspect-correction`, `--loop`, `--no-clear`, `--once` をサポート。
 
-### v0.8.1: VJ sample / output mode
+### v0.8.3: CLI progress UX
 
-目的:
+完了済み。
 
-```text
-OBS Browser Source や window capture で使いやすい VJ sample / output mode を追加する。
-```
+- `tvart convert` と video `tvart preview` に stderr の transient status を追加。
+- `--quiet` で progress / status を抑制。
+- progress 表示は frame output に残らないように同一行を消去する。
+- 外部依存は追加していない。
 
-想定配置:
+### v0.8.4: Image source support
 
-```text
-web/examples/vj-sample/
-```
+完了済み。
 
-または必要に応じて:
+- `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp` の image input を追加。
+- `tvart convert image.jpg -o image.tva` をサポート。
+- `tvart preview image.jpg --width 100` をサポート。
+- image conversion は `source.type = "image"` の single-frame `.tva` を作成する。
+- default `fps = 1`, default `duration = 1.0`。
+- TVA format version は `0.1.0` のまま維持。
 
-```text
-web/vj/
-```
+### v0.8.5: Charset presets
 
-候補:
+完了済み。
 
-- UI を最小化した full-frame output。
-- autoplay / loop / fps / scale / foreground / background の URL parameter。
-- keyboard shortcuts。
-- file picker / drag-and-drop。
+- `standard`, `simple`, `blocks`, `dense` preset を追加。
+- `--charset-preset` を `convert` と `preview` に追加。
+- `--set-charset-preset` を `fix` に追加。
+- `--charset` / `--charset-preset`、`--set-charset` / `--set-charset-preset` は mutually exclusive。
+- `docs/charset-presets.md` を追加。
 
-制約:
+### v0.8.6: Web renderer separation
 
-- `.tva` format は変更しない。
-- MIDI、OSC、WebSocket、audio reactivity、effect graph は追加しない。
-- Spout / Syphon / NDI は実装しない。
+完了済み。
+
+- `web/src/lib/renderer-pre.js` を追加。
+- `web/src/lib/renderer-pre.d.ts` を追加。
+- `PreFrameRenderer` に `render(frame)` と `clear()` を持たせた。
+- `TvaPlayer` の playback state と frame rendering を分離する足場を追加。
+
+### v0.8.7: VJ sample / output mode
+
+完了済み。
+
+- `web/examples/vj-sample/` を追加。
+- file picker、drag-and-drop、full-frame output、overlay controls を追加。
+- Space、ArrowLeft、ArrowRight、H、Escape の keyboard shortcuts を追加。
+- `autoplay`, `loop`, `fps`, `fontSize`, `lineHeight`, `foreground`, `background`, `center`, `fitMode`, `scale` の URL parameters を追加。
+
+### v0.9.0: Unicode display width research
+
+完了済み。
+
+- `docs/unicode-width.md` を追加。
+- TVA v0.1.0 の current behavior として、width validation が character count ベースであることを明記。
+- code point count、grapheme cluster、display cell width の違いを整理。
+- full-width Japanese characters、combining marks、emoji、terminal / browser / font differences の課題を整理。
+
+### v0.9.1: Color layer design research
+
+完了済み。
+
+- `docs/color-layer-design.md` を追加。
+- `frames/*.txt` に ANSI escape sequence を埋め込まない方針を明記。
+- optional sidecar layer として `colors/*.json` を検討対象にした。
+- 初期案として 2D runs with `line`, `column`, `length`, `fg`, `bg` を推奨。
+- hex-only color values を推奨。
 
 ---
 
@@ -548,3 +605,97 @@ validate が弱いまま pack / export / Web Player / future display features / 
 ```
 
 壊れた `.tva` を確実に拒否できるようにし、その上で制作、共有、再生、外部連携機能を拡張する。
+
+---
+
+## 10. 次の計画
+
+### v0.9.2: Test and release hygiene
+
+目的:
+
+```text
+新しく追加された CLI と Web sample を検証しやすくし、release しやすい状態に整える。
+```
+
+範囲:
+
+- `fix` output path validation の CLI parser tests。
+- charset preset mutual exclusion の CLI parser tests。
+- image / video preview routing の tests。
+- 意図的に error output を出す tests では stdout / stderr を捕捉する。
+- valid `.tva` archive 用の fixture helper を整理する。
+- package version を `0.9.x` に進めるか unreleased 扱いにするか決める。
+- v0.8.0 から v0.9.1 までの changelog entry を追加する。
+
+範囲外:
+
+- `.tva` format fields の追加。
+- release publishing automation。
+- repository に既存 CI がない場合の GitHub Actions 追加。
+
+### v0.9.3: Pack / export workflow audit
+
+目的:
+
+```text
+README に記載された pack / export workflow と実際の CLI surface を監査する。
+```
+
+範囲:
+
+- pack / unpack / export / inspect / fix / preview の command reference を再点検する。
+- README / README_ja / CHANGELOG / docs/format.md の矛盾を解消する。
+- pack / export が今後の機能でなく既存機能であることを明確化する。
+- `.tva` format version は、具体的な format change が承認されるまで `0.1.0` のまま維持する。
+
+範囲外:
+
+- color export implementation。
+- HTML renderer の大きな設計変更。
+- non-OpenCV media dependencies の追加。
+
+### v0.9.4: Web sample dependency hardening
+
+目的:
+
+```text
+browser examples を runtime CDN 依存なしでも扱いやすくする。
+```
+
+範囲:
+
+- `web/examples/vj-sample/` の ZIP reader dependency を vendoring または local bundle 化する。
+- browser examples を local static server で動かすための短い README を追加する。
+- VJ sample の keyboard shortcuts と URL parameters を browser で確認する。
+- `PreFrameRenderer` は小さく独立した部品として維持する。
+
+範囲外:
+
+- build system migration。
+- framework adoption。
+- canvas renderer。
+- color renderer。
+
+### v1.0.0: TVA 0.1.0 stability release
+
+目的:
+
+```text
+basic text-art conversion, validation, preview, playback, metadata fixes, pack / unpack,
+HTML export, and browser examples を備えた TVA 0.1.0 の安定版として整理する。
+```
+
+範囲:
+
+- user-facing CLI help の最終確認。
+- README と README_ja を実装済み command に合わせて最終更新する。
+- examples が実行可能であることを確認する。
+- package metadata と versioning policy を確定する。
+- TVA format `0.1.0` の release notes を追加する。
+
+範囲外:
+
+- Unicode display width behavior changes。
+- color layer implementation。
+- TVA format version bump。
