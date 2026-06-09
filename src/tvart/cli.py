@@ -16,6 +16,7 @@ from .fix import fix_tva
 from .info import print_info, print_inspect
 from .pack import pack_tva
 from .play import play_tva
+from .preview import preview_input
 from .validate import print_validation
 
 
@@ -65,6 +66,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     preview = subparsers.add_parser("preview", help="preview a .tva file in the terminal")
     add_playback_arguments(preview)
+
+    preview = subparsers.add_parser("preview", help="preview a .tva or video file in the terminal")
+    preview.add_argument("input", type=Path)
+    preview.add_argument("--width", type=int, default=DEFAULT_WIDTH)
+    preview.add_argument("--height", type=int)
+    preview.add_argument("--fps", type=float)
+    preview.add_argument("--charset", default=DEFAULT_CHARSET)
+    preview.add_argument("--invert", action="store_true")
+    preview.add_argument("--start", type=float, default=0.0)
+    preview.add_argument("--duration", type=float)
+    preview.add_argument("--aspect-correction", type=float, default=DEFAULT_ASPECT_CORRECTION)
+    preview.add_argument("--loop", action="store_true")
+    preview.add_argument("--no-clear", action="store_true")
+    preview.add_argument("--once", action="store_true")
 
     info = subparsers.add_parser("info", help="print .tva metadata")
     info.add_argument("input", type=Path)
@@ -141,6 +156,21 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command in {"play", "preview"}:
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
+    if args.command == "preview":
+        return preview_input(
+            args.input,
+            width=args.width,
+            height=args.height,
+            fps=args.fps,
+            charset=args.charset,
+            invert=args.invert,
+            start=args.start,
+            duration=args.duration,
+            aspect_correction=args.aspect_correction,
+            loop=args.loop,
+            no_clear=args.no_clear,
+            once=args.once,
+        )
     if args.command == "info":
         return print_info(args.input)
     if args.command == "inspect":
