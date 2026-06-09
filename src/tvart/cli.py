@@ -5,10 +5,10 @@ from pathlib import Path
 
 from .constants import (
     DEFAULT_ASPECT_CORRECTION,
-    DEFAULT_CHARSET,
     DEFAULT_FPS,
     DEFAULT_WIDTH,
 )
+from .charset import CHARSET_PRESETS, resolve_charset
 from .convert import IMAGE_SUFFIXES, convert_input, convert_video
 from .export import export_html
 from .extract import extract_tva
@@ -52,7 +52,9 @@ def build_parser() -> argparse.ArgumentParser:
     convert.add_argument("--width", type=int, default=DEFAULT_WIDTH)
     convert.add_argument("--height", type=int)
     convert.add_argument("--fps", type=float, default=DEFAULT_FPS)
-    convert.add_argument("--charset", default=DEFAULT_CHARSET)
+    convert_charset = convert.add_mutually_exclusive_group()
+    convert_charset.add_argument("--charset")
+    convert_charset.add_argument("--charset-preset", choices=sorted(CHARSET_PRESETS))
     convert.add_argument("--invert", action="store_true")
     convert.add_argument("--start", type=float, default=0.0)
     convert.add_argument("--duration", type=float)
@@ -70,7 +72,9 @@ def build_parser() -> argparse.ArgumentParser:
     preview.add_argument("--width", type=int, default=DEFAULT_WIDTH)
     preview.add_argument("--height", type=int)
     preview.add_argument("--fps", type=float)
-    preview.add_argument("--charset", default=DEFAULT_CHARSET)
+    preview_charset = preview.add_mutually_exclusive_group()
+    preview_charset.add_argument("--charset")
+    preview_charset.add_argument("--charset-preset", choices=sorted(CHARSET_PRESETS))
     preview.add_argument("--invert", action="store_true")
     preview.add_argument("--start", type=float, default=0.0)
     preview.add_argument("--duration", type=float)
@@ -127,7 +131,9 @@ def build_parser() -> argparse.ArgumentParser:
     fix.add_argument("--license")
     fix.add_argument("--created-by")
     fix.add_argument("--tag", action="append", dest="tags")
-    fix.add_argument("--set-charset", dest="charset")
+    fix_charset = fix.add_mutually_exclusive_group()
+    fix_charset.add_argument("--set-charset", dest="charset")
+    fix_charset.add_argument("--set-charset-preset", dest="charset_preset", choices=sorted(CHARSET_PRESETS))
     fix.add_argument("--overwrite", action="store_true")
 
     return parser
@@ -139,6 +145,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "convert":
         output = resolve_output_path(args._parser, args.output, args.output_option, "convert")
+        try:
+            charset = resolve_charset(args.charset, args.charset_preset)
+        except ValueError as exc:
+            parser.error(str(exc))
         convert = convert_input if args.input.suffix.lower() in IMAGE_SUFFIXES else convert_video
         return convert(
             args.input,
@@ -146,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
             width=args.width,
             height=args.height,
             fps=args.fps,
-            charset=args.charset,
+            charset=charset,
             invert=args.invert,
             start=args.start,
             duration=args.duration,
@@ -158,12 +168,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "play":
         return play_tva(args.input, loop=args.loop, fps=args.fps, no_clear=args.no_clear, once=args.once)
     if args.command == "preview":
+        try:
+            charset = resolve_charset(args.charset, args.charset_preset)
+        except ValueError as exc:
+            parser.error(str(exc))
         return preview_input(
             args.input,
             width=args.width,
             height=args.height,
             fps=args.fps,
-            charset=args.charset,
+            charset=charset,
             invert=args.invert,
             start=args.start,
             duration=args.duration,
@@ -195,6 +209,10 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("fix requires an output path, either positional or with -o/--output-file")
         if args.output_file is not None and args.output is not None:
             parser.error("fix output must be provided either positionally or with -o/--output-file, not both")
+        try:
+            charset = resolve_charset(args.charset, args.charset_preset) if args.charset or args.charset_preset else None
+        except ValueError as exc:
+            parser.error(str(exc))
         return fix_tva(
             args.input,
             output,
@@ -204,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
             license=args.license,
             created_by=args.created_by,
             tags=args.tags,
-            charset=args.charset,
+            charset=charset,
             overwrite=args.overwrite,
         )
 
