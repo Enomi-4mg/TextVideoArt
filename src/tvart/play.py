@@ -17,7 +17,7 @@ def enter_playback_screen() -> bool:
 
 
 def leave_playback_screen() -> None:
-    sys.stdout.write("\033[?25h\033[?1049l")
+    sys.stdout.write("\033[H\033[J\033[?25h\033[?1049l")
     sys.stdout.flush()
 
 

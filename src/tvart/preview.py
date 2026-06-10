@@ -7,7 +7,7 @@ from pathlib import Path
 from .constants import DEFAULT_ASPECT_CORRECTION, DEFAULT_CHARSET, DEFAULT_FPS, DEFAULT_WIDTH
 from .convert import IMAGE_SUFFIXES, _clear_status, _status, validate_convert_options
 from .core import frame_to_text, image_to_text_frame
-from .play import play_tva
+from .play import enter_playback_screen, leave_playback_screen, play_tva
 
 
 VIDEO_SUFFIXES = {".mp4", ".mov", ".avi", ".mkv"}
@@ -64,6 +64,7 @@ def preview_video(
         return 1
     _status(f"Preparing video preview: {input_path}", quiet=quiet)
 
+    playback_screen = False
     try:
         source_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
         source_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
@@ -79,6 +80,8 @@ def preview_video(
         source_duration = source_frame_count / source_fps if source_fps > 0 and source_frame_count > 0 else None
         end_time = start + duration if duration is not None else source_duration
         delay = 1.0 / fps
+        if not no_clear:
+            playback_screen = enter_playback_screen()
 
         while True:
             frame_index = 0
@@ -95,7 +98,7 @@ def preview_video(
                 resized = cv2.resize(gray, (width, height), interpolation=cv2.INTER_AREA)
                 lines = frame_to_text(resized, charset, invert)
                 _clear_status(quiet=quiet)
-                if not no_clear:
+                if playback_screen:
                     sys.stdout.write("\033[H\033[J")
                 sys.stdout.write("\n".join(lines) + "\n")
                 sys.stdout.flush()
@@ -114,6 +117,8 @@ def preview_video(
         return 0
     finally:
         cap.release()
+        if playback_screen:
+            leave_playback_screen()
     return 0
 
 

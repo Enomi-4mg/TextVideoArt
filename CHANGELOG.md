@@ -24,6 +24,9 @@
   - `tvart convert` and video/image preview startup can show status on stderr.
   - Added `--quiet` to suppress transient status.
   - Fixed status output so tests and terminal output do not leave noisy traces.
+- Improved terminal cleanup for `tvart play` and video `tvart preview`.
+  - Video preview now uses the same alternate-screen playback flow as `.tva` playback.
+  - Playback restores the cursor and clears the playback screen before returning to the shell.
 - Added browser renderer separation groundwork.
   - Added `web/src/lib/renderer-pre.js`.
   - Added `web/src/lib/renderer-pre.d.ts`.
