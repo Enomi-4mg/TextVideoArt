@@ -104,6 +104,15 @@ Previews a `.tva`, video, or image input in the terminal. `.tva` inputs use the
 terminal player; video and image inputs render directly without creating a
 temporary `.tva` file.
 
+`.tva` playback and video preview use the terminal alternate screen when
+clearing is enabled. On normal exit, `--once`, or `Ctrl-C`, tvart restores the
+cursor and returns to the shell without leaving rendered frames in the scrollback.
+Use `--no-clear` only when you intentionally want frames written into the normal
+terminal output.
+
+Image preview is a single-frame command, so it writes to the normal terminal
+output instead of entering the alternate screen.
+
 Useful options:
 
 - `--width`

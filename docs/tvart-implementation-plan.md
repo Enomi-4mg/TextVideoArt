@@ -432,6 +432,8 @@ web/vj/
 - `.tva` preview behavior を維持。
 - `.mp4`, `.mov`, `.avi`, `.mkv` の直接 video preview を追加。
 - video preview は一時 `.tva` を作らず terminal に直接描画する。
+- `.tva` playback と video preview は、画面クリアが有効な場合に alternate screen を使い、終了時に cursor と terminal state を復元して通常 scrollback を汚さない。
+- `--no-clear` は、frame output を通常の terminal output に残したい場合の明示的な opt-in として扱う。
 - `--width`, `--height`, `--fps`, `--charset`, `--invert`, `--start`, `--duration`, `--aspect-correction`, `--loop`, `--no-clear`, `--once` をサポート。
 
 ### v0.8.3: CLI progress UX
@@ -441,6 +443,7 @@ web/vj/
 - `tvart convert` と video `tvart preview` に stderr の transient status を追加。
 - `--quiet` で progress / status を抑制。
 - progress 表示は frame output に残らないように同一行を消去する。
+- playback / preview の frame rendering と progress/status output は混ぜない。status は stderr、frame rendering は stdout / alternate screen に限定する。
 - 外部依存は追加していない。
 
 ### v0.8.4: Image source support

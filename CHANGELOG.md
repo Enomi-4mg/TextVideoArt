@@ -27,6 +27,7 @@
 - Improved terminal cleanup for `tvart play` and video `tvart preview`.
   - Video preview now uses the same alternate-screen playback flow as `.tva` playback.
   - Playback restores the cursor and clears the playback screen before returning to the shell.
+  - Documented that `--no-clear` is the explicit opt-in for leaving frames in normal terminal output.
 - Added browser renderer separation groundwork.
   - Added `web/src/lib/renderer-pre.js`.
   - Added `web/src/lib/renderer-pre.d.ts`.
