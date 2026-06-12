@@ -45,7 +45,9 @@ Before adding a feature that consumes `.tva` content, make sure validation cover
 ## Git policy
 
 - Check `git status --short` before and after meaningful work.
-- Do not create branches, stage files, commit, push, or open pull requests unless the user explicitly asks.
+- Do not create new branches. Work on the current branch unless the user explicitly changes branches themselves.
+- Commit periodically during meaningful work so progress is captured in small, understandable checkpoints.
+- Do not stage files, push, or open pull requests unless the user explicitly asks.
 - Do not run destructive Git commands such as `git reset --hard` or `git checkout --` for cleanup.
 - Mention remaining untracked files in the final report when relevant.
 
