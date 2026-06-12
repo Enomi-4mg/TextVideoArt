@@ -10,14 +10,24 @@
     <meta property="og:url" content="https://enomi-4mg.github.io/TextVideoArt/web/examples/webcam-preview/" />
     <meta name="twitter:card" content="summary" />
     <title>tvart WebCam Preview</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=controls-toggle" />
   </head>
   <body>
-    <main class="preview-surface">
+    <main id="preview-surface" class="preview-surface">
       <pre id="frame-output" class="frame-output" aria-live="off">Waiting for camera.</pre>
 
       <video id="camera-video" class="is-hidden" playsinline muted></video>
       <canvas id="sample-canvas" class="is-hidden"></canvas>
+
+      <button
+        id="controls-toggle"
+        class="overlay-toggle"
+        type="button"
+        aria-controls="controls-overlay"
+        aria-expanded="true"
+      >
+        Hide Controls
+      </button>
 
       <section id="controls-overlay" class="overlay controls-overlay" aria-label="WebCam preview controls">
         <div class="title-block">
@@ -58,9 +68,9 @@
         <div id="status" class="status" role="status">Waiting for camera.</div>
       </section>
 
-      <div class="overlay-hint">Press H to toggle controls</div>
+      <div class="overlay-hint">Press H or use Controls</div>
     </main>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./app.js?v=controls-toggle"></script>
   </body>
 </html>

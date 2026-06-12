@@ -85,12 +85,21 @@ button:disabled {
 .overlay-hint {
   position: fixed;
   top: 8px;
-  right: 8px;
+  right: 116px;
   z-index: 1;
   padding: 4px 6px;
   color: #00ff66;
   background: rgba(0, 0, 0, 0.65);
   font-size: 12px;
+}
+
+.overlay-toggle {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  min-width: 96px;
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .title-block {
@@ -217,9 +226,20 @@ label input[type="text"] {
 
   .overlay-hint {
     top: 6px;
-    right: 6px;
-    max-width: calc(100vw - 12px);
+    right: 134px;
+    max-width: calc(100vw - 146px);
     font-size: 11px;
+  }
+
+  .overlay-toggle {
+    top: 6px;
+    right: 6px;
+    min-width: 120px;
+    width: auto;
+  }
+
+  .controls-hidden .frame-output {
+    padding-bottom: 12px;
   }
 
   h1 {
@@ -252,6 +272,10 @@ label input[type="text"] {
   .frame-output {
     padding-bottom: 390px;
     font-size: 9px;
+  }
+
+  .overlay-hint {
+    display: none;
   }
 
   .controls-overlay {

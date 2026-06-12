@@ -1,7 +1,9 @@
 const frameOutput = document.getElementById("frame-output");
 const video = document.getElementById("camera-video");
 const canvas = document.getElementById("sample-canvas");
+const previewSurface = document.getElementById("preview-surface");
 const controlsOverlay = document.getElementById("controls-overlay");
+const controlsToggle = document.getElementById("controls-toggle");
 const startButton = document.getElementById("start-button");
 const stopButton = document.getElementById("stop-button");
 const widthInput = document.getElementById("width-input");
@@ -180,8 +182,15 @@ function isFormControl(element) {
   return ["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(element.tagName);
 }
 
+function setOverlayVisible(isVisible) {
+  controlsOverlay.classList.toggle("is-hidden", !isVisible);
+  previewSurface.classList.toggle("controls-hidden", !isVisible);
+  controlsToggle.setAttribute("aria-expanded", String(isVisible));
+  controlsToggle.textContent = isVisible ? "Hide Controls" : "Show Controls";
+}
+
 function toggleOverlay() {
-  controlsOverlay.classList.toggle("is-hidden");
+  setOverlayVisible(controlsOverlay.classList.contains("is-hidden"));
 }
 
 document.addEventListener("keydown", (event) => {
@@ -192,10 +201,11 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "h" || event.key === "H") {
     toggleOverlay();
   } else if (event.key === "Escape") {
-    controlsOverlay.classList.add("is-hidden");
+    setOverlayVisible(false);
   }
 });
 
+controlsToggle.addEventListener("click", toggleOverlay);
 startButton.addEventListener("click", startCamera);
 stopButton.addEventListener("click", stopCamera);
 
