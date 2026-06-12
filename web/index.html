@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tvart</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <p class="eyebrow">Text Video Art</p>
+      <h1>tvart</h1>
+      <p class="summary">
+        Create, validate, edit, export, and play plain-text video archives.
+        Open the Web Player to load a local <code>.tva</code> file, or try the
+        browser samples below.
+      </p>
+      <nav class="primary-actions" aria-label="Primary links">
+        <a class="primary-link" href="./player/">Web Player</a>
+        <a class="secondary-link" href="./examples/api-demo/">API Demo</a>
+      </nav>
+    </header>
+
+    <section class="launch-grid" aria-label="Browser tools">
+      <article class="launch-item">
+        <h2>Web Player</h2>
+        <p>Load a local <code>.tva</code> archive and play it in the browser.</p>
+        <a href="./player/">Open player</a>
+      </article>
+      <article class="launch-item">
+        <h2>API Demo</h2>
+        <p>Explore <code>TvaPlayer</code> controls, markers, events, and manifest data.</p>
+        <a href="./examples/api-demo/">Open demo</a>
+      </article>
+      <article class="launch-item">
+        <h2>WebCam Preview</h2>
+        <p>Try browser-side live camera-to-text conversion without writing a file.</p>
+        <a href="./examples/webcam-preview/">Open preview</a>
+      </article>
+      <article class="launch-item">
+        <h2>VJ Sample</h2>
+        <p>Use a full-window text output surface for browser capture workflows.</p>
+        <a href="./examples/vj-sample/">Open sample</a>
+      </article>
+    </section>
+
+    <section class="notes" aria-label="Project notes">
+      <h2>Notes</h2>
+      <p>
+        Browser tools are static files and can be served by GitHub Pages or any
+        local static server. The Web Player and TVA-loading samples currently
+        import JSZip from a CDN.
+      </p>
+      <p>
+        TVA format version <code>0.1.0</code> stores monochrome UTF-8 plain-text
+        frames. Color layers, canvas rendering, and media export are future work.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

@@ -34,6 +34,11 @@
   - Introduced `PreFrameRenderer` with `render(frame)` and `clear()`.
 - Added experimental VJ browser sample under `web/examples/vj-sample/`.
   - Supports file picker, drag-and-drop, full-frame output, overlay controls, keyboard shortcuts, and URL parameters.
+- Added public trial onboarding groundwork.
+  - Added a GitHub Pages-friendly entry point at `web/index.html`.
+  - Added browser example documentation in `web/examples/README.md`.
+  - Added GitHub issue templates for bug reports, feature requests, and conversion result feedback.
+  - Documented the sample asset policy and current browser CDN dependency.
 - Added docs-only research notes.
   - `docs/unicode-width.md` documents current character-count validation and future Unicode display width options.
   - `docs/color-layer-design.md` documents future sidecar color layer direction without embedding ANSI escape sequences in frame text.

@@ -1,0 +1,168 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #070807;
+  color: #f4f7f2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+a {
+  color: inherit;
+}
+
+code {
+  color: #b8ffcf;
+}
+
+.page-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 48px;
+}
+
+.hero {
+  min-height: 46vh;
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 28px 0 40px;
+  border-bottom: 1px solid rgb(184 255 207 / 26%);
+}
+
+.eyebrow,
+.summary,
+.notes p,
+.launch-item p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: #9ef7b9;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+h1 {
+  font-size: 112px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+.summary {
+  max-width: 760px;
+  color: #d6ded3;
+  font: 18px/1.6 system-ui, sans-serif;
+}
+
+.primary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.primary-link,
+.secondary-link,
+.launch-item a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #00ff66;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+
+.primary-link {
+  background: #00ff66;
+  color: #071007;
+}
+
+.secondary-link,
+.launch-item a {
+  color: #00ff66;
+}
+
+.launch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 24px 0;
+}
+
+.launch-item {
+  min-height: 220px;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  border: 1px solid rgb(184 255 207 / 24%);
+  padding: 16px;
+  background: #0c0f0c;
+}
+
+.launch-item p,
+.notes p {
+  color: #d6ded3;
+  font: 15px/1.55 system-ui, sans-serif;
+}
+
+.launch-item a {
+  align-self: end;
+  justify-self: start;
+}
+
+.notes {
+  display: grid;
+  gap: 12px;
+  max-width: 840px;
+  padding-top: 18px;
+}
+
+@media (max-width: 920px) {
+  h1 {
+    font-size: 84px;
+  }
+
+  .launch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    width: min(100% - 24px, 1120px);
+    padding-top: 24px;
+  }
+
+  .hero {
+    min-height: 42vh;
+  }
+
+  .summary {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 56px;
+  }
+
+  .launch-grid {
+    grid-template-columns: 1fr;
+  }
+}

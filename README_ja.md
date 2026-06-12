@@ -159,12 +159,23 @@ dense    = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8
 
 ## Web
 
+- GitHub Pages 入口: `web/index.html`
 - 静的Web Player: `web/player/index.html`
 - API demo: `web/examples/api-demo/index.html`
 - WebCam preview sample: `web/examples/webcam-preview/index.html`
 - VJ sample: `web/examples/vj-sample/index.html`
 
 ブラウザ用の再生コアは `web/src/lib/player-api.js` の `TvaPlayer` として利用できます。TypeScript宣言は `web/src/lib/player-api.d.ts` にあります。
+
+ブラウザツールを試す場合は、repository をローカルの静的サーバーで配信します。
+
+```bash
+python3 -m http.server 8000
+```
+
+その後 `http://localhost:8000/web/` を開きます。Web Player と `.tva` を読み込むブラウザサンプルは、現在 JSZip を CDN から読み込むため、依存を vendoring するまではネットワーク接続が必要です。ブラウザサンプルのメモと sample asset policy は `web/examples/README.md` を参照してください。
+
+public repository で GitHub Discussions を有効にする場合は、announcements、questions、ideas、show and tell の用途で使う想定です。
 
 ## 現在の制限
 

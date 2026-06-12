@@ -173,6 +173,7 @@ See `docs/charset-presets.md` for details.
 
 ## Web
 
+- GitHub Pages entry point: `web/index.html`
 - Static Web Player: `web/player/index.html`
 - API demo: `web/examples/api-demo/index.html`
 - WebCam preview sample: `web/examples/webcam-preview/index.html`
@@ -181,6 +182,20 @@ See `docs/charset-presets.md` for details.
 The browser playback core is available as `TvaPlayer` in
 `web/src/lib/player-api.js`, with TypeScript declarations in
 `web/src/lib/player-api.d.ts`.
+
+Serve the repository with a local static server to try the browser tools:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000/web/`. The Web Player and TVA-loading browser
+samples currently import JSZip from a CDN, so they need network access unless
+that dependency is vendored later. See `web/examples/README.md` for the browser
+sample notes and sample asset policy.
+
+GitHub Discussions, when enabled for the public repository, are intended for
+announcements, questions, ideas, and show-and-tell posts.
 
 ## Current Limitations
 

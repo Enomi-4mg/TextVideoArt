@@ -1,6 +1,6 @@
 # tvart implementation plan
 
-Last updated: 2026-06-09
+Last updated: 2026-06-11
 
 ## 0. この文書の位置づけ
 
@@ -54,7 +54,19 @@ v0.9.1  Color layer design research [done]
 v0.9.2  Test and release hygiene
 v0.9.3  Pack/export workflow audit
 v0.9.4  Web sample dependency hardening
+v0.9.5  Public trial onboarding
+v0.9.6  Output fit model / realtime display fit
 v1.0.0  TVA 0.1.0 stability release
+
+v1.1.0  Canvas renderer foundation
+v1.1.1  Render frames
+v1.1.2  Render video
+v1.1.3  OpenCV preprocessing foundation
+v1.1.4  Denoise / threshold / morphology
+v1.1.5  Edge / contour modes
+v1.1.6  Video temporal processing
+v1.1.7  Source channel / color-derived preprocessing
+v1.2.0  Frame editing utilities
 ```
 
 ---
@@ -623,19 +635,19 @@ validate が弱いまま pack / export / Web Player / future display features / 
 
 範囲:
 
-- `fix` output path validation の CLI parser tests。
-- charset preset mutual exclusion の CLI parser tests。
-- image / video preview routing の tests。
-- 意図的に error output を出す tests では stdout / stderr を捕捉する。
+- CLI parser tests を追加または改善する。
+- charset preset mutual exclusion の tests を追加する。
+- image / video preview routing の tests を追加する。
 - valid `.tva` archive 用の fixture helper を整理する。
+- 意図的に stdout / stderr output を出す tests を整理する。
 - package version を `0.9.x` に進めるか unreleased 扱いにするか決める。
-- v0.8.0 から v0.9.1 までの changelog entry を追加する。
+- 完了済み unreleased work の changelog entries を追加または準備する。
 
 範囲外:
 
 - `.tva` format fields の追加。
 - release publishing automation。
-- repository に既存 CI がない場合の GitHub Actions 追加。
+- GitHub Actions 追加。ただし、明示的に依頼された場合は別途検討する。
 
 ### v0.9.3: Pack / export workflow audit
 
@@ -647,8 +659,8 @@ README に記載された pack / export workflow と実際の CLI surface を監
 
 範囲:
 
+- README / README_ja / CHANGELOG / docs/format.md の一貫性を監査する。
 - pack / unpack / export / inspect / fix / preview の command reference を再点検する。
-- README / README_ja / CHANGELOG / docs/format.md の矛盾を解消する。
 - pack / export が今後の機能でなく既存機能であることを明確化する。
 - `.tva` format version は、具体的な format change が承認されるまで `0.1.0` のまま維持する。
 
@@ -656,7 +668,7 @@ README に記載された pack / export workflow と実際の CLI surface を監
 
 - color export implementation。
 - HTML renderer の大きな設計変更。
-- non-OpenCV media dependencies の追加。
+- 新しい media dependency の追加。
 
 ### v0.9.4: Web sample dependency hardening
 
@@ -668,37 +680,405 @@ browser examples を runtime CDN 依存なしでも扱いやすくする。
 
 範囲:
 
-- `web/examples/vj-sample/` の ZIP reader dependency を vendoring または local bundle 化する。
+- browser examples の runtime CDN dependency を削減するか文書化する。
+- `web/examples/vj-sample/` と、JSZip などを CDN から読む他の examples を重点的に確認する。
 - browser examples を local static server で動かすための短い README を追加する。
-- VJ sample の keyboard shortcuts と URL parameters を browser で確認する。
+- VJ sample の keyboard shortcuts と URL parameters を確認し、文書化する。
 - `PreFrameRenderer` は小さく独立した部品として維持する。
 
 範囲外:
 
-- build system migration。
 - framework adoption。
+- build system migration。
 - canvas renderer。
 - color renderer。
+
+### v0.9.5: Public trial onboarding
+
+目的:
+
+```text
+v1.0.0 stability release の前に、他の人が tvart を試せる repository 状態へ整える。
+```
+
+前提:
+
+- GitHub repository は public になる想定で準備する。
+- README.md と README_ja.md の両方を維持する。
+- 大きな sample files は repository に直接 commit せず、GitHub Releases への添付を優先する。
+
+範囲:
+
+- quickstart documentation を改善する。
+- command cheatsheet を追加または整理する。
+- known limitations を明確にする。
+- `web/index.html` を GitHub Pages / local static server の入口として追加する。
+- Pages 入口から以下へ到達できるようにする。
+  - Web Player
+  - API demo
+  - WebCam preview sample
+  - VJ sample
+- examples README を追加または整理し、起動方法、制限、CDN dependency、sample asset policy を明記する。
+- lightweight sample assets を追加または計画する。
+  - `examples/source/`
+  - `examples/tva/`
+  - `examples/exported/`
+- `.gitignore` がすべての `.tva` を除外している場合、tracked sample `.tva` を実際に追加する時だけ `!examples/**/*.tva` のような限定例外を追加する。
+- GitHub issue templates を追加する。
+  - bug report
+  - feature request
+  - conversion result feedback
+- GitHub Discussions の用途を有効化または文書化する。
+  - announcements
+  - questions
+  - ideas
+  - show and tell
+- `v0.9.x-preview` または `v1.0.0-rc.1` のような pre-release flow を準備する。
+
+範囲外:
+
+- PyPI publishing。
+- large video sample の直接 commit。
+- npm publishing。
+- 新しい `.tva` format feature。
+
+### v0.9.6: Output fit model / realtime display fit
+
+目的:
+
+```text
+common output fit model を定義し、browser VJ sample に最小適用して realtime / VJ usability を改善する。
+```
+
+方針:
+
+- renderer / output concern として扱い、`.tva` archive structure は変更しない。
+- まず existing browser VJ sample へ URL parameters として適用する。
+
+最小 fit model:
+
+```text
+targetWidth
+targetHeight
+fitMode
+alignX
+alignY
+foreground
+background
+```
+
+初期 `fitMode` values:
+
+```text
+native
+contain
+cover
+stretch
+```
+
+optional / future `fitMode` values:
+
+```text
+width
+height
+scroll
+```
+
+初期 alignment values:
+
+```text
+alignX: left | center | right
+alignY: top | center | bottom
+```
+
+URL parameter direction:
+
+```text
+?targetWidth=1920&targetHeight=1080&fitMode=cover&alignX=center&alignY=center&foreground=%23ffffff&background=%23000000
+```
+
+TouchDesigner integration path:
+
+```text
+tvart VJ sample / Web renderer
+→ Browser window or OBS Browser Source
+→ Window Capture / Spout / Syphon / NDI via existing tools
+→ TouchDesigner TOP workflow
+```
+
+Existing VJ software integration path:
+
+```text
+tvart VJ sample / Web renderer
+→ OBS / Browser capture / NDI / Spout / Syphon through existing tools
+→ Resolume / VDMX / other VJ software
+```
+
+Later VJ media path:
+
+```text
+tvart render frames/video
+→ import as media asset
+```
+
+Blender integration path:
+
+```text
+future tvart render frames/video
+→ Blender Video Sequencer / Image Texture / Plane
+```
+
+範囲外:
+
+- v1.0.0 前の Canvas renderer。
+- v1.0.0 前の render frames。
+- v1.0.0 前の render video。
+- direct Spout / Syphon / NDI implementation。
+- realtime Blender Text Object integration。
+- `.tva` format change。
 
 ### v1.0.0: TVA 0.1.0 stability release
 
 目的:
 
 ```text
-basic text-art conversion, validation, preview, playback, metadata fixes, pack / unpack,
-HTML export, and browser examples を備えた TVA 0.1.0 の安定版として整理する。
+current TVA 0.1.0 toolchain と documentation を public use 向けに安定化する。
 ```
 
 範囲:
 
-- user-facing CLI help の最終確認。
-- README と README_ja を実装済み command に合わせて最終更新する。
-- examples が実行可能であることを確認する。
-- package metadata と versioning policy を確定する。
-- TVA format `0.1.0` の release notes を追加する。
+- README / README_ja の最終確認。
+- CLI help と documentation が実装に一致していることを確認する。
+- examples が usable であることを確認する。
+- GitHub Pages onboarding path が機能することを確認する。
+- tracked sample `.tva` files を追加した場合は valid であることを確認する。
+- package metadata と release notes を確認する。
+- TVA format version は `0.1.0` のまま維持する。
 
 範囲外:
 
-- Unicode display width behavior changes。
+- OpenCV preprocessing。
+- Canvas renderer。
+- render frames / video。
 - color layer implementation。
+- Unicode display width behavior changes。
 - TVA format version bump。
+
+### v1.1.0: Canvas renderer foundation
+
+目的:
+
+```text
+future export, VJ, TouchDesigner, Blender workflows のために fixed-pixel render surface を導入する。
+```
+
+範囲:
+
+- canvas-based renderer concept を追加する。
+- `<pre>` renderer は引き続き利用可能にする。
+- fit / layout logic は可能な範囲で共有する。
+- image / video export の土台を準備する。
+
+範囲外:
+
+- direct NDI / Spout / Syphon。
+- 別途承認されていない color layer renderer。
+
+### v1.1.1: Render frames
+
+目的:
+
+```text
+`.tva` playback frames を image sequence assets として export する。
+```
+
+範囲:
+
+- `.tva` から PNG sequence を出力する。
+- width / height / fit options を提供する。
+- foreground / background options を提供する。
+- transparent background を検討する。
+
+注記:
+
+- video export より先に実装する。
+
+### v1.1.2: Render video
+
+目的:
+
+```text
+VJ software、Blender、sharing 用に `.tva` playback を video export する。
+```
+
+範囲:
+
+- `.tva` から mp4 を出力する。
+- ffmpeg dependency は許容する。
+- fps / width / height / fit options を提供する。
+- 必要に応じて MOV / WebM など alpha-capable formats を後で検討する。
+
+### v1.1.3: OpenCV preprocessing foundation
+
+目的:
+
+```text
+text-frame conversion 前の visual conversion quality を改善する。
+```
+
+初期 CLI strategy:
+
+```text
+Start with individual options plus a few presets.
+Add filter-chain syntax later.
+```
+
+初期 options:
+
+```text
+--interpolation area|nearest|linear|cubic|lanczos
+--contrast-stretch
+--gamma FLOAT
+--brightness INT
+--contrast FLOAT
+--image-preset clean|high-contrast|binary|edge
+```
+
+初期 processing order:
+
+```text
+1. channel / grayscale
+2. denoise
+3. contrast / gamma
+4. threshold / edge
+5. resize / interpolation
+6. text conversion
+```
+
+metadata 記録方針:
+
+```json
+{
+  "conversion": {
+    "preprocessing": {
+      "preset": "clean",
+      "interpolation": "area",
+      "contrast_stretch": true,
+      "gamma": 1.2
+    }
+  }
+}
+```
+
+注記:
+
+- arbitrary user-defined filter ordering はまだ実装しない。
+- preprocessing metadata は required TVA format field にしない。
+- formal TVA format specification を変更するより、`docs/preprocessing.md` の design note 追加を検討する。
+
+### v1.1.4: Denoise / threshold / morphology
+
+目的:
+
+- black background 上の小さな white speckles を減らす。
+- `simple` charset と安定した binary conversion を組み合わせやすくする。
+- noisy camera / video source conversion を改善する。
+
+範囲:
+
+```text
+--denoise none|median|gaussian|bilateral
+--denoise-ksize 3
+--threshold 128
+--threshold-otsu
+--morph-open 1
+--morph-close 1
+--remove-speckles 3
+```
+
+### v1.1.5: Edge / contour modes
+
+目的:
+
+- line-art / edge-based ASCII conversion modes を追加する。
+- quality cleanup だけではなく、visual expression modes として扱う。
+
+範囲:
+
+```text
+--mode normal|edge|binary|contour
+--edge canny|sobel|laplacian|scharr
+--canny-threshold1 50
+--canny-threshold2 150
+--contour-min-area 20
+```
+
+### v1.1.6: Video temporal processing
+
+範囲:
+
+```text
+--temporal-smooth FLOAT
+--contrast-scope frame|rolling|global
+--frame-diff
+--background-subtract
+```
+
+実装方針:
+
+- simple に始める。
+- 初期実装では per-frame processing を許容する。
+- rolling / global behavior は後で追加する。global contrast は video pre-scan が必要になる可能性がある。
+
+### v1.1.7: Source channel / color-derived preprocessing
+
+目的:
+
+- `.tva` は当面 monochrome のまま維持する。
+- input color information を text intensity の決定に使う。
+- color layers を TVA に追加せず、VJ / chroma-key-like source workflows を支援する。
+
+範囲:
+
+```text
+--channel gray|red|green|blue|hue|saturation|value
+--chroma-key green
+--hue-range START:END
+```
+
+### v1.2.0: Frame editing utilities
+
+目的:
+
+```text
+metadata-only の `fix` と混同しない形で、既存 TVA text frames を編集する utilities を追加する。
+```
+
+範囲:
+
+```text
+tvart edit-frame input.tva -o output.tva --frame 120 --replace frame.txt
+tvart edit-frame input.tva -o output.tva --frame 120 --from-image still.png
+```
+
+possible later features:
+
+- frame range export / import。
+- batch frame replacement。
+- preprocessing pipeline を使った image-to-frame replacement。
+
+重要な区別:
+
+- `fix` は metadata-oriented のまま維持する。
+- `edit-frame` は frame-content editing として扱う。
+
+### preserve principles
+
+- 明示的な format migration が承認されるまで、TVA format version は `0.1.0` のまま維持する。
+- `frames/*.txt` は plain UTF-8 text のまま維持する。
+- ANSI escape sequences を frame text に埋め込まない。
+- color はこの update の対象ではなく、future sidecar layer として扱う。
+- OpenCV preprocessing は conversion-time behavior として扱い、required TVA format feature にしない。
+- fit model は renderer / output behavior として扱い、TVA archive structure にしない。
+- completed work と future roadmap を明確に分ける。
+- README / CHANGELOG / docs/format.md とこの planning document が矛盾する場合は、source-of-truth documents を優先し、この planning document を更新するか優先関係を明記する。
