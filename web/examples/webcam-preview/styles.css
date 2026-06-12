@@ -83,14 +83,7 @@ button:disabled {
 }
 
 .overlay-hint {
-  position: fixed;
-  top: 8px;
-  right: 116px;
-  z-index: 1;
-  padding: 4px 6px;
-  color: #00ff66;
-  background: rgba(0, 0, 0, 0.65);
-  font-size: 12px;
+  display: none;
 }
 
 .overlay-toggle {
@@ -98,7 +91,7 @@ button:disabled {
   top: 8px;
   right: 8px;
   z-index: 3;
-  min-width: 96px;
+  min-width: 112px;
   background: rgba(0, 0, 0, 0.85);
 }
 
@@ -204,38 +197,31 @@ label input[type="text"] {
   .frame-output {
     height: 100dvh;
     padding: 12px;
-    padding-bottom: 360px;
+    padding-top: 64px;
+    padding-bottom: 430px;
     font-size: 10px;
     line-height: 1.05;
   }
 
   .controls-overlay {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: 52dvh;
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    max-height: min(62dvh, 520px);
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     padding: 12px;
-    border-right: 0;
-    border-bottom: 0;
-    border-left: 0;
+    border: 1px solid #00ff66;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .overlay-hint {
-    top: 6px;
-    right: 134px;
-    max-width: calc(100vw - 146px);
-    font-size: 11px;
-  }
-
   .overlay-toggle {
-    top: 6px;
-    right: 6px;
-    min-width: 120px;
-    width: auto;
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    width: min(156px, calc(100vw - 16px));
+    min-height: 44px;
+    min-width: 0;
   }
 
   .controls-hidden .frame-output {
@@ -266,20 +252,40 @@ label input[type="text"] {
   .checkbox {
     min-height: 44px;
   }
+
+  .button-row {
+    position: sticky;
+    top: -12px;
+    z-index: 1;
+    padding: 0 0 10px;
+    background: #000;
+    order: 1;
+  }
+
+  .title-block {
+    order: 2;
+  }
+
+  label,
+  .checkbox {
+    order: 3;
+  }
+
+  .status {
+    order: 4;
+    white-space: normal;
+  }
 }
 
 @media (max-width: 380px) {
   .frame-output {
-    padding-bottom: 390px;
+    padding-bottom: 470px;
     font-size: 9px;
-  }
-
-  .overlay-hint {
-    display: none;
   }
 
   .controls-overlay {
     grid-template-columns: 1fr;
+    max-height: min(68dvh, 560px);
   }
 
   .button-row {
