@@ -10,11 +10,14 @@
     <meta property="og:url" content="https://enomi-4mg.github.io/TextVideoArt/web/examples/webcam-preview/" />
     <meta name="twitter:card" content="summary" />
     <title>tvart WebCam Preview</title>
-    <link rel="stylesheet" href="./styles.css?v=mobile-controls" />
+    <link rel="stylesheet" href="./styles.css?v=camera-fit" />
   </head>
   <body>
     <main id="preview-surface" class="preview-surface">
-      <pre id="frame-output" class="frame-output" aria-live="off">Waiting for camera.</pre>
+      <section id="preview-stage" class="preview-stage" aria-label="WebCam text preview">
+        <canvas id="frame-canvas" class="frame-canvas" aria-label="WebCam text output"></canvas>
+        <pre id="frame-output" class="frame-output" aria-live="off">Waiting for camera.</pre>
+      </section>
 
       <video id="camera-video" class="is-hidden" playsinline muted></video>
       <canvas id="sample-canvas" class="is-hidden"></canvas>
@@ -32,7 +35,6 @@
       <section id="controls-overlay" class="overlay controls-overlay" aria-label="WebCam preview controls">
         <div class="title-block">
           <h1>WebCam Preview</h1>
-          <p>Experimental browser-side text preview.</p>
         </div>
 
         <div class="button-row">
@@ -42,17 +44,27 @@
 
         <label>
           <span>FPS</span>
-          <input id="fps-input" type="number" min="0.1" step="0.1" value="10" />
+          <input id="fps-input" type="number" min="1" step="1" value="10" />
+        </label>
+
+        <label>
+          <span>Resolution</span>
+          <input id="resolution-input" type="number" min="1" max="64" step="1" value="24" />
         </label>
 
         <label>
           <span>Charset</span>
-          <input id="charset-input" type="text" value=" .:-=+*#%@" spellcheck="false" />
+          <select id="charset-input">
+            <option value="standard">Standard</option>
+            <option value="simple">Simple</option>
+            <option value="blocks">Blocks</option>
+            <option value="dense">Dense</option>
+          </select>
         </label>
 
         <label>
           <span>Aspect</span>
-          <input id="aspect-input" type="number" min="0.01" step="0.05" value="0.5" />
+          <input id="aspect-input" type="number" min="0.01" step="0.05" value="1" />
         </label>
 
         <label class="checkbox">
@@ -65,6 +77,6 @@
 
     </main>
 
-    <script type="module" src="./app.js?v=mobile-controls"></script>
+    <script type="module" src="./app.js?v=camera-fit"></script>
   </body>
 </html>
