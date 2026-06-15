@@ -16,44 +16,28 @@
   <main class="page-shell">
     <header class="hero">
       <p class="eyebrow">Text Video Art</p>
-      <h1>tvart</h1>
+      <h1>TEXT VIDEO ART</h1>
       <p class="summary">
         Create, validate, edit, export, and play plain-text video archives.
-        Open the Web Player to load a local <code>.tva</code> file, or try the
-        browser samples below.
+        Choose Player for local <code>.tva</code> playback and capture tools,
+        or WebCam for live camera-to-text preview.
       </p>
       <nav class="primary-actions" aria-label="Primary links">
-        <a class="primary-link" href="./player/">Web Player</a>
-        <a class="secondary-link" href="./examples/api-demo/">API Demo</a>
-        <a class="secondary-link" href="../docs/">Docs</a>
+        <a class="primary-link" href="./player/">Player</a>
+        <a class="secondary-link" href="./examples/webcam-preview/">WebCam</a>
       </nav>
     </header>
 
     <section class="launch-grid" aria-label="Browser tools">
       <article class="launch-item">
-        <h2>Web Player</h2>
-        <p>Load a local <code>.tva</code> archive and play it in the browser.</p>
+        <h2>Player</h2>
+        <p>Load local <code>.tva</code> files, inspect metadata, debug the API, and tune VJ capture output.</p>
         <a href="./player/">Open player</a>
       </article>
       <article class="launch-item">
-        <h2>API Demo</h2>
-        <p>Explore <code>TvaPlayer</code> controls, markers, events, and manifest data.</p>
-        <a href="./examples/api-demo/">Open demo</a>
-      </article>
-      <article class="launch-item">
-        <h2>WebCam Preview</h2>
+        <h2>WebCam</h2>
         <p>Try browser-side live camera-to-text conversion without writing a file.</p>
-        <a href="./examples/webcam-preview/">Open preview</a>
-      </article>
-      <article class="launch-item">
-        <h2>VJ Sample</h2>
-        <p>Use a full-window text output surface for browser capture workflows.</p>
-        <a href="./examples/vj-sample/">Open sample</a>
-      </article>
-      <article class="launch-item">
-        <h2>Docs</h2>
-        <p>Read the TVA format spec, roadmap, charset notes, and design research.</p>
-        <a href="../docs/">Open docs</a>
+        <a href="./examples/webcam-preview/">Open webcam</a>
       </article>
     </section>
 
@@ -61,8 +45,8 @@
       <h2>Notes</h2>
       <p>
         Browser tools are static files and can be served by GitHub Pages or any
-        local static server. The Web Player and TVA-loading samples currently
-        import JSZip from a CDN.
+        local static server. Player currently imports JSZip from a CDN
+        for TVA archive loading.
       </p>
       <p>
         TVA format version <code>0.1.0</code> stores monochrome UTF-8 plain-text

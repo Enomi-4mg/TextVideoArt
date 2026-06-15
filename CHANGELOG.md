@@ -32,8 +32,9 @@
   - Added `web/src/lib/renderer-pre.js`.
   - Added `web/src/lib/renderer-pre.d.ts`.
   - Introduced `PreFrameRenderer` with `render(frame)` and `clear()`.
-- Added experimental VJ browser sample under `web/examples/vj-sample/`.
-  - Supports file picker, drag-and-drop, full-frame output, overlay controls, keyboard shortcuts, and URL parameters.
+- Unified the Web Player, API demo, and VJ sample into `web/player/`.
+  - Added Player / Debug / VJ tabs, API state and event inspection, and capture-oriented VJ display controls.
+  - Removed the standalone API demo and VJ sample pages.
 - Added public trial onboarding groundwork.
   - Added a GitHub Pages-friendly entry point at `web/index.html`.
   - Added browser example documentation in `web/examples/README.md`.
@@ -68,7 +69,7 @@
 
 ## v0.7.4 - 2026-06-09
 
-- Added a browser-based API sample app under `web/examples/api-demo/`.
+- Added a browser-based API sample app, later folded into the unified Web Player.
 - Demonstrated direct use of `TvaPlayer` and `loadTvaFile`.
 - Added sample UI for file loading, playback control, seeking, FPS override, loop control, manifest display, marker jumps, and player event logging.
 - Organized the static Web Player app under `web/player/`.

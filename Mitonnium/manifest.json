@@ -1,0 +1,38 @@
+{
+  "format": "TVA",
+  "format_name": "Text Video Art",
+  "version": "0.1.0",
+  "title": "Mitonnium",
+  "created_by": "tvart",
+  "width": 204,
+  "height": 57,
+  "fps": 10.0,
+  "frame_count": 1942,
+  "duration": 194.2,
+  "charset": " .:-=+*#%@",
+  "invert": true,
+  "encoding": "utf-8",
+  "color_mode": "none",
+  "frame_format": "plain_text",
+  "frames_path": "frames/",
+  "source": {
+    "type": "video",
+    "filename": "Mitonnium.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 194.16666666666666
+  },
+  "conversion": {
+    "tool": "tvart",
+    "tool_version": "0.7.4",
+    "width": 204,
+    "height": 57,
+    "fps": 10.0,
+    "charset": " .:-=+*#%@",
+    "invert": true,
+    "aspect_correction": 0.5
+  },
+  "aspect_correction": 0.5,
+  "created_at": "2026-06-09T08:16:52+09:00"
+}

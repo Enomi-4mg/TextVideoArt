@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Load a local .tva archive and play plain-text video frames in the browser.">
+  <meta name="description" content="Load, inspect, debug, and capture local .tva archives in the browser.">
   <meta property="og:title" content="tvart Web Player">
-  <meta property="og:description" content="Load a local .tva archive and play plain-text video frames in the browser.">
+  <meta property="og:description" content="Load, inspect, debug, and capture local .tva archives in the browser.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://enomi-4mg.github.io/TextVideoArt/web/player/">
   <meta name="twitter:card" content="summary">
@@ -13,46 +13,158 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="app-shell">
-    <section class="player-surface" id="drop-zone">
-      <pre id="frame-output" class="frame-output" aria-live="off"></pre>
+  <main class="app-shell" id="drop-zone">
+    <section class="stage" id="stage">
+      <pre id="frame-output" class="frame-output" aria-live="off">Drop a .tva file or choose one below.</pre>
+    </section>
 
-      <div class="overlay-actions">
-        <button id="controls-toggle" type="button" aria-expanded="true" aria-controls="controls-overlay">Controls</button>
-        <button id="manifest-toggle" type="button" aria-expanded="false" aria-controls="manifest-overlay">Manifest</button>
-      </div>
+    <div class="top-actions">
+      <button id="ui-toggle" type="button" aria-expanded="true" aria-controls="workspace">Hide UI</button>
+    </div>
 
-      <section class="overlay controls-overlay" id="controls-overlay">
+    <section class="workspace" id="workspace">
+      <header class="workspace-header">
+        <nav class="tabs" aria-label="Player tabs">
+          <button id="tab-player" class="tab-button is-active" type="button" data-tab="player">Player</button>
+          <button id="tab-debug" class="tab-button" type="button" data-tab="debug">Debug</button>
+          <button id="tab-vj" class="tab-button" type="button" data-tab="vj">VJ</button>
+        </nav>
         <label class="file-button">
           <input id="file-input" type="file" accept=".tva,application/zip">
           Open TVA
         </label>
-        <span id="status" class="status">Drop a .tva file to begin</span>
-        <button id="prev-button" type="button">Prev</button>
-        <button id="play-button" type="button">Play</button>
-        <button id="next-button" type="button">Next</button>
-        <input id="seek-input" type="range" min="0" max="0" value="0">
-        <span id="frame-counter" class="frame-counter">0 / 0</span>
-        <label class="numeric-control">
-          FPS
-          <input id="fps-input" type="number" min="1" step="1" value="10">
-        </label>
-        <label class="toggle-control">
-          <input id="loop-input" type="checkbox">
-          Loop
-        </label>
+        <span id="status" class="status">Waiting for a TVA file.</span>
+      </header>
+
+      <section id="panel-player" class="tab-panel is-active" data-panel="player">
+        <aside class="panel controls-panel">
+          <h1>Player</h1>
+          <div class="button-row">
+            <button id="play-button" type="button" disabled>Play</button>
+            <button id="stop-button" type="button" disabled>Stop</button>
+          </div>
+          <div class="button-row">
+            <button id="prev-button" type="button" disabled>Prev</button>
+            <button id="next-button" type="button" disabled>Next</button>
+          </div>
+          <label class="field">
+            <span>Frame</span>
+            <input id="seek-input" type="range" min="0" max="0" value="0" disabled>
+          </label>
+          <span id="frame-counter" class="readout">0 / 0</span>
+          <label class="field">
+            <span>FPS</span>
+            <input id="fps-input" type="number" min="0.1" step="0.1" value="10" disabled>
+          </label>
+          <label class="checkbox">
+            <input id="loop-input" type="checkbox" disabled>
+            <span>Loop</span>
+          </label>
+        </aside>
+
+        <aside class="panel info-panel">
+          <section>
+            <h2 id="title">No TVA loaded</h2>
+            <dl id="metadata" class="metadata"></dl>
+          </section>
+          <section>
+            <h2>Markers</h2>
+            <div id="markers" class="markers">No markers loaded.</div>
+          </section>
+        </aside>
       </section>
 
-      <aside class="overlay manifest-overlay is-hidden" id="manifest-overlay">
-      <section class="details">
-        <h1 id="title">No TVA loaded</h1>
-        <dl id="metadata" class="metadata"></dl>
+      <section id="panel-debug" class="tab-panel" data-panel="debug">
+        <aside class="panel debug-controls">
+          <h1>API Controls</h1>
+          <div class="button-grid">
+            <button id="debug-play" type="button" disabled>play()</button>
+            <button id="debug-pause" type="button" disabled>pause()</button>
+            <button id="debug-stop" type="button" disabled>stop()</button>
+            <button id="debug-prev" type="button" disabled>prevFrame()</button>
+            <button id="debug-next" type="button" disabled>nextFrame()</button>
+          </div>
+          <label class="field">
+            <span>seekFrame(index)</span>
+            <input id="debug-frame-input" type="number" min="0" step="1" value="0" disabled>
+          </label>
+          <button id="debug-seek-frame" type="button" disabled>Call seekFrame</button>
+          <label class="field">
+            <span>seekTime(seconds)</span>
+            <input id="debug-time-input" type="number" min="0" step="0.1" value="0" disabled>
+          </label>
+          <button id="debug-seek-time" type="button" disabled>Call seekTime</button>
+          <label class="field">
+            <span>setFps(fps)</span>
+            <input id="debug-fps-input" type="number" min="0.1" step="0.1" value="10" disabled>
+          </label>
+          <button id="debug-set-fps" type="button" disabled>Call setFps</button>
+          <label class="checkbox">
+            <input id="debug-loop-input" type="checkbox" disabled>
+            <span>setLoop(loop)</span>
+          </label>
+        </aside>
+
+        <aside class="panel state-panel">
+          <h2>State</h2>
+          <dl id="debug-state" class="metadata"></dl>
+          <h2>Manifest</h2>
+          <pre id="manifest-json" class="code-output">{}</pre>
+          <h2>Markers</h2>
+          <pre id="markers-json" class="code-output">[]</pre>
+        </aside>
+
+        <aside class="panel log-panel">
+          <h2>Event Log</h2>
+          <ol id="event-log" class="event-log"></ol>
+        </aside>
       </section>
-      <section class="details">
-        <h2>Markers</h2>
-        <div id="markers" class="markers"></div>
+
+      <section id="panel-vj" class="tab-panel" data-panel="vj">
+        <aside class="panel vj-controls">
+          <h1>VJ Capture</h1>
+          <label class="field">
+            <span>Font size</span>
+            <input id="vj-font-size" type="number" min="8" step="1" value="16">
+          </label>
+          <label class="field">
+            <span>Line height</span>
+            <input id="vj-line-height" type="number" min="0.6" step="0.05" value="1">
+          </label>
+          <label class="field">
+            <span>Foreground</span>
+            <input id="vj-foreground" type="color" value="#f2f2f2">
+          </label>
+          <label class="field">
+            <span>Background</span>
+            <input id="vj-background" type="color" value="#050505">
+          </label>
+          <label class="field">
+            <span>Scale</span>
+            <input id="vj-scale" type="number" min="0.25" step="0.05" value="1">
+          </label>
+          <label class="field">
+            <span>Fit mode</span>
+            <select id="vj-fit-mode">
+              <option value="scroll">Scroll</option>
+              <option value="contain">Contain</option>
+            </select>
+          </label>
+          <label class="checkbox">
+            <input id="vj-center" type="checkbox">
+            <span>Center output</span>
+          </label>
+          <label class="checkbox">
+            <input id="vj-autoplay" type="checkbox">
+            <span>Autoplay after load</span>
+          </label>
+          <label class="checkbox">
+            <input id="vj-loop" type="checkbox">
+            <span>Loop</span>
+          </label>
+          <button id="vj-hide-ui" type="button">Hide UI for Capture</button>
+        </aside>
       </section>
-      </aside>
     </section>
   </main>
   <script type="module" src="./app.js"></script>

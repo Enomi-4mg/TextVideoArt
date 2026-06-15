@@ -2,13 +2,23 @@
   box-sizing: border-box;
 }
 
+:root {
+  --paper: #000000;
+  --ink: #00ff66;
+  --muted: #9ef7b9;
+  --rule: rgb(0 255 102 / 34%);
+  --accent: #00ff66;
+  --white: #ffffff;
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #000;
+  background: #050505;
   color: #fff;
-  font-family: system-ui, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -19,22 +29,40 @@ input {
 button,
 input[type="number"],
 input[type="text"] {
-  min-height: 32px;
-  border: 1px solid #00ff66;
+  min-height: 36px;
+  border: 2px solid var(--ink);
   border-radius: 0;
-  background: #000;
-  color: #00ff66;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 button {
-  padding: 4px 10px;
+  padding: 6px 10px;
   cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   touch-action: manipulation;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
 }
 
 button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+button:not(:disabled):hover,
+button:not(:disabled):focus-visible {
+  background: var(--accent);
+  color: var(--paper);
+  box-shadow: 4px 4px 0 var(--muted);
+  outline: 0;
+  transform: translate(-1px, -1px);
 }
 
 .preview-surface {
@@ -47,11 +75,11 @@ button:disabled {
   width: 100vw;
   height: 100vh;
   margin: 0;
-  padding: 16px;
+  padding: 24px;
   overflow: auto;
   white-space: pre;
   color: #fff;
-  background: #000;
+  background: #050505;
   font: 14px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -62,20 +90,21 @@ button:disabled {
 .overlay {
   position: fixed;
   z-index: 2;
-  border: 1px solid #00ff66;
-  background: #000;
-  color: #00ff66;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
 }
 
 .controls-overlay {
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) auto auto auto auto minmax(180px, 1fr) auto minmax(180px, 1fr);
-  gap: 8px;
+  grid-template-columns: minmax(180px, 1fr) auto auto auto minmax(180px, 1fr) auto minmax(180px, 1fr);
+  gap: 12px;
   align-items: end;
-  padding: 8px;
+  padding: 12px;
 }
 
 .overlay.is-hidden {
@@ -88,11 +117,12 @@ button:disabled {
 
 .overlay-toggle {
   position: fixed;
-  top: 8px;
-  right: 8px;
+  top: 16px;
+  right: 16px;
   z-index: 3;
-  min-width: 112px;
-  background: rgba(0, 0, 0, 0.85);
+  min-width: 124px;
+  background: var(--paper);
+  color: var(--accent);
 }
 
 .title-block {
@@ -105,31 +135,40 @@ p {
 }
 
 h1 {
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  text-transform: uppercase;
 }
 
 p,
 .status {
+  color: var(--muted);
   font-size: 13px;
+  font-weight: 600;
 }
 
 label {
   display: grid;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
-  font-size: 13px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 label input[type="number"] {
-  width: 80px;
-  padding: 0 6px;
+  width: 84px;
+  padding: 0 8px;
 }
 
 label input[type="text"] {
   width: 100%;
   min-width: 0;
-  padding: 0 6px;
+  padding: 0 8px;
 }
 
 .button-row {
@@ -137,11 +176,21 @@ label input[type="text"] {
   gap: 8px;
 }
 
+.button-row button:first-child {
+  background: var(--paper);
+  color: var(--accent);
+}
+
+.button-row button:last-child {
+  background: var(--paper);
+  color: var(--accent);
+}
+
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 32px;
+  gap: 8px;
+  min-height: 36px;
   white-space: nowrap;
 }
 
@@ -153,7 +202,7 @@ label input[type="text"] {
 }
 
 .status.is-error {
-  color: #ff8585;
+  color: var(--accent);
   text-decoration: underline;
 }
 
@@ -204,22 +253,21 @@ label input[type="text"] {
   }
 
   .controls-overlay {
-    left: max(8px, env(safe-area-inset-left));
-    right: max(8px, env(safe-area-inset-right));
-    bottom: max(8px, env(safe-area-inset-bottom));
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
     max-height: min(62dvh, 520px);
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     padding: 12px;
-    border: 1px solid #00ff66;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .overlay-toggle {
-    top: max(8px, env(safe-area-inset-top));
-    right: max(8px, env(safe-area-inset-right));
-    width: min(156px, calc(100vw - 16px));
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    width: min(156px, calc(100vw - 20px));
     min-height: 44px;
     min-width: 0;
   }
@@ -229,13 +277,13 @@ label input[type="text"] {
   }
 
   h1 {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   p,
   label,
   .status {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   button,
@@ -258,37 +306,6 @@ label input[type="text"] {
     top: -12px;
     z-index: 1;
     padding: 0 0 10px;
-    background: #000;
-    order: 1;
-  }
-
-  .title-block {
-    order: 2;
-  }
-
-  label,
-  .checkbox {
-    order: 3;
-  }
-
-  .status {
-    order: 4;
-    white-space: normal;
-  }
-}
-
-@media (max-width: 380px) {
-  .frame-output {
-    padding-bottom: 470px;
-    font-size: 9px;
-  }
-
-  .controls-overlay {
-    grid-template-columns: 1fr;
-    max-height: min(68dvh, 560px);
-  }
-
-  .button-row {
-    grid-template-columns: 1fr;
+    background: var(--paper);
   }
 }

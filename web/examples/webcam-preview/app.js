@@ -6,7 +6,6 @@ const controlsOverlay = document.getElementById("controls-overlay");
 const controlsToggle = document.getElementById("controls-toggle");
 const startButton = document.getElementById("start-button");
 const stopButton = document.getElementById("stop-button");
-const widthInput = document.getElementById("width-input");
 const fpsInput = document.getElementById("fps-input");
 const charsetInput = document.getElementById("charset-input");
 const invertInput = document.getElementById("invert-input");
@@ -14,6 +13,8 @@ const aspectInput = document.getElementById("aspect-input");
 const statusOutput = document.getElementById("status");
 
 const context = canvas.getContext("2d", { willReadFrequently: true });
+const MIN_FRAME_WIDTH = 24;
+const MAX_FRAME_WIDTH = 240;
 
 let stream = null;
 let timerId = null;
@@ -23,15 +24,64 @@ function setStatus(message, isError = false) {
   statusOutput.classList.toggle("is-error", isError);
 }
 
+function measureCharacterCell() {
+  const probe = document.createElement("span");
+  probe.textContent = "M".repeat(40);
+  probe.style.position = "absolute";
+  probe.style.visibility = "hidden";
+  probe.style.whiteSpace = "pre";
+  probe.style.font = getComputedStyle(frameOutput).font;
+  document.body.append(probe);
+  const rect = probe.getBoundingClientRect();
+  probe.remove();
+
+  return {
+    width: Math.max(1, rect.width / 40),
+    height: Math.max(1, rect.height),
+  };
+}
+
+function availablePreviewSize() {
+  const style = getComputedStyle(frameOutput);
+  const width =
+    frameOutput.clientWidth -
+    Number.parseFloat(style.paddingLeft) -
+    Number.parseFloat(style.paddingRight);
+  const height =
+    frameOutput.clientHeight -
+    Number.parseFloat(style.paddingTop) -
+    Number.parseFloat(style.paddingBottom);
+
+  return {
+    width: Math.max(1, width),
+    height: Math.max(1, height),
+  };
+}
+
+function fitFrameSize(aspectCorrection) {
+  const cell = measureCharacterCell();
+  const preview = availablePreviewSize();
+  const maxColumnsByWidth = Math.floor(preview.width / cell.width);
+  const maxRowsByHeight = Math.floor(preview.height / cell.height);
+  const sourceRatio = video.videoHeight / video.videoWidth;
+  const heightForWidth = (width) => Math.max(1, Math.floor(sourceRatio * width * aspectCorrection));
+  let width = Math.max(MIN_FRAME_WIDTH, Math.min(MAX_FRAME_WIDTH, maxColumnsByWidth));
+  let height = heightForWidth(width);
+
+  if (height > maxRowsByHeight && maxRowsByHeight > 0) {
+    width = Math.floor(maxRowsByHeight / Math.max(sourceRatio * aspectCorrection, 0.01));
+    width = Math.max(MIN_FRAME_WIDTH, Math.min(MAX_FRAME_WIDTH, width, maxColumnsByWidth));
+    height = heightForWidth(width);
+  }
+
+  return { width, height };
+}
+
 function readSettings() {
-  const width = Number.parseInt(widthInput.value, 10);
   const fps = Number.parseFloat(fpsInput.value);
   const charset = charsetInput.value;
   const aspectCorrection = Number.parseFloat(aspectInput.value);
 
-  if (!Number.isFinite(width) || width <= 0) {
-    throw new Error("Width must be a positive number.");
-  }
   if (!Number.isFinite(fps) || fps <= 0) {
     throw new Error("FPS must be a positive number.");
   }
@@ -43,7 +93,6 @@ function readSettings() {
   }
 
   return {
-    width,
     fps,
     charset,
     invert: invertInput.checked,
@@ -90,19 +139,16 @@ function renderFrame() {
     return;
   }
 
-  const height = Math.max(
-    1,
-    Math.floor((video.videoHeight / video.videoWidth) * settings.width * settings.aspectCorrection),
-  );
+  const { width, height } = fitFrameSize(settings.aspectCorrection);
 
-  canvas.width = settings.width;
+  canvas.width = width;
   canvas.height = height;
-  context.drawImage(video, 0, 0, settings.width, height);
+  context.drawImage(video, 0, 0, width, height);
 
-  const imageData = context.getImageData(0, 0, settings.width, height);
+  const imageData = context.getImageData(0, 0, width, height);
   frameOutput.textContent = imageDataToTextFrame(
     imageData,
-    settings.width,
+    width,
     height,
     settings.charset,
     settings.invert,
@@ -210,10 +256,10 @@ startButton.addEventListener("click", startCamera);
 stopButton.addEventListener("click", stopCamera);
 
 fpsInput.addEventListener("change", restartTimerIfRunning);
-widthInput.addEventListener("change", renderFrame);
 charsetInput.addEventListener("change", renderFrame);
 invertInput.addEventListener("change", renderFrame);
 aspectInput.addEventListener("change", renderFrame);
+window.addEventListener("resize", renderFrame);
 
 window.addEventListener("beforeunload", stopCamera);
 

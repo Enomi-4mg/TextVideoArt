@@ -19,8 +19,8 @@ plain text frames inside a ZIP-based container.
 - Update manifest metadata with `tvart fix` while preserving frames and unknown ZIP entries.
 - Export `.tva` files to standalone HTML players.
 - Use named charset presets for conversion, preview, and metadata fixes.
-- Load and play `.tva` files in the browser with the static Web Player and `TvaPlayer` API.
-- Try browser examples, including API demo, WebCam preview, and VJ sample.
+- Load, debug, and capture `.tva` files in the browser with the unified Web Player and `TvaPlayer` API.
+- Try browser tools, including WebCam preview and Web Player Debug / VJ tabs.
 
 ## Installation
 
@@ -174,10 +174,10 @@ See `docs/charset-presets.md` for details.
 ## Web
 
 - GitHub Pages entry point: `web/index.html`
-- Static Web Player: `web/player/index.html`
-- API demo: `web/examples/api-demo/index.html`
+- Unified Web Player: `web/player/index.html`
+  - Debug tab: `web/player/index.html?tab=debug`
+  - VJ tab: `web/player/index.html?tab=vj`
 - WebCam preview sample: `web/examples/webcam-preview/index.html`
-- VJ sample: `web/examples/vj-sample/index.html`
 
 The browser playback core is available as `TvaPlayer` in
 `web/src/lib/player-api.js`, with TypeScript declarations in
@@ -189,9 +189,9 @@ Serve the repository with a local static server to try the browser tools:
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000/web/`. The Web Player and TVA-loading browser
-samples currently import JSZip from a CDN, so they need network access unless
-that dependency is vendored later. See `web/examples/README.md` for the browser
+Then open `http://localhost:8000/web/`. The Web Player currently imports JSZip
+from a CDN for TVA archive loading, so it needs network access unless that
+dependency is vendored later. See `web/examples/README.md` for the browser
 sample notes and sample asset policy.
 
 GitHub Discussions, when enabled for the public repository, are intended for

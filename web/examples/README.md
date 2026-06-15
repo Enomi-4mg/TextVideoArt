@@ -11,20 +11,17 @@ From the repository root, open `http://localhost:8000/web/`.
 
 ## Examples
 
-- `web/player/`: static Web Player for loading a local `.tva` archive.
-- `web/examples/api-demo/`: direct `TvaPlayer` API controls, events, markers,
-  and manifest display.
+- `web/player/`: unified Web Player for loading a local `.tva` archive,
+  debugging `TvaPlayer` API behavior, and tuning VJ capture output through
+  Player / Debug / VJ tabs.
 - `web/examples/webcam-preview/`: experimental browser-side camera-to-text
   preview. It does not create `.tva` files.
-- `web/examples/vj-sample/`: experimental full-window output surface for browser
-  capture, OBS, and VJ workflows.
 
 ## Dependencies
 
 The examples intentionally avoid a build step. TVA archive loading currently
-imports JSZip from `https://cdn.jsdelivr.net/`, so the Web Player, API demo, and
-VJ sample need network access unless JSZip is vendored in a future hardening
-pass.
+imports JSZip from `https://cdn.jsdelivr.net/`, so the Web Player needs network
+access unless JSZip is vendored in a future hardening pass.
 
 ## Sample Assets
 
