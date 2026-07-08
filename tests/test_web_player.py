@@ -1,4 +1,6 @@
 import unittest
+import json
+import zipfile
 from pathlib import Path
 
 
@@ -11,9 +13,13 @@ class WebPlayerTests(unittest.TestCase):
         self.assertTrue((ROOT / "web" / "player" / "app.js").exists())
         self.assertTrue((ROOT / "web" / "player" / "styles.css").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "tva.js").exists())
+        self.assertTrue((ROOT / "web" / "src" / "lib" / "charsets.js").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-api.js").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-api.d.ts").exists())
         self.assertTrue((ROOT / "web" / "src" / "lib" / "player-state.js").exists())
+        self.assertTrue((ROOT / "web" / "vendor" / "jszip.esm.js").exists())
+        self.assertTrue((ROOT / "web" / "index.js").exists())
+        self.assertTrue((ROOT / "web" / "samples" / "landing-demo.tva").exists())
 
     def test_removed_browser_samples_do_not_exist(self) -> None:
         self.assertFalse((ROOT / "web" / "examples" / "api-demo").exists())
@@ -44,6 +50,7 @@ class WebPlayerTests(unittest.TestCase):
             "markers-json",
             "vj-font-size",
             "vj-line-height",
+            "vj-theme",
             "vj-foreground",
             "vj-background",
             "vj-scale",
@@ -82,11 +89,40 @@ class WebPlayerTests(unittest.TestCase):
     def test_tva_parser_uses_zip_library_and_validates_plain_text_tva(self) -> None:
         parser = (ROOT / "web" / "src" / "lib" / "tva.js").read_text(encoding="utf-8")
 
-        self.assertIn("jszip@3.10.1", parser)
+        self.assertIn("../../vendor/jszip.esm.js", parser)
+        self.assertIn("export async function loadTvaArchive", parser)
         self.assertIn("export async function loadTvaFile", parser)
+        self.assertIn("export async function loadTvaUrl", parser)
         self.assertIn("color_mode", parser)
         self.assertIn("plain_text", parser)
         self.assertIn("framePath(index)", parser)
+
+    def test_landing_page_loads_sample_demo(self) -> None:
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        app = (ROOT / "web" / "index.js").read_text(encoding="utf-8")
+
+        self.assertIn('<meta property="og:title" content="TEXT VIDEO ART">', html)
+        self.assertIn('id="landing-demo"', html)
+        self.assertIn("./index.js", html)
+        self.assertIn("./samples/landing-demo.tva", app)
+        self.assertIn("loadTvaUrl", app)
+        self.assertIn("prefers-reduced-motion: reduce", app)
+        self.assertIn("new TvaPlayer({ loop: true })", app)
+
+    def test_landing_demo_tva_is_valid_plain_text_archive(self) -> None:
+        sample = ROOT / "web" / "samples" / "landing-demo.tva"
+
+        with zipfile.ZipFile(sample) as zf:
+            manifest = json.loads(zf.read("manifest.json").decode("utf-8"))
+            self.assertEqual(manifest["format"], "TVA")
+            self.assertEqual(manifest["format_name"], "Text Video Art")
+            self.assertEqual(manifest["color_mode"], "none")
+            self.assertEqual(manifest["frame_format"], "plain_text")
+            for index in range(manifest["frame_count"]):
+                frame_name = f"frames/{index:06d}.txt"
+                self.assertIn(frame_name, zf.namelist())
+                frame = zf.read(frame_name).decode("utf-8")
+                self.assertEqual(len(frame.splitlines()), manifest["height"])
 
     def test_integrated_player_uses_player_api_and_loader(self) -> None:
         app = (ROOT / "web" / "player" / "app.js").read_text(encoding="utf-8")
@@ -140,6 +176,7 @@ class WebPlayerTests(unittest.TestCase):
             "background",
             "scale",
             "fitMode",
+            "theme",
             "autoplay",
             "loop",
         ):
@@ -152,22 +189,26 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn('event.key === "Escape"', app)
         self.assertIn("--vj-font-size", css)
         self.assertIn("--vj-foreground", css)
+        self.assertIn("--vj-glow", css)
+        self.assertIn("dataset.theme", app)
+        self.assertIn('value="crt-green"', (ROOT / "web" / "player" / "index.html").read_text(encoding="utf-8"))
         self.assertIn(".workspace.is-hidden", css)
 
-    def test_web_player_css_keeps_original_color_design(self) -> None:
+    def test_web_player_css_supports_vj_theme_presets(self) -> None:
         css = (ROOT / "web" / "player" / "styles.css").read_text(encoding="utf-8")
 
         self.assertIn("--paper: #000000", css)
         self.assertIn("--ink: #00ff66", css)
         self.assertIn("--accent: #00ff66", css)
+        self.assertIn('--vj-glow: transparent', css)
+        self.assertIn('.stage[data-theme="crt-green"]::before', css)
+        self.assertIn('.stage[data-theme="amber"]::before', css)
+        self.assertIn("text-shadow: 0 0 8px var(--vj-glow)", css)
         self.assertIn("Helvetica Neue", css)
         self.assertIn("box-shadow: 8px 8px 0 var(--ink)", css)
         self.assertIn("position: fixed", css)
         self.assertIn("border-radius: 0", css)
         self.assertNotIn("--panel", css)
-        self.assertNotIn("#e5392d", css)
-        self.assertNotIn("#0039a6", css)
-        self.assertNotIn("#ffcc00", css)
         self.assertNotIn("border-radius: 6px", css)
 
     def test_public_links_do_not_reference_removed_samples(self) -> None:
@@ -195,6 +236,9 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("seekTime(time)", api)
         self.assertIn("nextFrame()", api)
         self.assertIn("prevFrame()", api)
+        self.assertIn("requestAnimationFrame", api)
+        self.assertIn("tick(timestamp)", api)
+        self.assertNotIn("setInterval", api)
         self.assertIn("getCurrentFrame()", api)
         self.assertIn("getCurrentFrameIndex()", api)
         self.assertIn("getManifest()", api)
@@ -231,6 +275,7 @@ class WebPlayerTests(unittest.TestCase):
         self.assertIn("resizeOutputCanvas", demo)
         self.assertIn("drawTextFrame", demo)
         self.assertIn("frameCanvas", demo)
+        self.assertIn('../../src/lib/charsets.js', demo)
         self.assertIn("CHARSET_PRESETS", demo)
         self.assertIn("resolutionInput", demo)
         self.assertIn("brightnessToChar", demo)

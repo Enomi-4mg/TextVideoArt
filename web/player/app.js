@@ -44,6 +44,7 @@ const elements = {
   eventLog: document.getElementById("event-log"),
   vjFontSize: document.getElementById("vj-font-size"),
   vjLineHeight: document.getElementById("vj-line-height"),
+  vjTheme: document.getElementById("vj-theme"),
   vjForeground: document.getElementById("vj-foreground"),
   vjBackground: document.getElementById("vj-background"),
   vjScale: document.getElementById("vj-scale"),
@@ -55,6 +56,23 @@ const elements = {
 };
 
 const renderer = new PreFrameRenderer(elements.frameOutput);
+const THEME_PRESETS = {
+  plain: {
+    foreground: "#f2f2f2",
+    background: "#050505",
+    glow: "transparent"
+  },
+  "crt-green": {
+    foreground: "#8cffb1",
+    background: "#020403",
+    glow: "rgb(0 255 102 / 70%)"
+  },
+  amber: {
+    foreground: "#ffbf66",
+    background: "#090502",
+    glow: "rgb(255 160 55 / 66%)"
+  }
+};
 const playerControls = [
   elements.playButton,
   elements.stopButton,
@@ -247,22 +265,37 @@ function applyVjSettings() {
   const fontSize = Number(elements.vjFontSize.value) || 16;
   const lineHeight = Number(elements.vjLineHeight.value) || 1;
   const scale = Number(elements.vjScale.value) || 1;
+  const theme = THEME_PRESETS[elements.vjTheme.value] ? elements.vjTheme.value : "plain";
+  const themePreset = THEME_PRESETS[theme];
 
   document.documentElement.style.setProperty("--vj-font-size", `${fontSize}px`);
   document.documentElement.style.setProperty("--vj-line-height", String(lineHeight));
   document.documentElement.style.setProperty("--vj-foreground", elements.vjForeground.value);
   document.documentElement.style.setProperty("--vj-background", elements.vjBackground.value);
   document.documentElement.style.setProperty("--vj-scale", String(scale));
+  document.documentElement.style.setProperty("--vj-glow", themePreset.glow);
+  elements.stage.dataset.theme = theme;
   elements.stage.classList.toggle("is-centered", elements.vjCenter.checked);
   elements.stage.classList.toggle("is-contain", elements.vjFitMode.value === "contain");
   player.setLoop(elements.vjLoop.checked);
 }
 
+function applyThemePreset() {
+  const theme = THEME_PRESETS[elements.vjTheme.value] ? elements.vjTheme.value : "plain";
+  const preset = THEME_PRESETS[theme];
+  elements.vjForeground.value = preset.foreground;
+  elements.vjBackground.value = preset.background;
+  applyVjSettings();
+}
+
 function applyInitialVjSettings() {
+  const theme = paramValue("theme", "plain");
+  elements.vjTheme.value = THEME_PRESETS[theme] ? theme : "plain";
+  const themePreset = THEME_PRESETS[elements.vjTheme.value];
   elements.vjFontSize.value = paramValue("fontSize", "16");
   elements.vjLineHeight.value = paramValue("lineHeight", "1");
-  elements.vjForeground.value = paramValue("foreground", "#f2f2f2");
-  elements.vjBackground.value = paramValue("background", "#050505");
+  elements.vjForeground.value = paramValue("foreground", themePreset.foreground);
+  elements.vjBackground.value = paramValue("background", themePreset.background);
   elements.vjScale.value = paramValue("scale", "1");
   elements.vjFitMode.value = paramValue("fitMode", "scroll");
   elements.vjCenter.checked = paramFlag("center");
@@ -362,6 +395,8 @@ for (const input of [
   input.addEventListener("input", applyVjSettings);
   input.addEventListener("change", applyVjSettings);
 }
+
+elements.vjTheme.addEventListener("change", applyThemePreset);
 
 document.addEventListener("keydown", (event) => {
   if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(event.target.tagName)) return;

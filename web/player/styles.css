@@ -15,6 +15,7 @@
   --vj-foreground: #f2f2f2;
   --vj-background: #050505;
   --vj-scale: 1;
+  --vj-glow: transparent;
 }
 
 html,
@@ -113,6 +114,24 @@ h2 {
   transform: scale(var(--vj-scale));
 }
 
+.stage[data-theme="crt-green"]::before,
+.stage[data-theme="amber"]::before {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 8%) 0,
+      rgb(255 255 255 / 8%) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  mix-blend-mode: screen;
+}
+
 .frame-output {
   min-width: 100vw;
   min-height: 100vh;
@@ -125,6 +144,7 @@ h2 {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--vj-font-size);
   line-height: var(--vj-line-height);
+  text-shadow: 0 0 8px var(--vj-glow);
   transform-origin: top left;
 }
 

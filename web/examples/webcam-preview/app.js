@@ -1,3 +1,5 @@
+import { CHARSET_PRESETS } from "../../src/lib/charsets.js";
+
 const frameOutput = document.getElementById("frame-output");
 const frameCanvas = document.getElementById("frame-canvas");
 const previewStage = document.getElementById("preview-stage");
@@ -20,13 +22,6 @@ const frameContext = frameCanvas.getContext("2d");
 const MIN_RESOLUTION = 1;
 const MAX_RESOLUTION = 64;
 const DEFAULT_RESOLUTION = 24;
-const CHARSET_PRESETS = {
-  standard: " .:-=+*#%@",
-  simple: " .#",
-  blocks: " ░▒▓█",
-  dense: " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$",
-};
-
 let stream = null;
 let timerId = null;
 

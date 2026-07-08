@@ -4,28 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Create, validate, edit, export, and play plain-text video archives with tvart.">
-  <meta property="og:title" content="tvart">
+  <meta property="og:title" content="TEXT VIDEO ART">
   <meta property="og:description" content="Create, validate, edit, export, and play plain-text video archives.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://enomi-4mg.github.io/TextVideoArt/web/">
   <meta name="twitter:card" content="summary">
-  <title>tvart</title>
+  <title>TEXT VIDEO ART</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="page-shell">
-    <header class="hero">
-      <p class="eyebrow">Text Video Art</p>
-      <h1>TEXT VIDEO ART</h1>
-      <p class="summary">
-        Create, validate, edit, export, and play plain-text video archives.
-        Choose Player for local <code>.tva</code> playback and capture tools,
-        or WebCam for live camera-to-text preview.
-      </p>
-      <nav class="primary-actions" aria-label="Primary links">
-        <a class="primary-link" href="./player/">Player</a>
-        <a class="secondary-link" href="./examples/webcam-preview/">WebCam</a>
-      </nav>
+  <main>
+    <header class="hero" aria-label="TEXT VIDEO ART landing demo">
+      <pre id="landing-demo" class="landing-demo" aria-live="off">Loading text video demo.</pre>
+      <div class="hero-overlay">
+        <p class="eyebrow">TVA reference implementation</p>
+        <h1>TEXT VIDEO ART</h1>
+        <p class="summary">
+          Plain UTF-8 frames packed as a playable archive. Inspect it, edit it,
+          validate it, and put it on screen without a build step.
+        </p>
+        <nav class="primary-actions" aria-label="Primary links">
+          <a class="primary-link" href="./player/">Open Player</a>
+          <a class="secondary-link" href="./examples/webcam-preview/">Open WebCam</a>
+          <a class="tertiary-link" href="../docs/">Read Docs</a>
+        </nav>
+      </div>
     </header>
 
     <section class="launch-grid" aria-label="Browser tools">
@@ -39,14 +42,18 @@
         <p>Try browser-side live camera-to-text conversion without writing a file.</p>
         <a href="./examples/webcam-preview/">Open webcam</a>
       </article>
+      <article class="launch-item">
+        <h2>Docs</h2>
+        <p>Read the format spec, charset notes, roadmap, and color layer design research.</p>
+        <a href="../docs/">Open docs</a>
+      </article>
     </section>
 
     <section class="notes" aria-label="Project notes">
-      <h2>Notes</h2>
+      <h2>Public trial notes</h2>
       <p>
         Browser tools are static files and can be served by GitHub Pages or any
-        local static server. Player currently imports JSZip from a CDN
-        for TVA archive loading.
+        local static server. TVA archive loading uses a vendored JSZip module.
       </p>
       <p>
         TVA format version <code>0.1.0</code> stores monochrome UTF-8 plain-text
@@ -54,5 +61,6 @@
       </p>
     </section>
   </main>
+  <script type="module" src="./index.js"></script>
 </body>
 </html>

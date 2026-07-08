@@ -1,4 +1,4 @@
-import JSZip from "https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm";
+import JSZip from "../../vendor/jszip.esm.js";
 
 const MANIFEST_NAME = "manifest.json";
 const FRAMES_PATH = "frames/";
@@ -72,8 +72,8 @@ export function validateManifest(manifest) {
   return errors;
 }
 
-export async function loadTvaFile(file) {
-  const zip = await JSZip.loadAsync(file);
+export async function loadTvaArchive(input) {
+  const zip = await JSZip.loadAsync(input);
   const manifestEntry = zip.file(MANIFEST_NAME);
   if (!manifestEntry) {
     throw new Error("manifest.json is missing");
@@ -96,4 +96,16 @@ export async function loadTvaFile(file) {
   }
 
   return { manifest, frames };
+}
+
+export async function loadTvaFile(file) {
+  return loadTvaArchive(file);
+}
+
+export async function loadTvaUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`failed to load TVA archive: ${response.status} ${response.statusText}`);
+  }
+  return loadTvaArchive(await response.arrayBuffer());
 }

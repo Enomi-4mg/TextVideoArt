@@ -19,13 +19,13 @@ From the repository root, open `http://localhost:8000/web/`.
 
 ## Dependencies
 
-The examples intentionally avoid a build step. TVA archive loading currently
-imports JSZip from `https://cdn.jsdelivr.net/`, so the Web Player needs network
-access unless JSZip is vendored in a future hardening pass.
+The examples intentionally avoid a build step. TVA archive loading uses the
+vendored JSZip module in `web/vendor/`, so the Web Player does not need network
+access at runtime.
 
 ## Sample Assets
 
 Large videos and generated `.tva` archives should not be committed directly to
-the repository. Prefer GitHub Releases for large sample assets. If a tiny,
-validated `.tva` sample is added later, keep the `.gitignore` exception narrow,
-such as `!examples/**/*.tva`.
+the repository. Prefer GitHub Releases for large sample assets. Tiny, validated
+browser demos may live under `web/samples/`; keep `.gitignore` exceptions narrow
+and avoid committing personal works or bulky exports.

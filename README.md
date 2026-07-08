@@ -189,10 +189,10 @@ Serve the repository with a local static server to try the browser tools:
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000/web/`. The Web Player currently imports JSZip
-from a CDN for TVA archive loading, so it needs network access unless that
-dependency is vendored later. See `web/examples/README.md` for the browser
-sample notes and sample asset policy.
+Then open `http://localhost:8000/web/`. Browser TVA archive loading uses the
+vendored JSZip module in `web/vendor/`, so the Player and landing demo do not
+need a CDN at runtime. See `web/examples/README.md` for the browser sample notes
+and sample asset policy.
 
 GitHub Discussions, when enabled for the public repository, are intended for
 announcements, questions, ideas, and show-and-tell posts.
@@ -212,4 +212,4 @@ The active roadmap is tracked in `docs/tvart-implementation-plan.md`.
 
 ## License
 
-License note placeholder.
+MIT. See `LICENSE`.

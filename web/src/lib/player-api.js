@@ -7,7 +7,9 @@ export class TvaPlayer extends EventTarget {
     this.fps = fps;
     this.loop = loop;
     this.playing = false;
-    this.timerId = null;
+    this.animationFrameId = null;
+    this.playbackStartTime = 0;
+    this.playbackStartFrame = 0;
   }
 
   load({ manifest, frames }) {
@@ -23,17 +25,16 @@ export class TvaPlayer extends EventTarget {
   play() {
     if (this.playing || this.frames.length === 0) return;
     this.playing = true;
+    this.playbackStartFrame = this.currentFrame;
+    this.playbackStartTime = this.now();
     this.dispatch("play", {});
-    this.timerId = setInterval(() => this.nextFrame(), 1000 / this.fps);
+    this.scheduleTick();
   }
 
   pause() {
-    if (!this.playing && this.timerId === null) return;
+    if (!this.playing && this.animationFrameId === null) return;
     this.playing = false;
-    if (this.timerId !== null) {
-      clearInterval(this.timerId);
-      this.timerId = null;
-    }
+    this.cancelTick();
     this.dispatch("pause", {});
   }
 
@@ -56,6 +57,10 @@ export class TvaPlayer extends EventTarget {
     const nextIndex = Number(index);
     if (!Number.isFinite(nextIndex)) return;
     this.currentFrame = Math.max(0, Math.min(this.frames.length - 1, Math.floor(nextIndex)));
+    if (this.playing) {
+      this.playbackStartFrame = this.currentFrame;
+      this.playbackStartTime = this.now();
+    }
     this.emitFrameChange();
   }
 
@@ -132,6 +137,66 @@ export class TvaPlayer extends EventTarget {
 
   dispatch(type, detail) {
     this.dispatchEvent(new CustomEvent(type, { detail }));
+  }
+
+  now() {
+    return globalThis.performance?.now ? globalThis.performance.now() : Date.now();
+  }
+
+  requestFrame(callback) {
+    if (globalThis.requestAnimationFrame) {
+      return globalThis.requestAnimationFrame(callback);
+    }
+    return globalThis.setTimeout(() => callback(this.now()), 16);
+  }
+
+  cancelFrame(id) {
+    if (globalThis.cancelAnimationFrame) {
+      globalThis.cancelAnimationFrame(id);
+    } else {
+      globalThis.clearTimeout(id);
+    }
+  }
+
+  scheduleTick() {
+    this.cancelTick();
+    this.animationFrameId = this.requestFrame((timestamp) => this.tick(timestamp));
+  }
+
+  cancelTick() {
+    if (this.animationFrameId !== null) {
+      this.cancelFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  tick(timestamp) {
+    if (!this.playing || this.frames.length === 0) return;
+
+    const elapsedSeconds = Math.max(0, (timestamp - this.playbackStartTime) / 1000);
+    const frameOffset = Math.floor(elapsedSeconds * this.fps);
+    let nextIndex = this.playbackStartFrame + frameOffset;
+
+    if (nextIndex >= this.frames.length) {
+      if (this.loop) {
+        nextIndex %= this.frames.length;
+        this.playbackStartFrame = nextIndex;
+        this.playbackStartTime = timestamp;
+      } else {
+        this.currentFrame = this.frames.length - 1;
+        this.emitFrameChange();
+        this.pause();
+        this.dispatch("ended", {});
+        return;
+      }
+    }
+
+    if (nextIndex !== this.currentFrame) {
+      this.currentFrame = nextIndex;
+      this.emitFrameChange();
+    }
+
+    this.scheduleTick();
   }
 
   emitFrameChange() {

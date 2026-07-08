@@ -173,7 +173,7 @@ dense    = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8
 python3 -m http.server 8000
 ```
 
-その後 `http://localhost:8000/web/` を開きます。Web Player は `.tva` 読み込みのために現在 JSZip を CDN から読み込むため、依存を vendoring するまではネットワーク接続が必要です。ブラウザサンプルのメモと sample asset policy は `web/examples/README.md` を参照してください。
+その後 `http://localhost:8000/web/` を開きます。ブラウザでの `.tva` 読み込みは `web/vendor/` に vendoring した JSZip module を使うため、Player と landing demo は実行時に CDN を必要としません。ブラウザサンプルのメモと sample asset policy は `web/examples/README.md` を参照してください。
 
 public repository で GitHub Discussions を有効にする場合は、announcements、questions、ideas、show and tell の用途で使う想定です。
 
@@ -192,4 +192,4 @@ public repository で GitHub Discussions を有効にする場合は、announcem
 
 ## ライセンス
 
-ライセンス表記のプレースホルダーです。
+MITです。詳細は `LICENSE` を参照してください。
