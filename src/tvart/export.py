@@ -349,7 +349,7 @@ def build_html(manifest: dict, frames: list[str]) -> str:
 def read_tva_for_export(input_path: Path) -> tuple[dict, list[str]]:
     with zipfile.ZipFile(input_path, "r") as zf:
         manifest = read_manifest_from_zip(zf)
-        frames = [zf.read(frame_path(index)).decode("utf-8") for index in range(manifest["frame_count"])]
+        frames = [zf.read(frame_path(index)).decode("utf-8") for index in range(int(manifest["frame_count"]))]
     return manifest, frames
 
 

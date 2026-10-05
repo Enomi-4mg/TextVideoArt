@@ -362,3 +362,13 @@ The following are reserved future extension areas. They are not part of the form
 - Streaming-friendly layout.
 - `frame_digits` for more than `1,000,000` frames.
 - Workstation/project formats.
+
+## Reader clarification (2026-10, format remains 0.1.0)
+
+Python and Web accept mathematical integers (including JSON 1.0) for dimensions, frame count and marker indices, excluding booleans. All numbers anywhere in a manifest must be finite. Optional metadata retains its existing types; unknown fields are ignored. Duplicate JSON keys use the last value in both runtimes. A manifest must be an object, without a UTF-8 BOM or lone surrogate.
+
+Decode frames strictly as UTF-8. Count Unicode code points, not UTF-16 units or terminal display columns. Only LF, CRLF and CR separate rows; remove exactly one final line terminator. U+2028/U+2029 remain code points within a row. C0/C1 controls, tabs, DEL and lone surrogates are forbidden in charset and frame rows. Full-width and combining characters are not promised to occupy one visual cell.
+
+Reader limits (practical limits, not a new format version): dimensions <=4096 each, <=16,777,216 total cells, manifest <=1 MiB, each entry <=4 MiB, input ZIP <=64 MiB, aggregate declared uncompressed entries <=128 MiB, <=65,534 ZIP entries. Format frame_count remains <=1,000,000. Existing normal 0.1.0 converter archives remain supported. Very large archives previously accepted may exceed reader limits.
+
+Reject duplicate ZIP entries, traversal, absolute/drive paths, backslashes and invalid names in the frames/ namespace. Only six-digit numbered frame files and the frames/ directory entry are allowed there. Web checks the raw central directory before JSZip sanitizes names; it does not support ZIP64, multi-volume or encrypted archives. Python directory validation rejects symlinks.

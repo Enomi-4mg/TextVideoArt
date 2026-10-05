@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import zipfile
 from pathlib import Path
 from pathlib import PurePosixPath
@@ -25,10 +26,7 @@ def normalize_frame_text(text: str) -> list[str]:
         text = text[:-2]
     elif text.endswith("\n") or text.endswith("\r"):
         text = text[:-1]
-    lines = text.splitlines()
-    if text.endswith(("\n", "\r")):
-        lines.append("")
-    return lines
+    return re.split(r"\r\n|\r|\n", text) if text else []
 
 
 def unsafe_zip_member_reason(name: str) -> str | None:

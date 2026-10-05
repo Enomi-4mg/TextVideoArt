@@ -1,0 +1,344 @@
+{
+  "base": {
+    "format": "TVA",
+    "format_name": "Text Video Art",
+    "version": "0.1.0",
+    "width": 3,
+    "height": 2,
+    "fps": 1,
+    "frame_count": 1,
+    "duration": 1,
+    "charset": " .#",
+    "invert": false,
+    "encoding": "utf-8",
+    "color_mode": "none",
+    "frame_format": "plain_text",
+    "frames_path": "frames/"
+  },
+  "cases": [
+    {
+      "id": "valid",
+      "valid": true
+    },
+    {
+      "id": "mathematical-integer",
+      "valid": true,
+      "manifest": {
+        "width": 3.0,
+        "height": 2.0,
+        "frame_count": 1.0,
+        "markers": [
+          {
+            "label": "start",
+            "frame": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "astral",
+      "valid": true,
+      "manifest": {
+        "width": 2,
+        "charset": "\ud83d\ude00\ud83d\ude03"
+      },
+      "frames": [
+        "\ud83d\ude00\ud83d\ude03\n\ud83d\ude03\ud83d\ude00\n"
+      ]
+    },
+    {
+      "id": "crlf",
+      "valid": true,
+      "frames": [
+        "abc\r\ndef\r\n"
+      ]
+    },
+    {
+      "id": "u2028-code-point",
+      "valid": true,
+      "frames": [
+        "a\u2028b\ndef\n"
+      ]
+    },
+    {
+      "id": "version",
+      "valid": false,
+      "manifest": {
+        "version": "999.0.0"
+      }
+    },
+    {
+      "id": "fraction",
+      "valid": false,
+      "manifest": {
+        "width": 1.5
+      }
+    },
+    {
+      "id": "boolean-width",
+      "valid": false,
+      "manifest": {
+        "width": true
+      }
+    },
+    {
+      "id": "infinite",
+      "valid": false,
+      "rawManifest": "{\"format\": \"TVA\", \"format_name\": \"Text Video Art\", \"version\": \"0.1.0\", \"width\": 3, \"height\": 2, \"fps\": Infinity, \"frame_count\": 1, \"duration\": 1, \"charset\": \" .#\", \"invert\": false, \"encoding\": \"utf-8\", \"color_mode\": \"none\", \"frame_format\": \"plain_text\", \"frames_path\": \"frames/\"}"
+    },
+    {
+      "id": "max-width",
+      "valid": false,
+      "manifest": {
+        "width": 4097
+      }
+    },
+    {
+      "id": "max-count",
+      "valid": false,
+      "manifest": {
+        "frame_count": 1000001
+      }
+    },
+    {
+      "id": "max-cells",
+      "valid": false,
+      "manifest": {
+        "width": 4096,
+        "height": 4096,
+        "frame_count": 2
+      }
+    },
+    {
+      "id": "charset-cr",
+      "valid": false,
+      "manifest": {
+        "charset": "a\r"
+      }
+    },
+    {
+      "id": "charset-control",
+      "valid": false,
+      "manifest": {
+        "charset": "a\t"
+      }
+    },
+    {
+      "id": "charset-surrogate",
+      "valid": false,
+      "manifest": {
+        "charset": "a\ud800"
+      }
+    },
+    {
+      "id": "markers-null",
+      "valid": false,
+      "manifest": {
+        "markers": null
+      }
+    },
+    {
+      "id": "marker-null",
+      "valid": false,
+      "manifest": {
+        "markers": [
+          null
+        ]
+      }
+    },
+    {
+      "id": "marker-bool",
+      "valid": false,
+      "manifest": {
+        "markers": [
+          {
+            "label": "x",
+            "frame": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "marker-range",
+      "valid": false,
+      "manifest": {
+        "markers": [
+          {
+            "label": "x",
+            "frame": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "marker-empty",
+      "valid": false,
+      "manifest": {
+        "markers": [
+          {
+            "label": "",
+            "frame": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "metadata-null",
+      "valid": false,
+      "manifest": {
+        "title": null
+      }
+    },
+    {
+      "id": "tags-empty",
+      "valid": false,
+      "manifest": {
+        "tags": [
+          ""
+        ]
+      }
+    },
+    {
+      "id": "source-array",
+      "valid": false,
+      "manifest": {
+        "source": []
+      }
+    },
+    {
+      "id": "conversion-null",
+      "valid": false,
+      "manifest": {
+        "conversion": null
+      }
+    },
+    {
+      "id": "duration-zero",
+      "valid": false,
+      "manifest": {
+        "duration": 0
+      }
+    },
+    {
+      "id": "metadata-infinite",
+      "valid": false,
+      "rawManifest": "{\"format\": \"TVA\", \"format_name\": \"Text Video Art\", \"version\": \"0.1.0\", \"width\": 3, \"height\": 2, \"fps\": 1, \"frame_count\": 1, \"duration\": 1, \"charset\": \" .#\", \"invert\": false, \"encoding\": \"utf-8\", \"color_mode\": \"none\", \"frame_format\": \"plain_text\", \"frames_path\": \"frames/\", \"source\": {\"x\": Infinity}}"
+    },
+    {
+      "id": "manifest-array",
+      "valid": false,
+      "rawManifest": "[]"
+    },
+    {
+      "id": "manifest-null",
+      "valid": false,
+      "rawManifest": "null"
+    },
+    {
+      "id": "manifest-bom",
+      "valid": false,
+      "rawManifest": "\ufeff{\"format\": \"TVA\", \"format_name\": \"Text Video Art\", \"version\": \"0.1.0\", \"width\": 3, \"height\": 2, \"fps\": 1, \"frame_count\": 1, \"duration\": 1, \"charset\": \" .#\", \"invert\": false, \"encoding\": \"utf-8\", \"color_mode\": \"none\", \"frame_format\": \"plain_text\", \"frames_path\": \"frames/\"}"
+    },
+    {
+      "id": "invalid-utf8",
+      "valid": false,
+      "frameBytes": "/w=="
+    },
+    {
+      "id": "utf8-surrogate",
+      "valid": false,
+      "frameBytes": "7aCA"
+    },
+    {
+      "id": "extra-row",
+      "valid": false,
+      "frames": [
+        "abc\ndef\nghi\n"
+      ]
+    },
+    {
+      "id": "short-row",
+      "valid": false,
+      "frames": [
+        "ab\ndef\n"
+      ]
+    },
+    {
+      "id": "nul-frame",
+      "valid": false,
+      "frames": [
+        "a\u0000b\ndef\n"
+      ]
+    },
+    {
+      "id": "missing-frame",
+      "valid": false,
+      "frames": []
+    },
+    {
+      "id": "unsafe-path",
+      "valid": false,
+      "extra": [
+        [
+          "../evil.txt",
+          "x"
+        ]
+      ]
+    },
+    {
+      "id": "backslash",
+      "valid": false,
+      "extra": [
+        [
+          "bad\\evil.txt",
+          "x"
+        ]
+      ]
+    },
+    {
+      "id": "namespace",
+      "valid": false,
+      "extra": [
+        [
+          "frames/no.txt",
+          "x"
+        ]
+      ]
+    },
+    {
+      "id": "out-of-range",
+      "valid": false,
+      "extra": [
+        [
+          "frames/000001.txt",
+          "abc\ndef\n"
+        ]
+      ]
+    },
+    {
+      "id": "duplicate",
+      "valid": false,
+      "extra": [
+        [
+          "frames/000000.txt",
+          "abc\ndef\n"
+        ]
+      ]
+    },
+    {
+      "id": "directory-entry",
+      "valid": false,
+      "extra": [
+        [
+          "frames/unexpected/",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "corrupt-crc",
+      "valid": false,
+      "corruptCrc": true
+    }
+  ]
+}

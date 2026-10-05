@@ -91,11 +91,11 @@ class WebPlayerTests(unittest.TestCase):
 
         self.assertIn("../../vendor/jszip.esm.js", parser)
         self.assertIn("export async function loadTvaArchive", parser)
-        self.assertIn("export async function loadTvaFile", parser)
+        self.assertIn("export const loadTvaFile", parser)
         self.assertIn("export async function loadTvaUrl", parser)
         self.assertIn("color_mode", parser)
         self.assertIn("plain_text", parser)
-        self.assertIn("framePath(index)", parser)
+        self.assertIn("validateFrame", parser)
 
     def test_landing_page_loads_sample_demo(self) -> None:
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
