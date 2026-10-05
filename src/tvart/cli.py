@@ -18,6 +18,7 @@ from .pack import pack_tva
 from .play import play_tva
 from .preview import preview_input
 from .validate import print_validation
+from .render import render_tva
 
 
 def resolve_output_path(
@@ -136,6 +137,16 @@ def build_parser() -> argparse.ArgumentParser:
     fix_charset.add_argument("--set-charset-preset", dest="charset_preset", choices=sorted(CHARSET_PRESETS))
     fix.add_argument("--overwrite", action="store_true")
 
+    render = subparsers.add_parser("render", help="render TVA to PNG sequence or local MP4 via FFmpeg")
+    render.add_argument("render_format", choices=["png", "mp4"])
+    render.add_argument("input", type=Path)
+    render.add_argument("-o", "--output", required=True, type=Path)
+    render.add_argument("--size", default="1280x720")
+    render.add_argument("--fit", choices=["native", "contain", "cover"], default="contain")
+    render.add_argument("--fg", default="#ffffff")
+    render.add_argument("--bg", default="#050505")
+    render.add_argument("--ffmpeg", default="ffmpeg")
+    render.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -143,6 +154,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    if args.command == "render":
+        return render_tva(args.input, args.output, format=args.render_format, size=args.size,
+                          fit=args.fit, fg=args.fg, bg=args.bg, ffmpeg=args.ffmpeg, overwrite=args.overwrite)
     if args.command == "convert":
         output = resolve_output_path(args._parser, args.output, args.output_option, "convert")
         try:
