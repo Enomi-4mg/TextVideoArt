@@ -1,5 +1,18 @@
 # tvart
 
+## Initial-publication implementation (Unreleased)
+
+Open [Playground](web/playground/) from the Web entry. No install or build is required on a static host. A project-authored procedural sample (MIT) appears immediately. Choose a photo, video or camera; apply Clean, Edge or Terminal; save TXT/PNG or a Motion Card up to five seconds in 1:1, 9:16 or 16:9. Recording checks browser support and uses the actual MP4/WebM container; unsupported recording falls back to PNG. Camera requires HTTPS or localhost.
+
+Save/import a version-1 recipe JSON or share a recipe URL. Settings links contain no material, filename or path: recipients supply their own material. Artwork is saved separately as TXT, PNG or video.
+
+Python/Web validation now shares conformance fixtures, strict UTF-8, code-point dimensions, finite numbers, namespace checks and bounded reading. TVA remains 0.1.0; package remains 0.7.6. Canvas native/contain/cover rendering is shared with Player and WebCam.
+
+Local media path: `tvart render png input.tva -o frames` or `tvart render mp4 input.tva -o output.mp4` (FFmpeg/libx264 required). Local glyph support is ASCII plus ░▒▓█. See [Web/OBS examples](docs/obs-web-guide.md).
+
+Status: Python and Web suites passed; local H.264 MP4 generation and Chrome PNG/TXT/recipe JSON downloads verified. Sample/Edge display and settings links were exercised in the browser. Browser recording, camera hardware, Safari/iPhone and OBS remain unverified. See [verification record](docs/verification-2026-10.md) and [current plan](docs/tvart-implementation-plan.md). Full-width persistence, per-cell color, audio, full editing and cloud galleries are deferred.
+
+
 `tvart` is a Python CLI tool for creating, previewing, inspecting, validating,
 extracting, fixing, packing, exporting, and playing `.tva` files.
 

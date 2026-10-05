@@ -1,5 +1,18 @@
 # tvart
 
+## 初期公開範囲の実装（Unreleased）
+
+Web入口から[Playground](web/playground/)を開けます。静的ホスト上でインストール・ビルド不要です。MITの自作手続き生成サンプルを即表示し、写真・動画・カメラ、Clean / Edge / Terminal、単色テーマ、TXTコピー・保存、PNG保存に対応します。Motion Cardは先頭または撮影開始から最大5秒、1:1 / 9:16 / 16:9。録画対応を検出し、実際のMP4/WebM形式で保存します。録画非対応時はPNGへ退避します。カメラはHTTPS / localhostが必要です。
+
+版1のレシピJSON保存・読込とURL共有で設定を再利用できます。設定リンクには素材・ファイル名・パスを含めません。受け手が素材を差し替えます。作品の保存（TXT / PNG / 動画）とは別です。
+
+Python/Webの共通fixture検証、厳密UTF-8、code point寸法、整数・有限数、namespace・読み込み上限を追加しました。TVAは0.1.0、packageは0.7.6を維持します。native / contain / coverの共通Canvas描画をPlayer / WebCamにも接続しています。
+
+ローカル出力は `tvart render png input.tva -o frames` または `tvart render mp4 input.tva -o output.mp4`（FFmpeg/libx264が必要）。ローカル字形はASCIIと░▒▓█に対応します。[Web/OBS導入例](docs/obs-web-guide.md)も参照してください。
+
+検証状況：Python/Webテスト、ローカルH.264 MP4生成、ChromeでのPNG/TXT/レシピJSON保存を確認。サンプル・Edge表示と設定リンクも実ブラウザで確認しました。ブラウザ録画、カメラ実機、Safari/iPhone、OBSは未検証です。[検証記録](docs/verification-2026-10.md)と[現行計画](docs/tvart-implementation-plan.md)を参照。全角保存・セル別色・音声・本格編集・クラウドギャラリーは後続です。
+
+
 `tvart` は、`.tva` ファイルを作成、プレビュー、確認、検証、展開、修正、pack、export、再生するためのPython CLIツールです。
 
 `.tva` は **Text Video Art** の略で、固定サイズのUTF-8プレーンテキストフレーム列をZIPベースのコンテナとして保存します。

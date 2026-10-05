@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased - 2026-06-10
+## Unreleased
+
+- Initial-publication implementation: shared bounded TVA validation, Canvas/layout/conversion, Playground, recipes and browser Motion Cards; local PNG/FFmpeg MP4 render commands.
+- Python and Web suites pass; local H.264 MP4 generation and Chrome PNG/TXT/recipe downloads verified. Browser recording, camera hardware, Safari/iPhone and OBS remain unverified. Package/format versions unchanged.
+- Player Canvas fits the actual stage at device pixel density. Existing Text Contain links retain their settings; Canvas Contain, Native and Cover are separate options. Canvas modes use font size, font family and monochrome colors; PRE-only scale, line height and text glow stay with Text mode.
+
+### Previously unreleased — 2026-06-10
 
 - Added `tvart fix` for safe `.tva` to `.tva` manifest metadata updates.
   - Supports positional output or `-o` / `--output-file`.

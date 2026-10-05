@@ -1,6 +1,32 @@
 # tvart implementation plan
 
-Last updated: 2026-06-11
+## 2026-10 初期公開範囲：現在の実装と残検証
+
+以下を現行計画とし、下部の版別項目は履歴・背景として読む。過去のapi-demo/vj-sampleはその後web/playerのDebug/VJタブへ統合済み。package 0.7.6 / TVA 0.1.0は変更しない。
+
+| 段階 | 実装状態 | 依存 | 概算人日 |
+|---|---|---|---|
+| P1 / M0 | Python/Web共通fixture、厳密UTF-8、有限数・数学的整数、metadata/markers、namespace、寸法、読み込み上限を追加。Python/Web検証済み | なし | 3–4 |
+| P2 | 共通変換、Canvas描画、native/contain/cover、Player/WebCam接続。純関数・描画呼び出しテスト済み、Playground表示確認済み、Player実操作は後続確認 | P1 | 2–3 |
+| P3 | Playground、権利明確な手続きサンプル、写真/カメラ、3プリセット、単色、TXT/PNG保存を追加。Chromeでサンプル・PNG/TXT/レシピ保存確認済み | P2 | 3–4 |
+| P5 | version-1レシピJSON、URL共有、素材/パスを除外。往復・拒否テスト済み | P3 | 1–1.5 |
+| P4 | 最大5秒Motion Card、3比率、実MIMEで形式表示、PNG fallbackを追加。形式判定テスト済み、実録画待ち | P2,P3 | 2.5–3.5 |
+| P6 | PNG連番、FFmpeg/libx264 MP4、HTMLを使うWeb/OBS例を追加。Pythonテストと実MP4生成・ffprobe確認済み | P1,P2 | 2–3 |
+| P7 | README日英、CHANGELOG、形式明確化、計画・検証記録を更新 | 全段階 | 1 |
+| レビューと修正 | 自己レビューで整数下流、metadata有限数、録画終了を修正。Claudeレビューでステージ描画・CRC・録画後の再生・文書を修正 | 全段階 | 1.5–2 |
+
+重複する変換・描画・レイアウトは一度だけ計上し、合計約15–20人日。これは通常環境で検証まで完了する概算であり、このセッションで消費した実人日ではない。順序はP1→P2→P3→P5/P4→P7。P6はP1/P2決定後に独立して進められる。
+
+**完成（検証済みの部分）**：Webのアーカイブ適合fixture、既存デモ互換、変換・レイアウト・レシピ・形式判定の振る舞いテスト。
+
+**残検証**：Player/WebCamの実機操作、ブラウザ動画入力・録画、カメラ実機、Safari/iPhone、OBS。Python 109件とWeb 59件、ChromeでPNG/TXT/レシピ保存、CLI MP4の実生成は確認済み。[検証記録](verification-2026-10.md)を参照。
+
+**後続**：全角文字の幅と保存、per-cell色、音声、本格編集、クラウドギャラリー、Stable時間処理、任意Unicodeのローカルフォント描画。今回追加しない。
+
+判断記録：5秒は動画先頭/撮影開始から。JSON 1.0は数学的整数として両言語で受理。改行はLF/CRLF/CRのみ、U+2028/2029は行内code point。Cleanは固定の軽いコントラスト、EdgeはSobel強度、Terminalは短い文字セットと緑単色。レシピ版1がこれらのアルゴリズム契約を固定する。新依存なし。HTML exporterの操作は既存Play/loopを利用し、自動再生フラグは追加しない。手続きサンプルはプロジェクト自作MIT。Claudeが計画と差分レビュー、Codexが実装と検証を担当。
+
+
+Last updated: 2026-10-06
 
 ## 0. この文書の位置づけ
 
@@ -605,7 +631,7 @@ v1.0.0 では、`.tva` の長期互換性を意識した安定版仕様を定義
 - ゲーム的状態管理
 - npm publish
 - Rust / Go など他言語 CLI
-- mp4 / gif export
+- GIF export（MP4は今回ローカルrenderとして実装・実生成検証済み）
 - native output / Spout / Syphon / NDI の直接実装
 ```
 
@@ -623,7 +649,7 @@ validate が弱いまま pack / export / Web Player / future display features / 
 
 ---
 
-## 10. 次の計画
+## 10. 過去の版別計画（現行優先順位は冒頭）
 
 ### v0.9.2: Test and release hygiene
 
