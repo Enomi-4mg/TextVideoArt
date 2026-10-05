@@ -1,0 +1,1 @@
+export const PRESETS=Object.freeze({Clean:{charset:" .:-=+*#%@",foreground:"#eee9df",background:"#172b38"},Edge:{charset:" .:-=+*#%@",foreground:"#ffffff",background:"#172b38"},Terminal:{charset:" .:*#",foreground:"#91e9b2",background:"#102820"}});

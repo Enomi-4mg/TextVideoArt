@@ -1,0 +1,12 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+import {loadModule} from "./load-module.mjs";
+const root=new URL("../../",import.meta.url);
+const tva=await loadModule(new URL("web/src/lib/tva.js",root));
+const {default:JSZip}=await loadModule(new URL("web/vendor/jszip.esm.js",root));
+const recipe=await loadModule(new URL("web/src/lib/recipe.js",root));
+const motion=await loadModule(new URL("web/src/lib/motion.js",root));
+test("recipe roundtrip and source exclusion",()=>{const v={...recipe.DEFAULT_RECIPE,charset:"😀😃",path:"/private/photo",source:"data:secret"};const out=recipe.decodeRecipe(recipe.encodeRecipe(v));assert.equal(out.charset,"😀😃");assert.equal("source" in out,false);assert.equal("path" in out,false);assert.deepEqual(recipe.parseRecipe(JSON.stringify(out)),out);});
+test("recipe invalid versions, fields and size",()=>{for(const patch of [{version:2},{columns:1.5},{columns:241},{invert:1},{charset:"a\t"},{motion:{aspect:"4:3",seconds:5}},{motion:{aspect:"1:1",seconds:6}},{theme:{foreground:"javascript:x",background:"#000000"}}])assert.throws(()=>recipe.validateRecipe({...recipe.DEFAULT_RECIPE,...patch}));assert.throws(()=>recipe.decodeRecipe("a".repeat(11001)));});
+test("recording format reflects actual MIME and PNG fallback",()=>{assert.equal(motion.selectRecordingType({isTypeSupported:t=>t.includes("vp8")}),"video/webm;codecs=vp8");assert.equal(motion.selectRecordingType(null),null);assert.equal(motion.recordingFormat("video/webm;codecs=vp8").extension,"webm");assert.equal(motion.recordingFormat("video/mp4").extension,"mp4");assert.throws(()=>motion.recordingFormat("video/unknown"));assert.deepEqual(motion.cardSize("9:16"),{width:720,height:1280});});
