@@ -1,0 +1,32 @@
+[
+  {
+    "brightness": 0,
+    "charset": " .#",
+    "invert": false,
+    "expected": " "
+  },
+  {
+    "brightness": 127,
+    "charset": " .#",
+    "invert": false,
+    "expected": " "
+  },
+  {
+    "brightness": 128,
+    "charset": " .#",
+    "invert": false,
+    "expected": "."
+  },
+  {
+    "brightness": 255,
+    "charset": " .#",
+    "invert": false,
+    "expected": "#"
+  },
+  {
+    "brightness": 0,
+    "charset": "😀😃",
+    "invert": true,
+    "expected": "😃"
+  }
+]

@@ -1,3 +1,5 @@
+import { CanvasFrameRenderer } from "../../src/lib/renderer-canvas.js";
+import { imageDataToTextFrame } from "../../src/lib/convert.js";
 import { CHARSET_PRESETS } from "../../src/lib/charsets.js";
 
 const frameOutput = document.getElementById("frame-output");
@@ -117,32 +119,6 @@ function readSettings() {
   };
 }
 
-function brightnessToChar(brightness, charset, invert) {
-  const maxIndex = charset.length - 1;
-  const index = Math.floor((brightness / 255) * maxIndex);
-  return charset[invert ? maxIndex - index : index];
-}
-
-function imageDataToTextFrame(imageData, width, height, charset, invert) {
-  const rows = [];
-  const data = imageData.data;
-
-  for (let y = 0; y < height; y += 1) {
-    let row = "";
-    for (let x = 0; x < width; x += 1) {
-      const offset = (y * width + x) * 4;
-      const r = data[offset];
-      const g = data[offset + 1];
-      const b = data[offset + 2];
-      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-      row += brightnessToChar(brightness, charset, invert);
-    }
-    rows.push(row);
-  }
-
-  return rows.join("\n");
-}
-
 function resizeOutputCanvas(columns, rows) {
   const size = previewCanvasSize(columns, rows);
   const scale = window.devicePixelRatio || 1;
@@ -159,29 +135,10 @@ function resizeOutputCanvas(columns, rows) {
   return size;
 }
 
+const canvasRenderer = new CanvasFrameRenderer(frameCanvas);
 function drawTextFrame(textFrame) {
-  const rows = textFrame.split("\n");
-  const columns = Math.max(1, Math.max(...rows.map((row) => row.length)));
-  const size = resizeOutputCanvas(columns, rows.length);
-  const cellWidth = size.width / columns;
-  const cellHeight = size.height / Math.max(1, rows.length);
-  const fontSize = Math.max(1, Math.min(cellHeight * 0.88, cellWidth * 1.85));
-  const xOffset = cellWidth / 2;
-  const yOffset = cellHeight / 2;
-
-  frameContext.clearRect(0, 0, size.width, size.height);
-  frameContext.fillStyle = "#050505";
-  frameContext.fillRect(0, 0, size.width, size.height);
-  frameContext.font = outputFont().replace(/\d+(\.\d+)?px/, `${fontSize}px`);
-  frameContext.fillStyle = "#ffffff";
-  frameContext.textAlign = "center";
-  frameContext.textBaseline = "middle";
-
-  rows.forEach((row, index) => {
-    for (let column = 0; column < row.length; column += 1) {
-      frameContext.fillText(row[column], column * cellWidth + xOffset, index * cellHeight + yOffset);
-    }
-  });
+ const rows=textFrame.split("\n");const columns=Math.max(1,...rows.map(row=>Array.from(row).length));
+ resizeOutputCanvas(columns,rows.length);canvasRenderer.options.cellAspect=frameCanvas.width/columns/(frameCanvas.height/rows.length);canvasRenderer.render(textFrame);
 }
 
 function renderFrame() {
@@ -325,3 +282,5 @@ window.addEventListener("resize", renderFrame);
 window.addEventListener("beforeunload", stopCamera);
 
 setStatus("Waiting for camera.");
+
+document.addEventListener("visibilitychange",()=>{if(document.hidden)stopCamera();});

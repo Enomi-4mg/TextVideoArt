@@ -1,3 +1,5 @@
+import { canvasSurface } from "../src/lib/layout.js";
+import { CanvasFrameRenderer } from "../src/lib/renderer-canvas.js";
 import { TvaPlayer } from "../src/lib/player-api.js";
 import { loadTvaFile } from "../src/lib/tva.js";
 import { PreFrameRenderer } from "../src/lib/renderer-pre.js";
@@ -55,7 +57,38 @@ const elements = {
   vjHideUi: document.getElementById("vj-hide-ui")
 };
 
-const renderer = new PreFrameRenderer(elements.frameOutput);
+const preRenderer = new PreFrameRenderer(elements.frameOutput);
+const outputCanvas = document.createElement("canvas");
+outputCanvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%";
+outputCanvas.hidden = true;
+elements.stage.append(outputCanvas);
+const canvasRenderer = new CanvasFrameRenderer(outputCanvas);
+const renderer = {
+  render(frame) {
+    const fit = elements.vjFitMode.value;
+    const useCanvas = ["native", "canvas-contain", "cover"].includes(fit);
+    outputCanvas.hidden = !useCanvas;
+    elements.frameOutput.hidden = useCanvas;
+    if (!useCanvas) { preRenderer.render(frame); return; }
+    const ratio = window.devicePixelRatio || 1;
+    const surface = canvasSurface(elements.stage.clientWidth, elements.stage.clientHeight, ratio);
+    if (!surface) return;
+    const {width, height} = surface;
+    if (outputCanvas.width !== width) outputCanvas.width = width;
+    if (outputCanvas.height !== height) outputCanvas.height = height;
+    canvasRenderer.options = {
+      fit: fit === "canvas-contain" ? "contain" : fit,
+      foreground: elements.vjForeground.value,
+      background: elements.vjBackground.value,
+      cellHeight: (Number(elements.vjFontSize.value) || 16) * ratio,
+      fontFamily: getComputedStyle(elements.frameOutput).fontFamily
+    };
+    canvasRenderer.render(frame);
+  },
+  clear() { preRenderer.clear(); canvasRenderer.clear(); }
+};
+new ResizeObserver(() => renderer.render(player.getCurrentFrame() || "")).observe(elements.stage);
+window.addEventListener("resize", () => renderer.render(player.getCurrentFrame() || ""));
 const THEME_PRESETS = {
   plain: {
     foreground: "#f2f2f2",
@@ -278,6 +311,7 @@ function applyVjSettings() {
   elements.stage.classList.toggle("is-centered", elements.vjCenter.checked);
   elements.stage.classList.toggle("is-contain", elements.vjFitMode.value === "contain");
   player.setLoop(elements.vjLoop.checked);
+  renderer.render(player.getCurrentFrame?.() || preRenderer.target.textContent || canvasRenderer.frame || "");
 }
 
 function applyThemePreset() {

@@ -1,0 +1,41 @@
+[
+  {
+    "fit": "native",
+    "columns": 10,
+    "rows": 5,
+    "width": 200,
+    "height": 200,
+    "expected": [
+      60,
+      60,
+      8,
+      16
+    ]
+  },
+  {
+    "fit": "contain",
+    "columns": 10,
+    "rows": 5,
+    "width": 200,
+    "height": 100,
+    "expected": [
+      50,
+      0,
+      10,
+      20
+    ]
+  },
+  {
+    "fit": "cover",
+    "columns": 10,
+    "rows": 5,
+    "width": 200,
+    "height": 100,
+    "expected": [
+      0,
+      -50,
+      20,
+      40
+    ]
+  }
+]
